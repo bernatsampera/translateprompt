@@ -43,8 +43,8 @@ install-frontend:
 
 # Run backend development server
 dev-backend:
-	@echo "Starting backend server on http://localhost:8000"
-	cd backend && source .venv/bin/activate && uvicorn main:app --reload
+	@echo "Starting backend server on http://localhost:8008"
+	cd backend && source .venv/bin/activate && uvicorn main:app --reload --port 8008
 
 # Run frontend development server
 dev-frontend:
@@ -54,7 +54,7 @@ dev-frontend:
 # Run both servers simultaneously
 dev:
 	@echo "Starting both backend and frontend servers..."
-	@echo "Backend: http://localhost:8000"
+	@echo "Backend: http://localhost:8008"
 	@echo "Frontend: http://localhost:5177"
 	@make -j2 dev-backend dev-frontend
 
