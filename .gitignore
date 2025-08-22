@@ -22,7 +22,6 @@ venv/
 .pytest_cache/
 
 # Output files
-*.json
 *.docx
 *.pdf
 
