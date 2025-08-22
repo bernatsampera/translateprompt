@@ -14,7 +14,7 @@ help:
 	@echo "  test-backend    - Run backend integration tests"
 	@echo "  test            - Run all tests"
 	@echo "  clean           - Clean up generated files"
-
+	@echo "  langgraph-dev   - Run langgraph dev server"
 # Set up Python virtual environment and install dependencies
 setup-env:
 	@echo "Setting up Python virtual environment..."
@@ -72,3 +72,9 @@ test-backend:
 
 # Run all tests
 test: test-backend 
+
+
+langgraph-dev:
+	@echo "Starting langgraph dev server..."
+	cd backend && uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 langgraph dev --allow-blocking
+

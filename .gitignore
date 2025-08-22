@@ -79,3 +79,6 @@ testocr.py
 for_exceptional_homie.png
 
 **/*/output/*
+
+# Langgraph
+.langgraph_api/
