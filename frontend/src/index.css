@@ -1,68 +1,66 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
+@plugin "daisyui";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@plugin "daisyui/theme" {
+  name: "silentedge";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  /* Silent Edge Light Theme - Soft Whites & Comfortable Grays */
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+  /* Base colors - Soft grayish whites with comfortable dark grays */
+  --color-base-100: oklch(0.95 0.005 240); /* Soft grayish white background */
+  --color-base-200: oklch(0.92 0.008 240); /* Slightly darker for cards */
+  --color-base-300: oklch(0.88 0.012 240); /* Input backgrounds and borders */
+  --color-base-content: oklch(
+    0.27 0.015 240
+  ); /* Zinc-800 like dark gray text */
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
+  /* Primary - Comfortable dark gray for key actions */
+  --color-primary: oklch(0.27 0.015 240); /* Zinc-800 like dark gray */
+  --color-primary-content: oklch(0.97 0.005 240); /* Soft white text on dark */
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+  /* Secondary - Medium grays for supporting elements */
+  --color-secondary: oklch(0.75 0.008 240); /* Light gray */
+  --color-secondary-content: oklch(0.35 0.015 240); /* Darker gray text */
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+  /* Accent - Subtle emphasis */
+  --color-accent: oklch(0.82 0.01 240); /* Light accent background */
+  --color-accent-content: oklch(0.3 0.015 240); /* Dark text on accent */
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+  /* Neutral - Balanced grays */
+  --color-neutral: oklch(0.22 0.015 240); /* Zinc-900 like very dark gray */
+  --color-neutral-content: oklch(0.95 0.005 240); /* Light text on dark */
+
+  /* Functional colors - System states with good contrast */
+  --color-info: oklch(0.6 0.15 240); /* Blue for info */
+  --color-info-content: oklch(0.97 0.005 240); /* Light text on blue */
+
+  --color-success: oklch(0.6 0.2 140); /* Green for success */
+  --color-success-content: oklch(0.97 0.005 240); /* Light text on green */
+
+  --color-warning: oklch(0.7 0.2 80); /* Orange for warnings */
+  --color-warning-content: oklch(0.22 0.015 240); /* Dark text on orange */
+
+  --color-error: oklch(0.6 0.25 30); /* Red for errors */
+  --color-error-content: oklch(0.97 0.005 240); /* Light text on red */
+
+  /* Silent Edge Design Tokens */
+
+  /* Minimal rounded corners */
+  --rounded-box: 0.5rem; /* Card corners */
+  --rounded-btn: 0.25rem; /* Button corners */
+  --rounded-badge: 0.125rem; /* Badge corners */
+
+  /* Subtle animations */
+  --animation-btn: 0.15s; /* Button animation duration */
+  --animation-input: 0.2s; /* Input focus animation */
+
+  /* Minimal borders */
+  --border-btn: 1px; /* Button border width */
+  --tab-border: 1px; /* Tab border width */
+
+  /* Focus ring for accessibility */
+  --focus: oklch(0.6 0 0); /* Focus ring color */
 }
