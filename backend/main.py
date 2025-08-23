@@ -1,7 +1,8 @@
+from basic_translate.index import graph
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from pydantic import BaseModel
 
 app = FastAPI(
     title="Template Project REACT + Fastapi",
@@ -24,5 +25,29 @@ def read_root():
     return {"message": "This comes from the backend"}
 
 
+class TranslateRequest(BaseModel):
+    message: str
+
+
+@app.post("/translate")
+def translate(request: TranslateRequest):
+    """Chat endpoint to start the graph with a user message."""
+    # Create initial state with user message
+    initial_state = {"messages": [{"role": "user", "content": request.message}]}
+
+    # Run the graph
+    result = graph.invoke(initial_state)
+
+    # Extract the assistant's response
+    assistant_message = result["messages"][-1].content
+
+    return {"response": assistant_message}
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8008, reload=True)
+
+
+# curl -X POST http://127.0.0.1:8008/translate \
+#   -H "Content-Type: application/json" \
+#   -d '{"message": "Quien no conoce a Dios, a cualquier santo le reza"}'

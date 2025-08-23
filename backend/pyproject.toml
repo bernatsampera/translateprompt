@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["translate_graph"]
+packages = ["translate_graph", "basic_translate"]
 
 
 [tool.ruff]

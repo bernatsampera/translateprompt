@@ -7,6 +7,9 @@ from langchain_core.messages import (
 )
 from langgraph.graph import END, START, MessagesState, StateGraph, add_messages
 from langgraph.types import Command
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class TranslateInputState(MessagesState):
