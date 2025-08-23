@@ -10,13 +10,5 @@
   "global history": {
     "target": "historia universal",
     "note": "When used as a subject. Just when the whole word global history appears, never use when global is not present"
-  },
-  "changes": {
-    "target": "ajustes",
-    "note": "utiliza ajustes en vez de cambios"
-  },
-  "fish": {
-    "target": "peces",
-    "note": "use peces instead of a single fish"
   }
 }

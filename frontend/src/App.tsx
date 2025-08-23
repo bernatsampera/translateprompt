@@ -1,9 +1,11 @@
 import BasicGraph from "./parts/BasicGraph";
+import TranslateGraph from "./parts/TranslateGraph";
 
 function App() {
   return (
     <div>
-      <BasicGraph />
+      {/* <BasicGraph /> */}
+      <TranslateGraph />
     </div>
   );
 }

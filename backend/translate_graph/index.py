@@ -6,6 +6,7 @@ from langchain_core.messages import (
     HumanMessage,
     get_buffer_string,
 )
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
@@ -195,4 +196,5 @@ graph.add_node("update_glossary_subgraph", update_glossary_subgraph)
 graph.add_edge(START, "initial_translation")
 graph.add_edge("update_glossary_subgraph", "supervisor")
 
-graph = graph.compile()
+checkpointer = MemorySaver()
+graph = graph.compile(checkpointer=checkpointer)

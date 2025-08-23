@@ -1,8 +1,12 @@
-from basic_translate.index import graph as basic_translate_graph
+import uuid
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from basic_translate.index import graph as basic_translate_graph
+from translate_graph.index import graph
 
 app = FastAPI(
     title="Template Project REACT + Fastapi",
@@ -27,10 +31,11 @@ def read_root():
 
 class TranslateRequest(BaseModel):
     message: str
+    conversation_id: str | None = None
 
 
 @app.post("/translate-basic")
-def translate(request: TranslateRequest):
+def translate_basic(request: TranslateRequest):
     """Chat endpoint to start the graph with a user message."""
     # Create initial state with user message
     initial_state = {"messages": [{"role": "user", "content": request.message}]}
@@ -44,19 +49,26 @@ def translate(request: TranslateRequest):
     return {"response": assistant_message}
 
 
-@app.post("/translate-basic")
+@app.post("/translate")
 def translate(request: TranslateRequest):
     """Chat endpoint to start the graph with a user message."""
+    # Get or create conversation ID (thread_id in LangGraph)
+    thread_id = request.conversation_id
+    if not thread_id:
+        thread_id = str(uuid.uuid4())
+
+    config = {"configurable": {"thread_id": thread_id}}
+
     # Create initial state with user message
     initial_state = {"messages": [{"role": "user", "content": request.message}]}
 
     # Run the graph
-    result = basic_translate_graph.invoke(initial_state)
+    result = graph.invoke(initial_state, config)
 
     # Extract the assistant's response
     assistant_message = result["messages"][-1].content
 
-    return {"response": assistant_message}
+    return {"response": assistant_message, "conversation_id": thread_id}
 
 
 if __name__ == "__main__":
