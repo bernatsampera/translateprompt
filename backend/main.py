@@ -1,4 +1,4 @@
-from basic_translate.index import graph
+from basic_translate.index import graph as basic_translate_graph
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,14 +29,29 @@ class TranslateRequest(BaseModel):
     message: str
 
 
-@app.post("/translate")
+@app.post("/translate-basic")
 def translate(request: TranslateRequest):
     """Chat endpoint to start the graph with a user message."""
     # Create initial state with user message
     initial_state = {"messages": [{"role": "user", "content": request.message}]}
 
     # Run the graph
-    result = graph.invoke(initial_state)
+    result = basic_translate_graph.invoke(initial_state)
+
+    # Extract the assistant's response
+    assistant_message = result["messages"][-1].content
+
+    return {"response": assistant_message}
+
+
+@app.post("/translate-basic")
+def translate(request: TranslateRequest):
+    """Chat endpoint to start the graph with a user message."""
+    # Create initial state with user message
+    initial_state = {"messages": [{"role": "user", "content": request.message}]}
+
+    # Run the graph
+    result = basic_translate_graph.invoke(initial_state)
 
     # Extract the assistant's response
     assistant_message = result["messages"][-1].content
