@@ -1,4 +1,3 @@
-import BasicGraph from "./parts/BasicGraph";
 import TranslateGraph from "./parts/TranslateGraph";
 
 function App() {

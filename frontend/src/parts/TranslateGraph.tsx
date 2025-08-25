@@ -1,112 +1,42 @@
 import {
   AssistantRuntimeProvider,
   useLocalRuntime,
-  type ChatModelAdapter,
-  type ThreadMessage
+  type ChatModelAdapter
 } from "@assistant-ui/react";
 import {Thread} from "@/components/assistant-ui/thread";
 import {useRef} from "react";
-import {refineTranslation, translate} from "@/services/translateApi";
+import {translate, refineTranslation} from "@/services/translateApi";
 
-// API Configuration
-const API_BASE_URL = "http://localhost:8008";
-const CHAT_ENDPOINT = `${API_BASE_URL}/translate`;
-
-// Error messages
-const ERROR_MESSAGES = {
-  NO_RESPONSE: "No response received from the chat service",
-  NETWORK_ERROR: "Failed to connect to chat service",
-  API_ERROR: "Chat service error"
-} as const;
-
-/**
- * Extracts the latest user message from the messages array
- */
-const getLatestUserMessage = (messages: readonly ThreadMessage[]): string => {
-  const lastMessage = messages[messages.length - 1];
-  const firstContent = lastMessage?.content?.[0];
-
-  // Check if the content is a text message part
-  if (firstContent && firstContent.type === "text") {
-    return firstContent.text || "";
-  }
-
-  return "";
-};
-
-/**
- * Handles API errors and returns user-friendly error messages
- */
-const handleApiError = (error: unknown): string => {
-  if (error instanceof Error) {
-    if (error.name === "AbortError") {
-      return "Request was cancelled";
-    }
-    if (error.message.includes("fetch")) {
-      return ERROR_MESSAGES.NETWORK_ERROR;
-    }
-    return `${ERROR_MESSAGES.API_ERROR}: ${error.message}`;
-  }
-  return "An unexpected error occurred";
-};
-
-/**
- * Main TranslateGraph component that provides the chat interface
- */
 function TranslateGraph() {
   const conversationIdRef = useRef<string | null>(null);
 
-  /**
-   * Creates a chat model adapter that communicates with the backend API
-   */
-  const createChatModelAdapter = (
-    conversationIdRef: React.RefObject<string | null>
-  ): ChatModelAdapter => ({
-    async run({messages, abortSignal}) {
-      try {
-        const userMessage = getLatestUserMessage(messages);
+  const chatModelAdapter: ChatModelAdapter = {
+    async run({messages}) {
+      const userMessage = messages[messages.length - 1]?.content?.[0];
+      const text = userMessage?.type === "text" ? userMessage.text || "" : "";
 
-        const response = conversationIdRef.current
-          ? await refineTranslation(userMessage, conversationIdRef.current)
-          : await translate(userMessage);
+      const response = conversationIdRef.current
+        ? await refineTranslation(text, conversationIdRef.current)
+        : await translate(text);
 
-        const responseText = response.response || ERROR_MESSAGES.NO_RESPONSE;
-
-        // Store the conversation ID for future requests
-        if (response.conversation_id) {
-          conversationIdRef.current = response.conversation_id;
-        }
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: responseText
-            }
-          ]
-        };
-      } catch (error) {
-        console.error("Chat API error:", error);
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: handleApiError(error)
-            }
-          ]
-        };
+      if (response.conversation_id) {
+        conversationIdRef.current = response.conversation_id;
       }
-    }
-  });
 
-  const chatRuntime = useLocalRuntime(
-    createChatModelAdapter(conversationIdRef)
-  );
+      return {
+        content: [
+          {
+            type: "text",
+            text: response.response || "No response"
+          }
+        ]
+      };
+    }
+  };
 
   return (
     <div className="h-screen w-screen">
-      <AssistantRuntimeProvider runtime={chatRuntime}>
+      <AssistantRuntimeProvider runtime={useLocalRuntime(chatModelAdapter)}>
         <Thread />
       </AssistantRuntimeProvider>
     </div>
