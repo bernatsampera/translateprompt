@@ -3,20 +3,25 @@ import {
   getGlossaryImprovements,
   applyGlossaryUpdate,
   getGlossaryEntries,
-  type GlossaryImprovement,
+  type ToolCall,
   type GlossaryEntry
 } from "@/services/translateApi";
 
 interface GlossaryImprovementsProps {
   conversationIdRef: React.RefObject<string | null>;
+  response: string | null;
 }
 
-function GlossaryImprovements({conversationIdRef}: GlossaryImprovementsProps) {
-  const [improvements, setImprovements] = useState<GlossaryImprovement[]>([]);
+function GlossaryImprovements({
+  conversationIdRef,
+  response
+}: GlossaryImprovementsProps) {
+  const [improvements, setImprovements] = useState<ToolCall[]>([]);
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
   const [applyingUpdates, setApplyingUpdates] = useState<Set<string>>(
     new Set()
   );
+  console.log("improvements", improvements);
 
   // Load glossary entries
   const loadGlossaryEntries = () => {
@@ -28,15 +33,15 @@ function GlossaryImprovements({conversationIdRef}: GlossaryImprovementsProps) {
   };
 
   // Apply a glossary update
-  const handleApplyUpdate = async (improvement: GlossaryImprovement) => {
-    const updateKey = `${improvement.source}-${improvement.suggested_target}`;
+  const handleApplyUpdate = async (improvement: ToolCall) => {
+    const updateKey = `${improvement.args.source}-${improvement.args.target}`;
     setApplyingUpdates((prev) => new Set(prev).add(updateKey));
 
     try {
       await applyGlossaryUpdate(
-        improvement.source,
-        improvement.suggested_target,
-        improvement.reason
+        improvement.args.source,
+        improvement.args.target,
+        improvement.args.note
       );
 
       // Remove this improvement from the list
@@ -44,8 +49,8 @@ function GlossaryImprovements({conversationIdRef}: GlossaryImprovementsProps) {
         prev.filter(
           (imp) =>
             !(
-              imp.source === improvement.source &&
-              imp.suggested_target === improvement.suggested_target
+              imp.args.source === improvement.args.source &&
+              imp.args.target === improvement.args.target
             )
         )
       );
@@ -69,13 +74,13 @@ function GlossaryImprovements({conversationIdRef}: GlossaryImprovementsProps) {
   }, []);
 
   useEffect(() => {
-    // if (!conversationIdRef.current) return;
+    if (!response) return;
 
     // Check for improvements every 5 seconds
     const checkImprovements = () => {
       getGlossaryImprovements(conversationIdRef.current ?? "")
         .then((response) => {
-          setImprovements(response.improvements);
+          setImprovements(response);
         })
         .catch(console.error);
     };
@@ -84,10 +89,10 @@ function GlossaryImprovements({conversationIdRef}: GlossaryImprovementsProps) {
     checkImprovements();
 
     // Then check every 5 seconds
-    const interval = setInterval(checkImprovements, 5000);
+    // const interval = setInterval(checkImprovements, 5000);
 
-    return () => clearInterval(interval);
-  }, [conversationIdRef, conversationIdRef.current]);
+    // return () => clearInterval(interval);
+  }, [response]);
 
   if (!conversationIdRef.current) {
     return <div className="p-4">No active conversation</div>;
@@ -105,24 +110,23 @@ function GlossaryImprovements({conversationIdRef}: GlossaryImprovementsProps) {
         ) : (
           <div className="space-y-2">
             {improvements.map((improvement, index) => {
-              const updateKey = `${improvement.source}-${improvement.suggested_target}`;
+              const updateKey = `${improvement.args.source}-${improvement.args.target}`;
               const isApplying = applyingUpdates.has(updateKey);
 
               return (
                 <div key={index} className="border p-3 rounded bg-blue-50">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <div className="font-medium">"{improvement.source}"</div>
+                      <div className="font-medium">
+                        "{improvement.args.source}"
+                      </div>
                       <div className="text-sm text-gray-600">
-                        {improvement.current_target
-                          ? `${improvement.current_target} → ${improvement.suggested_target}`
-                          : `→ ${improvement.suggested_target}`}
+                        {improvement.args.target
+                          ? `${improvement.args.target} → ${improvement.args.target}`
+                          : `→ ${improvement.args.target}`}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {improvement.reason}
-                      </div>
-                      <div className="text-xs text-blue-600 mt-1">
-                        {Math.round(improvement.confidence * 100)}% confidence
+                        {improvement.args.note}
                       </div>
                     </div>
                     <button

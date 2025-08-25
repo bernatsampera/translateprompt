@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime
 from typing import Dict
 
+from langchain_core.messages import ToolCall
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI
 from fastapi.exceptions import HTTPException
@@ -12,7 +13,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from langgraph.types import Command
 from pydantic import BaseModel
 
-from translate_graph.glossary_graph import update_glossary_graph
 from basic_translate.index import graph as basic_translate_graph
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
@@ -22,11 +22,6 @@ app = FastAPI(
     description="Template Project REACT + Fastapi",
     version="1.0.0",
 )
-
-# In-memory storage for glossary improvement analysis
-# In production, this should be replaced with a persistent store like Redis
-improvement_status: Dict[str, Dict] = {}
-improvement_lock = threading.Lock()
 
 # Add CORS middleware before defining routes
 app.add_middleware(
@@ -49,24 +44,6 @@ class TranslateRequest(BaseModel):
 
     message: str
     conversation_id: str | None = None
-
-
-class GlossaryImprovement(BaseModel):
-    """Model for a single glossary improvement suggestion."""
-
-    source: str
-    current_target: str
-    suggested_target: str
-    reason: str
-    confidence: float
-
-
-class ImprovementResponse(BaseModel):
-    """Response model for glossary improvement analysis."""
-
-    conversation_id: str
-    status: str  # "processing", "completed", "error"
-    improvements: list[GlossaryImprovement] = []
 
 
 class ApplyGlossaryRequest(BaseModel):
@@ -115,7 +92,6 @@ def run_graph(input_data, thread_id: str):
     """Run the translation graph with the given input data and thread ID."""
     config = {"configurable": {"thread_id": thread_id}}
     result: TranslateState = graph.invoke(input_data, config)
-    print("run_graph result", result)
     return result
 
 
@@ -136,7 +112,7 @@ def translate(request: TranslateRequest):
 
 
 @app.post("/refine-translation")
-def refine_translation(request: TranslateRequest):
+def refine_translation(request: TranslateRequest, background_tasks: BackgroundTasks):
     """Chat endpoint to refine the translation."""
     thread_id = request.conversation_id
     if not thread_id:
@@ -147,54 +123,20 @@ def refine_translation(request: TranslateRequest):
     user_refinement_message = request.message
     result = run_graph(Command(resume=user_refinement_message), thread_id)
 
-    print(result)
-
-    ## trigger the glossary graph but returns the result of the refine translation graph
-    input_glossary_graph = {
-        "messages": result["messages"],
-        "original_text": result["original_text"],
-    }
-    glossary_result = update_glossary_graph.invoke(input_glossary_graph)
-    print(glossary_result)
-
     return {"response": extractInterruption(result), "conversation_id": thread_id}
 
 
 @app.get("/glossary-improvements/{conversation_id}")
-def get_glossary_improvements(conversation_id: str) -> ImprovementResponse:
+def get_glossary_improvements(conversation_id: str) -> list[ToolCall]:
     """Get glossary improvement suggestions for a conversation."""
-
     # Check if we have this conversation tracked
-    # with improvement_lock:
-    #     if conversation_id in improvement_status:
-    #         status_data = improvement_status[conversation_id]
-    #         return ImprovementResponse(
-    #             conversation_id=conversation_id,
-    #             status=status_data["status"],
-    #             improvements=status_data.get("improvements", []),
-    #         )
+    config = {"configurable": {"thread_id": conversation_id}}
+    subgraph_result = graph.invoke(Command(goto="check_glossary_updates"), config)
 
-    mockImprovements = [
-        GlossaryImprovement(
-            source="user",
-            current_target="usuario",
-            suggested_target="cliente",
-            reason="In business contexts, 'cliente' is more appropriate",
-            confidence=0.8,
-        ),
-    ]
-    return ImprovementResponse(
-        conversation_id=conversation_id,
-        status="processing",
-        improvements=mockImprovements,
-    )
-
-    # If not tracked, return processing status
-    # return ImprovementResponse(
-    #     conversation_id=conversation_id,
-    #     status="processing",
-    #     improvements=[],
-    # )
+    print("glossary-improvements", subgraph_result)
+    improvements = subgraph_result["improvement_tool_calls"]
+    # If not tracked, return processing status (analysis not started yet)
+    return improvements
 
 
 @app.post("/apply-glossary-update")
@@ -207,7 +149,6 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
 
     if success:
         return {
-            "status": "success",
             "message": f"Added '{request.source}' → '{request.target}' to glossary",
         }
     else:

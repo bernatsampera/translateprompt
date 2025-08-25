@@ -33,6 +33,13 @@ class TranslateInputState(MessagesState):
     """Input state containing only messages."""
 
 
+def add_reducer(
+    current_value: list[ToolCall], new_value: list[ToolCall]
+) -> list[ToolCall]:
+    """Add a new value to the list."""
+    return current_value + new_value
+
+
 class TranslateState(TranslateInputState):
     """Main agent state containing messages."""
 
@@ -44,10 +51,4 @@ class TranslateState(TranslateInputState):
     words_to_match: dict[
         str, str
     ] = {}  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
-
-
-class UpdateGlossaryState(MessagesState):
-    """State for the update glossary agent."""
-
-    improvements: list[ToolCall]
-    original_text: str
+    improvement_tool_calls: Annotated[list[ToolCall], add_reducer]

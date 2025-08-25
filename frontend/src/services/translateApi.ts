@@ -5,18 +5,19 @@ export interface TranslationResponse {
   conversation_id?: string;
 }
 
-export interface GlossaryImprovement {
-  source: string;
-  current_target: string;
-  suggested_target: string;
-  reason: string;
-  confidence: number;
+export interface ToolCall {
+  name: string;
+  args: {
+    source: string;
+    target: string;
+    note: string;
+  };
 }
 
 export interface ImprovementResponse {
   conversation_id: string;
   status: "processing" | "completed" | "error";
-  improvements: GlossaryImprovement[];
+  improvements: ToolCall[];
   analysis_time?: string;
 }
 
@@ -60,7 +61,7 @@ export const refineTranslation = async (
 
 export const getGlossaryImprovements = async (
   conversationId: string
-): Promise<ImprovementResponse> => {
+): Promise<ToolCall[]> => {
   const response = await fetch(
     `${API_BASE_URL}/glossary-improvements/${conversationId}`
   );

@@ -11,12 +11,8 @@
     "target": "historia universal",
     "note": "When used as a subject. Just when the whole word global history appears, never use when global is not present"
   },
-  "document": {
-    "target": "informe",
-    "note": "Use informe instead of documento"
-  },
-  "user": {
-    "target": "cliente",
-    "note": "In business contexts, 'cliente' is more appropriate"
+  "prays": {
+    "target": "canta",
+    "note": "use canta instead of reza"
   }
 }
