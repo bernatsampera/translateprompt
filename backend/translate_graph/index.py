@@ -66,7 +66,8 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
 def supervisor(
     state: TranslateState,
 ) -> Command[Literal["refine_translation"]]:
-    value = interrupt({"text_to_revise": state["messages"][-1].content})
+    last_message = state["messages"][-1].content
+    value = interrupt(last_message)
     print(value)
     return Command(
         goto="refine_translation",

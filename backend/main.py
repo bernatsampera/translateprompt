@@ -11,6 +11,7 @@ from langchain_core.messages import HumanMessage
 
 from basic_translate.index import graph as basic_translate_graph
 from translate_graph.index import graph
+from translate_graph.state import TranslateState
 
 app = FastAPI(
     title="Template Project REACT + Fastapi",
@@ -53,10 +54,14 @@ def translate_basic(request: TranslateRequest):
     return {"response": assistant_message}
 
 
+def extractInterruption(state: TranslateState):
+    return state["__interrupt__"][0].value
+
+
 def run_graph(input_data, thread_id: str):
     config = {"configurable": {"thread_id": thread_id}}
-    result = graph.invoke(input_data, config)
-    return {"response": result, "conversation_id": thread_id}
+    result: TranslateState = graph.invoke(input_data, config)
+    return {"response": extractInterruption(result), "conversation_id": thread_id}
 
 
 @app.post("/translate")

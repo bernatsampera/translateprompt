@@ -6,6 +6,7 @@ import {
 } from "@assistant-ui/react";
 import {Thread} from "@/components/assistant-ui/thread";
 import {useRef} from "react";
+import {refineTranslation, translate} from "@/services/translateApi";
 
 // API Configuration
 const API_BASE_URL = "http://localhost:8008";
@@ -50,67 +51,55 @@ const handleApiError = (error: unknown): string => {
 };
 
 /**
- * Creates a chat model adapter that communicates with the backend API
- */
-const createChatModelAdapter = (
-  conversationIdRef: React.RefObject<string | null>
-): ChatModelAdapter => ({
-  async run({messages, abortSignal}) {
-    try {
-      const userMessage = getLatestUserMessage(messages);
-
-      const response = await fetch(CHAT_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          conversation_id: conversationIdRef.current
-        }),
-        signal: abortSignal
-      });
-
-      if (!response.ok) {
-        throw new Error(`${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const responseText = data.response || ERROR_MESSAGES.NO_RESPONSE;
-
-      // Store the conversation ID for future requests
-      if (data.conversation_id) {
-        conversationIdRef.current = data.conversation_id;
-      }
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: responseText
-          }
-        ]
-      };
-    } catch (error) {
-      console.error("Chat API error:", error);
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: handleApiError(error)
-          }
-        ]
-      };
-    }
-  }
-});
-
-/**
  * Main TranslateGraph component that provides the chat interface
  */
 function TranslateGraph() {
   const conversationIdRef = useRef<string | null>(null);
+
+  /**
+   * Creates a chat model adapter that communicates with the backend API
+   */
+  const createChatModelAdapter = (
+    conversationIdRef: React.RefObject<string | null>
+  ): ChatModelAdapter => ({
+    async run({messages, abortSignal}) {
+      try {
+        const userMessage = getLatestUserMessage(messages);
+
+        const response = conversationIdRef.current
+          ? await refineTranslation(userMessage, conversationIdRef.current)
+          : await translate(userMessage);
+
+        const responseText = response.response || ERROR_MESSAGES.NO_RESPONSE;
+
+        // Store the conversation ID for future requests
+        if (response.conversation_id) {
+          conversationIdRef.current = response.conversation_id;
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: responseText
+            }
+          ]
+        };
+      } catch (error) {
+        console.error("Chat API error:", error);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: handleApiError(error)
+            }
+          ]
+        };
+      }
+    }
+  });
+
   const chatRuntime = useLocalRuntime(
     createChatModelAdapter(conversationIdRef)
   );
