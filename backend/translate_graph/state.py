@@ -46,8 +46,5 @@ class TranslateState(TranslateInputState):
     ] = {}  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
 
 
-class UpdateGlossaryState(TypedDict):
+class UpdateGlossaryState(TranslateState):
     """State for the update glossary agent."""
-
-    messages: Annotated[list[BaseMessage], add_messages]
-    original_text: str = ""

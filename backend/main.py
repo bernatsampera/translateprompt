@@ -1,11 +1,9 @@
 """Translation API with background glossary improvement analysis."""
 
-import random
 import threading
-import time
 import uuid
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict
 
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI
@@ -70,6 +68,28 @@ class ImprovementResponse(BaseModel):
     improvements: list[GlossaryImprovement] = []
 
 
+class ApplyGlossaryRequest(BaseModel):
+    """Request model for applying a glossary improvement."""
+
+    source: str
+    target: str
+    note: str = ""
+
+
+class GlossaryEntry(BaseModel):
+    """Model for a glossary entry."""
+
+    source: str
+    target: str
+    note: str
+
+
+class GlossaryResponse(BaseModel):
+    """Response model for glossary entries."""
+
+    entries: list[GlossaryEntry] = []
+
+
 @app.post("/translate-basic")
 def translate_basic(request: TranslateRequest):
     """Chat endpoint to start the graph with a user message."""
@@ -125,47 +145,7 @@ def refine_translation(request: TranslateRequest):
     user_refinement_message = request.message
     result = run_graph(Command(resume=user_refinement_message), thread_id)
 
-    # Trigger background glossary analysis for refined translation too
-    # background_tasks.add_task(
-    #     analyze_glossary_improvements_background,
-    #     request.message,  # refinement request
-    #     result["response"],  # refined translation
-    #     result["conversation_id"],  # conversation_id
-    # )
-
     return result
-
-
-def create_mock_improvements(conversation_id: str) -> list[GlossaryImprovement]:
-    """Create mock improvements for testing."""
-    # Generate some mock improvements based on conversation_id for consistency
-    random.seed(hash(conversation_id) % 1000)
-
-    possible_improvements = [
-        GlossaryImprovement(
-            source="user",
-            current_target="usuario",
-            suggested_target="cliente",
-            reason="In business contexts, 'cliente' is more appropriate",
-            confidence=0.8,
-        ),
-        GlossaryImprovement(
-            source="system",
-            current_target="sistema",
-            suggested_target="plataforma",
-            reason="More modern technical term",
-            confidence=0.75,
-        ),
-        GlossaryImprovement(
-            source="error",
-            current_target="error",
-            suggested_target="fallo",
-            reason="More natural in Spanish",
-            confidence=0.9,
-        ),
-    ]
-
-    return possible_improvements
 
 
 @app.get("/glossary-improvements/{conversation_id}")
@@ -173,23 +153,71 @@ def get_glossary_improvements(conversation_id: str) -> ImprovementResponse:
     """Get glossary improvement suggestions for a conversation."""
 
     # Check if we have this conversation tracked
-    with improvement_lock:
-        if conversation_id in improvement_status:
-            status_data = improvement_status[conversation_id]
-            return ImprovementResponse(
-                conversation_id=conversation_id,
-                status=status_data["status"],
-                improvements=status_data.get("improvements", []),
-            )
+    # with improvement_lock:
+    #     if conversation_id in improvement_status:
+    #         status_data = improvement_status[conversation_id]
+    #         return ImprovementResponse(
+    #             conversation_id=conversation_id,
+    #             status=status_data["status"],
+    #             improvements=status_data.get("improvements", []),
+    #         )
 
-    # If not tracked, return mock improvements
-    mock_improvements = create_mock_improvements(conversation_id)
-
+    mockImprovements = [
+        GlossaryImprovement(
+            source="user",
+            current_target="usuario",
+            suggested_target="cliente",
+            reason="In business contexts, 'cliente' is more appropriate",
+            confidence=0.8,
+        ),
+    ]
     return ImprovementResponse(
         conversation_id=conversation_id,
-        status="completed",
-        improvements=mock_improvements,
+        status="processing",
+        improvements=mockImprovements,
     )
+
+    # If not tracked, return processing status
+    # return ImprovementResponse(
+    #     conversation_id=conversation_id,
+    #     status="processing",
+    #     improvements=[],
+    # )
+
+
+@app.post("/apply-glossary-update")
+def apply_glossary_update(request: ApplyGlossaryRequest):
+    """Apply a selected glossary update."""
+    from translate_graph.glossary_manager import GlossaryManager
+
+    glossary_manager = GlossaryManager()
+    success = glossary_manager.add_source(request.source, request.target, request.note)
+
+    if success:
+        return {
+            "status": "success",
+            "message": f"Added '{request.source}' → '{request.target}' to glossary",
+        }
+    else:
+        raise HTTPException(status_code=500, detail="Failed to add entry to glossary")
+
+
+@app.get("/glossary-entries")
+def get_glossary_entries() -> GlossaryResponse:
+    """Get all current glossary entries."""
+    from translate_graph.glossary_manager import GlossaryManager
+
+    glossary_manager = GlossaryManager()
+    glossary_data = glossary_manager.load_glossary()
+
+    entries = []
+    for source, data in glossary_data.items():
+        entry = GlossaryEntry(
+            source=source, target=data["target"], note=data.get("note", "")
+        )
+        entries.append(entry)
+
+    return GlossaryResponse(entries=entries)
 
 
 if __name__ == "__main__":
