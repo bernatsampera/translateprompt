@@ -4,9 +4,9 @@ import {
   MessagePrimitive,
   ActionBarPrimitive,
   BranchPickerPrimitive,
-  ErrorPrimitive,
+  ErrorPrimitive
 } from "@assistant-ui/react";
-import type { FC } from "react";
+import type {FC} from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -17,15 +17,15 @@ import {
   RefreshCwIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  Square,
+  Square
 } from "lucide-react";
 
-import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { MarkdownText } from "./markdown-text";
-import { ToolFallback } from "./tool-fallback";
+import {TooltipIconButton} from "@/components/assistant-ui/tooltip-icon-button";
+import {motion} from "framer-motion";
+import {Button} from "@/components/ui/button";
+import {cn} from "@/lib/utils";
+import {MarkdownText} from "./markdown-text";
+import {ToolFallback} from "./tool-fallback";
 
 export const Thread: FC = () => {
   return (
@@ -33,7 +33,7 @@ export const Thread: FC = () => {
       className="bg-background flex h-full flex-col"
       style={{
         ["--thread-max-width" as string]: "48rem",
-        ["--thread-padding-x" as string]: "1rem",
+        ["--thread-padding-x" as string]: "1rem"
       }}
     >
       <ThreadPrimitive.Viewport className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-scroll">
@@ -43,7 +43,7 @@ export const Thread: FC = () => {
           components={{
             UserMessage,
             EditComposer,
-            AssistantMessage,
+            AssistantMessage
           }}
         />
 
@@ -78,22 +78,22 @@ const ThreadWelcome: FC = () => {
         <div className="flex w-full flex-grow flex-col items-center justify-center">
           <div className="flex size-full flex-col justify-center px-8 md:mt-20">
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ delay: 0.5 }}
+              initial={{opacity: 0, y: 10}}
+              animate={{opacity: 1, y: 0}}
+              exit={{opacity: 0, y: 10}}
+              transition={{delay: 0.5}}
               className="text-2xl font-semibold"
             >
               Hello there!
             </motion.div>
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ delay: 0.6 }}
+              initial={{opacity: 0, y: 10}}
+              animate={{opacity: 1, y: 0}}
+              exit={{opacity: 0, y: 10}}
+              transition={{delay: 0.6}}
               className="text-muted-foreground/65 text-2xl"
             >
-              How can I help you today?
+              HWhat can I translate today? English to Spanish
             </motion.div>
           </div>
         </div>
@@ -109,29 +109,29 @@ const ThreadWelcomeSuggestions: FC = () => {
         {
           title: "What are the advantages",
           label: "of using Assistant Cloud?",
-          action: "What are the advantages of using Assistant Cloud?",
+          action: "What are the advantages of using Assistant Cloud?"
         },
         {
           title: "Write code to",
           label: `demonstrate topological sorting`,
-          action: `Write code to demonstrate topological sorting`,
+          action: `Write code to demonstrate topological sorting`
         },
         {
           title: "Help me write an essay",
           label: `about AI chat applications`,
-          action: `Help me write an essay about AI chat applications`,
+          action: `Help me write an essay about AI chat applications`
         },
         {
           title: "What is the weather",
           label: "in San Francisco?",
-          action: "What is the weather in San Francisco?",
-        },
+          action: "What is the weather in San Francisco?"
+        }
       ].map((suggestedAction, index) => (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ delay: 0.05 * index }}
+          initial={{opacity: 0, y: 20}}
+          animate={{opacity: 1, y: 0}}
+          exit={{opacity: 0, y: 20}}
+          transition={{delay: 0.05 * index}}
           key={`suggested-action-${suggestedAction.title}-${index}`}
           className="[&:nth-child(n+3)]:hidden sm:[&:nth-child(n+3)]:block"
         >
@@ -146,12 +146,8 @@ const ThreadWelcomeSuggestions: FC = () => {
               className="dark:hover:bg-accent/60 h-auto w-full flex-1 flex-wrap items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
               aria-label={suggestedAction.action}
             >
-              <span className="font-medium">
-                {suggestedAction.title}
-              </span>
-              <p className="text-muted-foreground">
-                {suggestedAction.label}
-              </p>
+              <span className="font-medium">{suggestedAction.title}</span>
+              <p className="text-muted-foreground">{suggestedAction.label}</p>
             </Button>
           </ThreadPrimitive.Suggestion>
         </motion.div>
@@ -239,8 +235,8 @@ const AssistantMessage: FC = () => {
     <MessagePrimitive.Root asChild>
       <motion.div
         className="relative mx-auto grid w-full max-w-[var(--thread-max-width)] grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] px-[var(--thread-padding-x)] py-4"
-        initial={{ y: 5, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        initial={{y: 5, opacity: 0}}
+        animate={{y: 0, opacity: 1}}
         data-role="assistant"
       >
         <div className="ring-border bg-background col-start-1 row-start-1 flex size-8 shrink-0 items-center justify-center rounded-full ring-1">
@@ -251,7 +247,7 @@ const AssistantMessage: FC = () => {
           <MessagePrimitive.Content
             components={{
               Text: MarkdownText,
-              tools: { Fallback: ToolFallback },
+              tools: {Fallback: ToolFallback}
             }}
           />
           <MessageError />
@@ -297,14 +293,14 @@ const UserMessage: FC = () => {
     <MessagePrimitive.Root asChild>
       <motion.div
         className="mx-auto grid w-full max-w-[var(--thread-max-width)] auto-rows-auto grid-cols-[minmax(72px,1fr)_auto] gap-y-1 px-[var(--thread-padding-x)] py-4 [&:where(>*)]:col-start-2"
-        initial={{ y: 5, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        initial={{y: 5, opacity: 0}}
+        animate={{y: 0, opacity: 1}}
         data-role="user"
       >
         <UserActionBar />
 
         <div className="bg-muted text-foreground col-start-2 break-words rounded-3xl px-5 py-2.5">
-          <MessagePrimitive.Content components={{ Text: MarkdownText }} />
+          <MessagePrimitive.Content components={{Text: MarkdownText}} />
         </div>
 
         <BranchPicker className="col-span-full col-start-1 row-start-3 -mr-1 justify-end" />
@@ -362,7 +358,10 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
   return (
     <BranchPickerPrimitive.Root
       hideWhenSingleBranch
-      className={cn("text-muted-foreground inline-flex items-center text-xs", className)}
+      className={cn(
+        "text-muted-foreground inline-flex items-center text-xs",
+        className
+      )}
       {...rest}
     >
       <BranchPickerPrimitive.Previous asChild>
@@ -382,7 +381,7 @@ const BranchPicker: FC<BranchPickerPrimitive.Root.Props> = ({
   );
 };
 
-const StarIcon = ({ size = 14 }: { size?: number }) => (
+const StarIcon = ({size = 14}: {size?: number}) => (
   <svg
     width={size}
     height={size}
