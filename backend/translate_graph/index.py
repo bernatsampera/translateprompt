@@ -1,5 +1,7 @@
+import os
 from typing import Literal
 
+from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import (
     AIMessage,
@@ -26,11 +28,20 @@ from translate_graph.state import (
 )
 from translate_graph.utils import format_glossary
 
+# Load environment variables
+load_dotenv()
+
 # Initialize glossary manager
 glossary_manager = GlossaryManager()
 
+# Get API key from environment
+google_api_key = os.getenv("GOOGLE_API_KEY")
+if not google_api_key:
+    raise ValueError("GOOGLE_API_KEY environment variable is required")
 
-llm = init_chat_model(model="google_genai:gemini-2.5-flash-lite")
+llm = init_chat_model(
+    model="google_genai:gemini-2.5-flash-lite", google_api_key=google_api_key
+)
 
 
 def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
@@ -121,5 +132,5 @@ graph.add_node("check_glossary_updates", check_glossary_updates)
 graph.add_edge(START, "initial_translation")
 
 checkpointer = MemorySaver()
-graph = graph.compile(checkpointer=checkpointer)  ## TODO: use without langgraph stdio
-# graph = graph.compile()  ## TODO: use with langgraph studio
+graph = graph.compile(checkpointer=checkpointer)  ## use without langgraph stdio
+# graph = graph.compile()  ##  use with langgraph studio

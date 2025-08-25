@@ -1,3 +1,4 @@
+import os
 from typing import Annotated, Literal
 
 from dotenv import load_dotenv
@@ -10,6 +11,11 @@ from langgraph.graph import END, START, MessagesState, StateGraph, add_messages
 from langgraph.types import Command
 
 load_dotenv()
+
+# Get API key from environment
+google_api_key = os.getenv("GOOGLE_API_KEY")
+if not google_api_key:
+    raise ValueError("GOOGLE_API_KEY environment variable is required")
 
 
 class TranslateInputState(MessagesState):
@@ -46,7 +52,9 @@ Take a look at the feedback made by the user and improve the translation. Follow
 {translation_instructions}
 """
 
-llm = init_chat_model(model="google_genai:gemini-2.5-flash-lite")
+llm = init_chat_model(
+    model="google_genai:gemini-2.5-flash-lite", google_api_key=google_api_key
+)
 
 
 def translate(state: TranslateState) -> Command[Literal["__end__"]]:

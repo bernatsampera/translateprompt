@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:8008";
+const BASE_URL = "http://localhost:8008";
+const GRAPH_BASE_URL = `${BASE_URL}/graphs`;
+const GLOSSARY_BASE_URL = `${BASE_URL}/glossary`;
 
 export interface TranslationResponse {
   response: string;
@@ -35,7 +37,7 @@ const makeRequest = async (
   endpoint: string,
   body: any
 ): Promise<TranslationResponse> => {
-  const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+  const response = await fetch(`${GRAPH_BASE_URL}/${endpoint}`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(body)
@@ -63,7 +65,7 @@ export const getGlossaryImprovements = async (
   conversationId: string
 ): Promise<ToolCall[]> => {
   const response = await fetch(
-    `${API_BASE_URL}/glossary-improvements/${conversationId}`
+    `${GLOSSARY_BASE_URL}/glossary-improvements/${conversationId}`
   );
   return response.json();
 };
@@ -73,7 +75,7 @@ export const applyGlossaryUpdate = async (
   target: string,
   note: string = ""
 ): Promise<{status: string; message: string}> => {
-  const response = await fetch(`${API_BASE_URL}/apply-glossary-update`, {
+  const response = await fetch(`${GLOSSARY_BASE_URL}/apply-glossary-update`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({source, target, note})
@@ -82,6 +84,6 @@ export const applyGlossaryUpdate = async (
 };
 
 export const getGlossaryEntries = async (): Promise<GlossaryResponse> => {
-  const response = await fetch(`${API_BASE_URL}/glossary-entries`);
+  const response = await fetch(`${GLOSSARY_BASE_URL}/glossary-entries`);
   return response.json();
 };
