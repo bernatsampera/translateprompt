@@ -1,6 +1,6 @@
 from typing import Annotated, TypedDict
 
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, ToolCall
 from langgraph.graph import MessagesState, add_messages
 from pydantic import BaseModel
 
@@ -46,5 +46,8 @@ class TranslateState(TranslateInputState):
     ] = {}  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
 
 
-class UpdateGlossaryState(TranslateState):
+class UpdateGlossaryState(MessagesState):
     """State for the update glossary agent."""
+
+    improvements: list[ToolCall]
+    original_text: str

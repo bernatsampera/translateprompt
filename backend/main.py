@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from langgraph.types import Command
 from pydantic import BaseModel
 
+from translate_graph.glossary_graph import update_glossary_graph
 from basic_translate.index import graph as basic_translate_graph
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
@@ -114,7 +115,8 @@ def run_graph(input_data, thread_id: str):
     """Run the translation graph with the given input data and thread ID."""
     config = {"configurable": {"thread_id": thread_id}}
     result: TranslateState = graph.invoke(input_data, config)
-    return {"response": extractInterruption(result), "conversation_id": thread_id}
+    print("run_graph result", result)
+    return result
 
 
 @app.post("/translate")
@@ -130,7 +132,7 @@ def translate(request: TranslateRequest):
 
     result = run_graph(input_data, thread_id)
 
-    return result
+    return {"response": extractInterruption(result), "conversation_id": thread_id}
 
 
 @app.post("/refine-translation")
@@ -145,7 +147,17 @@ def refine_translation(request: TranslateRequest):
     user_refinement_message = request.message
     result = run_graph(Command(resume=user_refinement_message), thread_id)
 
-    return result
+    print(result)
+
+    ## trigger the glossary graph but returns the result of the refine translation graph
+    input_glossary_graph = {
+        "messages": result["messages"],
+        "original_text": result["original_text"],
+    }
+    glossary_result = update_glossary_graph.invoke(input_glossary_graph)
+    print(glossary_result)
+
+    return {"response": extractInterruption(result), "conversation_id": thread_id}
 
 
 @app.get("/glossary-improvements/{conversation_id}")

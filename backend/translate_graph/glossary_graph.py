@@ -25,6 +25,9 @@ from translate_graph.state import (
     TranslateState,
     UpdateGlossaryState,
 )
+from dotenv import load_dotenv
+
+load_dotenv()
 
 llm = init_chat_model(model="google_genai:gemini-2.5-flash-lite")
 
@@ -49,12 +52,14 @@ def update_glossary_supervisor(
     llm_with_tool = llm.bind_tools(update_glossary_tools)
     response = llm_with_tool.invoke(prompt)
 
+    print("response update glossary supervisor", response)
+
     # Store the proposed term for confirmation
     if response.tool_calls and len(response.tool_calls) > 0:
         return Command(
             goto=END,
             update={
-                "messages": [response],
+                "tools_calls": response.tool_calls,
             },
         )
     else:
