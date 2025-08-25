@@ -1,9 +1,13 @@
+from concurrent.futures import thread
 import uuid
 
+from fastapi.exceptions import HTTPException
+from langgraph.types import Command
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from langchain_core.messages import HumanMessage
 
 from basic_translate.index import graph as basic_translate_graph
 from translate_graph.index import graph
@@ -49,6 +53,12 @@ def translate_basic(request: TranslateRequest):
     return {"response": assistant_message}
 
 
+def run_graph(input_data, thread_id: str):
+    config = {"configurable": {"thread_id": thread_id}}
+    result = graph.invoke(input_data, config)
+    return {"response": result, "conversation_id": thread_id}
+
+
 @app.post("/translate")
 def translate(request: TranslateRequest):
     """Chat endpoint to start the graph with a user message."""
@@ -57,24 +67,24 @@ def translate(request: TranslateRequest):
     if not thread_id:
         thread_id = str(uuid.uuid4())
 
-    config = {"configurable": {"thread_id": thread_id}}
+    # Create Input Data
+    input_data = {"messages": request.message}
 
-    # Create initial state with user message
-    initial_state = {"messages": [{"role": "user", "content": request.message}]}
+    return run_graph(input_data, thread_id)
 
-    # Run the graph
-    result = graph.invoke(initial_state, config)
 
-    # Extract the assistant's response
-    assistant_message = result["messages"][-1].content
+@app.post("/refine-translation")
+def refine_translation(request: TranslateRequest):
+    """Chat endpoint to refine the translation."""
+    thread_id = request.conversation_id
+    if not thread_id:
+        raise HTTPException(
+            status_code=400, detail="Conversation ID is required to refine translation"
+        )
 
-    return {"response": assistant_message, "conversation_id": thread_id}
+    user_refinement_message = request.message
+    return run_graph(Command(resume=user_refinement_message), thread_id)
 
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8008, reload=True)
-
-
-# curl -X POST http://127.0.0.1:8008/translate \
-#   -H "Content-Type: application/json" \
-#   -d '{"message": "Quien no conoce a Dios, a cualquier santo le reza"}'

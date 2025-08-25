@@ -107,9 +107,9 @@ const createChatModelAdapter = (
 });
 
 /**
- * Main BasicGraph component that provides the chat interface
+ * Main TranslateGraph component that provides the chat interface
  */
-function BasicGraph() {
+function TranslateGraph() {
   const conversationIdRef = useRef<string | null>(null);
   const chatRuntime = useLocalRuntime(
     createChatModelAdapter(conversationIdRef)
@@ -124,4 +124,4 @@ function BasicGraph() {
   );
 }
 
-export default BasicGraph;
+export default TranslateGraph;
