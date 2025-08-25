@@ -1,15 +1,12 @@
 """Translation API with background glossary improvement analysis."""
 
-import threading
 import uuid
-from datetime import datetime
-from typing import Dict
 
-from langchain_core.messages import ToolCall
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from langchain_core.messages import ToolCall
 from langgraph.types import Command
 from pydantic import BaseModel
 

@@ -64,7 +64,7 @@ Take a look at the feedback made by the user and update the translation. Followi
 # If no correction is detected, return `null`.
 # """
 lead_update_glossary_prompt = """You are a update glossary supervisor. Your job is to update the glossary by calling the "ConductUpdate" tool. 
-
+ 
 The last messages exchanged between the AI and the human.
 <Translation with Errors>
 {translation_with_errors}

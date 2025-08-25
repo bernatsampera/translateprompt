@@ -1,5 +1,6 @@
 from typing import Annotated, Literal
 
+from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import (
     BaseMessage,
@@ -7,7 +8,6 @@ from langchain_core.messages import (
 )
 from langgraph.graph import END, START, MessagesState, StateGraph, add_messages
 from langgraph.types import Command
-from dotenv import load_dotenv
 
 load_dotenv()
 
