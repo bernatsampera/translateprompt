@@ -130,7 +130,6 @@ def get_glossary_improvements(conversation_id: str) -> list[ToolCall]:
     config = {"configurable": {"thread_id": conversation_id}}
     subgraph_result = graph.invoke(Command(goto="check_glossary_updates"), config)
 
-    print("glossary-improvements", subgraph_result)
     improvements = subgraph_result["improvement_tool_calls"]
     # If not tracked, return processing status (analysis not started yet)
     return improvements

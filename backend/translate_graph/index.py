@@ -39,7 +39,6 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     # Load current glossary
     glossary_en_es = glossary_manager.load_glossary()
     found_glossary_words = match_words_from_glossary(glossary_en_es, text_to_translate)
-    state["words_to_match"] = found_glossary_words
 
     prompt = first_translation_instructions.format(
         text_to_translate=text_to_translate,
@@ -53,9 +52,6 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
         goto="supervisor",
         update={
             "messages": [AIMessage(content=response.content)],
-            "current_translation": HumanMessage(
-                content=response.content
-            ),  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
             "original_text": text_to_translate,
         },
     )
@@ -88,52 +84,31 @@ def refine_translation(
         goto="supervisor",
         update={
             "messages": [AIMessage(content=response.content)],
-            "current_translation": HumanMessage(
-                content=response.content
-            ),  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
         },
     )
 
 
-def check_glossary_updates(
-    state: TranslateState,
-) -> Command[Literal["__end__"]]:
-    if len(state["messages"]) < 3:
+def check_glossary_updates(state: TranslateState) -> Command[Literal["__end__"]]:
+    if state["messages"] and len(state["messages"]) < 3:
         return Command(goto=END)
-    last_three_messages = state["messages"][-3:]
 
-    # Get third last message starting from the last message
-    translation_with_errors = last_three_messages[-3]
-    user_feedback = last_three_messages[-2]
-
+    # _ is translation_with_feedback, it is not used, just to understand what the three messages are
+    translation_without_feedback, feedback, _ = state["messages"][-3:]
     prompt = lead_update_glossary_prompt.format(
-        translation_with_errors=translation_with_errors.content,
-        user_feedback=user_feedback.content,
+        translation_with_errors=translation_without_feedback.content,
+        user_feedback=feedback.content,
         original_text=state["original_text"],
     )
 
-    update_glossary_tools = [ConductUpdate, NoUpdate]
+    response = llm.bind_tools([ConductUpdate, NoUpdate]).invoke(prompt)
 
-    llm_with_tool = llm.bind_tools(update_glossary_tools)
-    response = llm_with_tool.invoke(prompt)
+    if response.tool_calls:
+        return Command(goto=END, update={"improvement_tool_calls": response.tool_calls})
 
-    # Store the proposed term for confirmation
-    if response.tool_calls and len(response.tool_calls) > 0:
-        return Command(
-            goto=END,
-            update={
-                "improvement_tool_calls": response.tool_calls,
-            },
-        )
-    else:
-        print("No valid term to add")
-
-        return Command(
-            goto=END,
-            update={
-                "messages": [AIMessage(content="No glossary update detected.")],
-            },
-        )
+    return Command(
+        goto=END,
+        update={"messages": [AIMessage(content="No glossary update detected.")]},
+    )
 
 
 graph = StateGraph(TranslateState, input_schema=TranslateInputState)

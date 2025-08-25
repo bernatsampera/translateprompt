@@ -45,10 +45,4 @@ class TranslateState(TranslateInputState):
 
     messages: Annotated[list[BaseMessage], add_messages]
     original_text: str = ""
-    current_translation: str = (
-        ""  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
-    )
-    words_to_match: dict[
-        str, str
-    ] = {}  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
     improvement_tool_calls: Annotated[list[ToolCall], add_reducer]
