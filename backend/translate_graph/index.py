@@ -57,7 +57,6 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
             "current_translation": HumanMessage(
                 content=response.content
             ),  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
-            "translate_iterations": 1,
             "original_text": text_to_translate,
         },
     )
@@ -94,7 +93,6 @@ def refine_translation(
             "current_translation": HumanMessage(
                 content=response.content
             ),  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
-            "translate_iterations": state["translate_iterations"] + 1,
         },
     )
 

@@ -44,7 +44,6 @@ class TranslateState(TranslateInputState):
     words_to_match: dict[
         str, str
     ] = {}  # TODO: REMOVE, THIS IS FOR DEBUGGING PURPOSES IN LANGGRAPH STUDIO
-    translate_iterations: int = 0
 
 
 class UpdateGlossaryState(TypedDict):

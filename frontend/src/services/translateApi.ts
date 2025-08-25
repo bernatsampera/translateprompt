@@ -5,6 +5,21 @@ export interface TranslationResponse {
   conversation_id?: string;
 }
 
+export interface GlossaryImprovement {
+  source: string;
+  current_target: string;
+  suggested_target: string;
+  reason: string;
+  confidence: number;
+}
+
+export interface ImprovementResponse {
+  conversation_id: string;
+  status: "processing" | "completed" | "error";
+  improvements: GlossaryImprovement[];
+  analysis_time?: string;
+}
+
 const makeRequest = async (
   endpoint: string,
   body: any
@@ -31,4 +46,13 @@ export const refineTranslation = async (
     message,
     conversation_id: conversationId
   });
+};
+
+export const getGlossaryImprovements = async (
+  conversationId: string
+): Promise<ImprovementResponse> => {
+  const response = await fetch(
+    `${API_BASE_URL}/glossary-improvements/${conversationId}`
+  );
+  return response.json();
 };

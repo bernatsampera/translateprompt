@@ -35,7 +35,7 @@ function TranslateGraph() {
   };
 
   return (
-    <div className="h-screen w-screen">
+    <div className="">
       <AssistantRuntimeProvider runtime={useLocalRuntime(chatModelAdapter)}>
         <Thread />
       </AssistantRuntimeProvider>
