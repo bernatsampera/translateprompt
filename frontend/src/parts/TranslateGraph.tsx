@@ -7,9 +7,11 @@ import {Thread} from "@/components/assistant-ui/thread";
 import {useRef} from "react";
 import {translate, refineTranslation} from "@/services/translateApi";
 
-function TranslateGraph() {
-  const conversationIdRef = useRef<string | null>(null);
-
+function TranslateGraph({
+  conversationIdRef
+}: {
+  conversationIdRef: React.RefObject<string | null>;
+}) {
   const chatModelAdapter: ChatModelAdapter = {
     async run({messages}) {
       const userMessage = messages[messages.length - 1]?.content?.[0];

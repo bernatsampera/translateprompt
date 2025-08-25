@@ -20,6 +20,16 @@ export interface ImprovementResponse {
   analysis_time?: string;
 }
 
+export interface GlossaryEntry {
+  source: string;
+  target: string;
+  note: string;
+}
+
+export interface GlossaryResponse {
+  entries: GlossaryEntry[];
+}
+
 const makeRequest = async (
   endpoint: string,
   body: any
@@ -54,5 +64,23 @@ export const getGlossaryImprovements = async (
   const response = await fetch(
     `${API_BASE_URL}/glossary-improvements/${conversationId}`
   );
+  return response.json();
+};
+
+export const applyGlossaryUpdate = async (
+  source: string,
+  target: string,
+  note: string = ""
+): Promise<{status: string; message: string}> => {
+  const response = await fetch(`${API_BASE_URL}/apply-glossary-update`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({source, target, note})
+  });
+  return response.json();
+};
+
+export const getGlossaryEntries = async (): Promise<GlossaryResponse> => {
+  const response = await fetch(`${API_BASE_URL}/glossary-entries`);
   return response.json();
 };
