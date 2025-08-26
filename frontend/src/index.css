@@ -62,5 +62,13 @@
   --tab-border: 1px; /* Tab border width */
 
   /* Focus ring for accessibility */
-  --focus: oklch(0.6 0 0); /* Focus ring color */
+  /* --focus: oklch(0.6 0 0); Focus ring color */
+  --focus: red;
+}
+
+/*
+Not really know why this is needed, but the borders look better without it, maybe daisyui causes it
+*/
+* {
+  outline-offset: 0px;
 }

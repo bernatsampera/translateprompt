@@ -148,13 +148,11 @@ function TranslateGraph({
         </div>
       </div>
       <div className="w-80 border-l">
-        {response && (
-          <GlossaryImprovements
-            improvements={improvements}
-            conversationId={conversationIdRef.current ?? ""}
-            loadImprovements={checkImprovements}
-          />
-        )}
+        <GlossaryImprovements
+          improvements={improvements}
+          conversationId={conversationIdRef.current ?? ""}
+          loadImprovements={checkImprovements}
+        />
       </div>
     </div>
   );
