@@ -44,8 +44,8 @@ llm = init_chat_model(
 def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
     text_to_translate = state["messages"][-1].content
 
-    # Load current glossary
-    glossary_en_es = glossary_manager.load_glossary()
+    # Load current glossary for English to Spanish
+    glossary_en_es = glossary_manager.get_all_sources("en", "es")
     found_glossary_words = match_words_from_glossary(glossary_en_es, text_to_translate)
 
     prompt = first_translation_instructions.format(

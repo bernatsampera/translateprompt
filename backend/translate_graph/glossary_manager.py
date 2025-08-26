@@ -1,198 +1,202 @@
-"""Glossary management module for handling JSON-based glossary storage."""
+"""Glossary management module for handling SQLite-based glossary storage with language support."""
 
-import json
+import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict
 
 
 class GlossaryManager:
-    """Manages glossary operations with JSON file storage."""
+    """Manages glossary operations with SQLite database storage and language support."""
 
-    def __init__(self, glossary_path: str = None):
+    def __init__(self, db_path: str = None):
         """Initialize the glossary manager.
 
         Args:
-            glossary_path: Path to the glossary JSON file. If None, uses default path.
+            db_path: Path to the glossary SQLite database. If None, uses default path.
         """
-        if glossary_path is None:
-            # Default to glossary.json in the same directory as this file
-            self.glossary_path = Path(__file__).parent / "glossary.json"
+        if db_path is None:
+            # Default to glossary.db in the same directory as this file
+            self.db_path = Path(__file__).parent / "glossary.db"
         else:
-            self.glossary_path = Path(glossary_path)
+            self.db_path = Path(db_path)
 
-        self._glossary_cache = None
+        self._init_database()
 
-    def load_glossary(self) -> Dict[str, Dict[str, str]]:
-        """Load glossary from JSON file.
+    def _init_database(self):
+        """Initialize the SQLite database with required tables."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
 
-        Returns:
-            Dictionary containing the glossary sources.
-        """
-        if not self.glossary_path.exists():
-            # Create empty glossary if file doesn't exist
-            self._create_empty_glossary()
-            return {}
+            # Create glossary entries table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS glossary_entries (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source_language TEXT NOT NULL,
+                    target_language TEXT NOT NULL,
+                    source_text TEXT NOT NULL,
+                    target_text TEXT NOT NULL,
+                    note TEXT DEFAULT '',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(source_language, target_language, source_text)
+                )
+            """)
 
+            # Create index for faster lookups
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_glossary_lookup 
+                ON glossary_entries(source_language, target_language, source_text)
+            """)
+
+            conn.commit()
+
+    @contextmanager
+    def _get_connection(self):
+        """Context manager for database connections."""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row  # Enable dict-like access to rows
         try:
-            with open(self.glossary_path, encoding="utf-8") as f:
-                self._glossary_cache = json.load(f)
-                return self._glossary_cache
-        except (OSError, json.JSONDecodeError) as e:
-            print(f"Error loading glossary from {self.glossary_path}: {e}")
-            return {}
+            yield conn
+        finally:
+            conn.close()
 
-    def save_glossary(self, glossary: Dict[str, Dict[str, str]]) -> bool:
-        """Save glossary to JSON file.
-
-        Args:
-            glossary: Dictionary containing the glossary sources.
-
-        Returns:
-            True if saved successfully, False otherwise.
-        """
-        try:
-            # Ensure directory exists
-            self.glossary_path.parent.mkdir(parents=True, exist_ok=True)
-
-            with open(self.glossary_path, "w", encoding="utf-8") as f:
-                json.dump(glossary, f, indent=2, ensure_ascii=False)
-
-            # Update cache
-            self._glossary_cache = glossary.copy()
-            return True
-        except OSError as e:
-            print(f"Error saving glossary to {self.glossary_path}: {e}")
-            return False
-
-    def add_source(self, source: str, target: str, note: str = "") -> bool:
+    def add_source(
+        self,
+        source: str,
+        target: str,
+        source_language: str = "en",
+        target_language: str = "es",
+        note: str = "",
+    ) -> bool:
         """Add or update a source in the glossary.
 
         Args:
-            source: The English source to translate.
+            source: The source text to translate.
             target: The translation target.
+            source_language: Source language code (default: "en" for English).
+            target_language: Target language code (default: "es" for Spanish).
             note: Optional note about when to use this translation.
 
         Returns:
             True if added successfully, False otherwise.
         """
-        glossary = self.load_glossary()
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-        glossary[source.lower()] = {"target": target, "note": note}
+                # Use INSERT OR REPLACE to handle duplicates
+                cursor.execute(
+                    """
+                    INSERT OR REPLACE INTO glossary_entries 
+                    (source_language, target_language, source_text, target_text, note, updated_at)
+                    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """,
+                    (source_language, target_language, source.lower(), target, note),
+                )
 
-        return self.save_glossary(glossary)
+                conn.commit()
+                return True
+        except sqlite3.Error as e:
+            print(f"Error adding source to glossary: {e}")
+            return False
 
-    def remove_source(self, source: str) -> bool:
+    def remove_source(
+        self, source: str, source_language: str = "en", target_language: str = "es"
+    ) -> bool:
         """Remove a source from the glossary.
 
         Args:
             source: The source to remove.
+            source_language: Source language code (default: "en").
+            target_language: Target language code (default: "es").
 
         Returns:
             True if removed successfully, False if source not found or error occurred.
         """
-        glossary = self.load_glossary()
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-        source_lower = source.lower()
-        if source_lower not in glossary:
+                cursor.execute(
+                    """
+                    DELETE FROM glossary_entries 
+                    WHERE source_language = ? AND target_language = ? AND source_text = ?
+                """,
+                    (source_language, target_language, source.lower()),
+                )
+
+                conn.commit()
+                return cursor.rowcount > 0
+        except sqlite3.Error as e:
+            print(f"Error removing source from glossary: {e}")
             return False
 
-        del glossary[source_lower]
-        return self.save_glossary(glossary)
-
-    def get_source(self, source: str) -> Dict[str, str] | None:
+    def get_source(
+        self, source: str, source_language: str = "en", target_language: str = "es"
+    ) -> Dict[str, str] | None:
         """Get a specific source from the glossary.
 
         Args:
             source: The source to look up.
+            source_language: Source language code (default: "en").
+            target_language: Target language code (default: "es").
 
         Returns:
             Dictionary with 'target' and 'note' keys, or None if not found.
         """
-        glossary = self.load_glossary()
-        return glossary.get(source.lower())
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-    def update_source(self, source: str, target: str = None, note: str = None) -> bool:
-        """Update an existing source in the glossary.
+                cursor.execute(
+                    """
+                    SELECT target_text, note FROM glossary_entries 
+                    WHERE source_language = ? AND target_language = ? AND source_text = ?
+                """,
+                    (source_language, target_language, source.lower()),
+                )
 
-        Args:
-            source: The source to update.
-            target: New translation target (optional).
-            note: New note (optional).
+                row = cursor.fetchone()
+                if row:
+                    return {"target": row["target_text"], "note": row["note"]}
+                return None
+        except sqlite3.Error as e:
+            print(f"Error getting source from glossary: {e}")
+            return None
 
-        Returns:
-            True if updated successfully, False if source not found or error occurred.
-        """
-        glossary = self.load_glossary()
-
-        source_lower = source.lower()
-        if source_lower not in glossary:
-            return False
-
-        if target is not None:
-            glossary[source_lower]["target"] = target
-
-        if note is not None:
-            glossary[source_lower]["note"] = note
-
-        return self.save_glossary(glossary)
-
-    def get_all_sources(self) -> Dict[str, Dict[str, str]]:
-        """Get all sources from the glossary.
-
-        Returns:
-            Complete glossary dictionary.
-        """
-        return self.load_glossary()
-
-    def search_sources(
-        self, search_text: str, search_in_notes: bool = True
+    def get_all_sources(
+        self, source_language: str = "en", target_language: str = "es"
     ) -> Dict[str, Dict[str, str]]:
-        """Search for sources containing the search text.
+        """Get all sources from the glossary for a specific language pair.
 
         Args:
-            search_text: Text to search for.
-            search_in_notes: Whether to also search in notes.
+            source_language: Source language code (default: "en").
+            target_language: Target language code (default: "es").
 
         Returns:
-            Dictionary of matching sources.
+            Dictionary mapping source text to target and note data.
         """
-        glossary = self.load_glossary()
-        matches = {}
-        search_lower = search_text.lower()
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-        for source, data in glossary.items():
-            if (
-                search_lower in source.lower()
-                or search_lower in data["target"].lower()
-                or (search_in_notes and search_lower in data["note"].lower())
-            ):
-                matches[source] = data
+                cursor.execute(
+                    """
+                    SELECT source_text, target_text, note FROM glossary_entries 
+                    WHERE source_language = ? AND target_language = ?
+                    ORDER BY source_text
+                """,
+                    (source_language, target_language),
+                )
 
-        return matches
-
-    def _create_empty_glossary(self):
-        """Create an empty glossary file."""
-        self.save_glossary({})
-
-
-# Convenience functions for backward compatibility
-def load_glossary(glossary_path: str = None) -> Dict[str, Dict[str, str]]:
-    """Load glossary from JSON file."""
-    manager = GlossaryManager(glossary_path)
-    return manager.load_glossary()
-
-
-def save_glossary(
-    glossary: Dict[str, Dict[str, str]], glossary_path: str = None
-) -> bool:
-    """Save glossary to JSON file."""
-    manager = GlossaryManager(glossary_path)
-    return manager.save_glossary(glossary)
-
-
-def add_glossary_source(
-    source: str, target: str, note: str = "", glossary_path: str = None
-) -> bool:
-    """Add a source to the glossary."""
-    manager = GlossaryManager(glossary_path)
-    return manager.add_source(source, target, note)
+                result = {}
+                for row in cursor.fetchall():
+                    result[row["source_text"]] = {
+                        "target": row["target_text"],
+                        "note": row["note"],
+                    }
+                return result
+        except sqlite3.Error as e:
+            print(f"Error getting all sources from glossary: {e}")
+            return {}

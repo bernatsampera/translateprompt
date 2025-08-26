@@ -3,7 +3,7 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from langchain.chat_models import init_chat_model
 
 from models import (
@@ -74,6 +74,8 @@ def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
             source=call["args"]["source"],
             target=call["args"]["target"],
             note=call["args"]["note"],
+            source_language="en",  # Default for improvements
+            target_language="es",  # Default for improvements
         )
         for call in improvement_tool_calls
     ]
@@ -81,7 +83,7 @@ def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
 
 @router.post("/apply-glossary-update")
 def apply_glossary_update(request: ApplyGlossaryRequest):
-    """Apply a selected glossary update and persist it to the glossary file."""
+    """Apply a selected glossary update and persist it to the glossary database."""
     glossary_entry, conversation_id = request.glossary_entry, request.conversation_id
 
     if conversation_id:
@@ -103,7 +105,11 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
 
     glossary_manager = GlossaryManager()
     if glossary_manager.add_source(
-        glossary_entry.source, glossary_entry.target, glossary_entry.note
+        glossary_entry.source,
+        glossary_entry.target,
+        glossary_entry.source_language,
+        glossary_entry.target_language,
+        glossary_entry.note,
     ):
         return {"message": "success"}
 
@@ -116,11 +122,19 @@ def edit_glossary_entry(request: EditGlossaryRequest):
     glossary_manager = GlossaryManager()
 
     # First remove the old entry
-    if not glossary_manager.remove_source(request.old_source):
+    if not glossary_manager.remove_source(
+        request.old_source, request.source_language, request.target_language
+    ):
         raise HTTPException(status_code=404, detail="Source not found in glossary")
 
     # Then add the new entry
-    if glossary_manager.add_source(request.new_source, request.target, request.note):
+    if glossary_manager.add_source(
+        request.new_source,
+        request.target,
+        request.source_language,
+        request.target_language,
+        request.note,
+    ):
         return {"message": "success"}
 
     raise HTTPException(status_code=500, detail="Failed to update glossary entry")
@@ -131,22 +145,37 @@ def delete_glossary_entry(request: DeleteGlossaryRequest):
     """Delete a glossary entry."""
     glossary_manager = GlossaryManager()
 
-    if glossary_manager.remove_source(request.source):
+    if glossary_manager.remove_source(
+        request.source, request.source_language, request.target_language
+    ):
         return {"message": "success"}
 
     raise HTTPException(status_code=404, detail="Source not found in glossary")
 
 
 @router.get("/glossary-entries")
-def get_glossary_entries() -> GlossaryResponse:
-    """Get all current glossary entries."""
+def get_glossary_entries(
+    source_language: str = Query("en", description="Source language code"),
+    target_language: str = Query("es", description="Target language code"),
+) -> GlossaryResponse:
+    """Get all current glossary entries for a specific language pair."""
     glossary_manager = GlossaryManager()
-    glossary_data = glossary_manager.load_glossary()
+    glossary_data = glossary_manager.get_all_sources(source_language, target_language)
 
     entries = [
-        GlossaryEntry(source=src, target=data["target"], note=data.get("note", ""))
+        GlossaryEntry(
+            source=src,
+            target=data["target"],
+            note=data.get("note", ""),
+            source_language=source_language,
+            target_language=target_language,
+        )
         for src, data in glossary_data.items()
     ]
 
     sorted_entries = sorted(entries, key=lambda x: x.source)
-    return GlossaryResponse(entries=sorted_entries)
+    return GlossaryResponse(
+        entries=sorted_entries,
+        source_language=source_language,
+        target_language=target_language,
+    )

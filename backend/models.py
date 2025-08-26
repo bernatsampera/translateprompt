@@ -16,6 +16,8 @@ class GlossaryEntry(BaseModel):
     source: str
     target: str
     note: str
+    source_language: str = "en"
+    target_language: str = "es"
 
 
 class ApplyGlossaryRequest(BaseModel):
@@ -32,15 +34,21 @@ class EditGlossaryRequest(BaseModel):
     new_source: str
     target: str
     note: str
+    source_language: str = "en"
+    target_language: str = "es"
 
 
 class DeleteGlossaryRequest(BaseModel):
     """Request model for deleting a glossary entry."""
 
     source: str
+    source_language: str = "en"
+    target_language: str = "es"
 
 
 class GlossaryResponse(BaseModel):
     """Response model for glossary entries."""
 
     entries: list[GlossaryEntry] = []
+    source_language: str = "en"
+    target_language: str = "es"
