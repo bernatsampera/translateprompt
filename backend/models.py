@@ -10,20 +10,19 @@ class TranslateRequest(BaseModel):
     conversation_id: str | None = None
 
 
-class ApplyGlossaryRequest(BaseModel):
-    """Request model for applying a glossary improvement."""
-
-    source: str
-    target: str
-    note: str = ""
-
-
 class GlossaryEntry(BaseModel):
     """Model for a glossary entry."""
 
     source: str
     target: str
     note: str
+
+
+class ApplyGlossaryRequest(BaseModel):
+    """Request model for applying a glossary improvement."""
+
+    glossary_entry: GlossaryEntry
+    conversation_id: str | None = None
 
 
 class GlossaryResponse(BaseModel):

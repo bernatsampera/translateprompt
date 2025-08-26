@@ -32,14 +32,18 @@ export const getGlossaryImprovements = async (
 export const applyGlossaryUpdate = async (
   source: string,
   target: string,
-  note: string = ""
+  note: string = "",
+  conversationId: string
 ): Promise<{status: string; message: string}> => {
   const response = await axios.post(
     `${GLOSSARY_BASE_URL}/apply-glossary-update`,
     {
-      source,
-      target,
-      note
+      glossary_entry: {
+        source,
+        target,
+        note
+      },
+      conversation_id: conversationId
     }
   );
   return response.data;

@@ -7,9 +7,13 @@ import {useEffect, useState} from "react";
 
 interface GlossaryImprovementsProps {
   improvements: GlossaryEntry[];
+  conversationId: string;
 }
 
-function GlossaryImprovements({improvements}: GlossaryImprovementsProps) {
+function GlossaryImprovements({
+  improvements,
+  conversationId
+}: GlossaryImprovementsProps) {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
   const [applyingUpdates, setApplyingUpdates] = useState<Set<string>>(
     new Set()
@@ -33,7 +37,8 @@ function GlossaryImprovements({improvements}: GlossaryImprovementsProps) {
       await applyGlossaryUpdate(
         improvement.source,
         improvement.target,
-        improvement.note
+        improvement.note,
+        conversationId
       );
 
       // Remove this improvement from the list

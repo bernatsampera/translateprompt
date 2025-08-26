@@ -66,12 +66,16 @@ function TranslateGraph({
   return (
     <div className="flex h-screen">
       <div className="flex-1">
+        conversation id : {conversationIdRef.current}
         <AssistantRuntimeProvider runtime={useLocalRuntime(chatModelAdapter)}>
           <Thread />
         </AssistantRuntimeProvider>
       </div>
       <div className="w-80 border-l">
-        <GlossaryImprovements improvements={improvements} />
+        <GlossaryImprovements
+          improvements={improvements}
+          conversationId={conversationIdRef.current ?? ""}
+        />
       </div>
     </div>
   );

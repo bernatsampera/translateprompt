@@ -9,20 +9,17 @@ from langchain_core.messages import (
     get_buffer_string,
 )
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, START, StateGraph
+from langgraph.graph import START, StateGraph
 from langgraph.types import Command, interrupt
 
 from translate_graph.glossary_manager import GlossaryManager
 from translate_graph.match_words import match_words_from_glossary
 from translate_graph.prompts import (
     first_translation_instructions,
-    lead_update_glossary_prompt,
     translation_instructions,
     update_translation_instructions,
 )
 from translate_graph.state import (
-    ConductUpdate,
-    NoUpdate,
     TranslateInputState,
     TranslateState,
 )
@@ -64,6 +61,7 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
         update={
             "messages": [AIMessage(content=response.content)],
             "original_text": text_to_translate,
+            "test": "initial trans",
         },
     )
 
@@ -99,37 +97,15 @@ def refine_translation(
     )
 
 
-def check_glossary_updates(state: TranslateState) -> Command[Literal["__end__"]]:
-    if state["messages"] and len(state["messages"]) < 3:
-        return Command(goto=END)
-
-    # _ is translation_with_feedback, it is not used, just to understand what the three messages are
-    translation_without_feedback, feedback, _ = state["messages"][-3:]
-    prompt = lead_update_glossary_prompt.format(
-        translation_with_errors=translation_without_feedback.content,
-        user_feedback=feedback.content,
-        original_text=state["original_text"],
-    )
-
-    response = llm.bind_tools([ConductUpdate, NoUpdate]).invoke(prompt)
-
-    if response.tool_calls:
-        return Command(goto=END, update={"improvement_tool_calls": response.tool_calls})
-
-    return Command(
-        goto=END,
-        update={"messages": [AIMessage(content="No glossary update detected.")]},
-    )
-
-
 graph = StateGraph(TranslateState, input_schema=TranslateInputState)
 
 graph.add_node("supervisor", supervisor)
 graph.add_node("initial_translation", initial_translation)
 graph.add_node("refine_translation", refine_translation)
-graph.add_node("check_glossary_updates", check_glossary_updates)
+# graph.add_node("check_glossary_updates", check_glossary_updates)
 
 graph.add_edge(START, "initial_translation")
+# graph.add_edge("refine_translation", "check_glossary_updates")
 
 checkpointer = MemorySaver()
 graph = graph.compile(checkpointer=checkpointer)  ## use without langgraph stdio

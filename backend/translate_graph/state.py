@@ -1,3 +1,4 @@
+import operator
 from typing import Annotated
 
 from langchain_core.messages import BaseMessage, ToolCall
@@ -37,7 +38,7 @@ def add_reducer(
     current_value: list[ToolCall], new_value: list[ToolCall]
 ) -> list[ToolCall]:
     """Add a new value to the list."""
-    return current_value + new_value
+    return operator.add(current_value, new_value)
 
 
 class TranslateState(TranslateInputState):
@@ -45,4 +46,5 @@ class TranslateState(TranslateInputState):
 
     messages: Annotated[list[BaseMessage], add_messages]
     original_text: str = ""
-    improvement_tool_calls: Annotated[list[ToolCall], add_reducer]
+    improvement_tool_calls: Annotated[list[ToolCall], add_reducer] = []
+    test: str = ""
