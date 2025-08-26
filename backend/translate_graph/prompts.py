@@ -1,7 +1,7 @@
 """Prompts for the translation agent."""
 
 translation_instructions = """
-You are a translation agent from english to spanish.
+You are a translation agent from {source_language} to {target_language}.
 
 You have a glossary of words that you can use to translate the text.
 Between brackets you will find the comment of the word, this give context of when the glossary should be used. 
@@ -12,7 +12,7 @@ Respect the case of the original word, even if the case in the glossary is diffe
 """
 
 first_translation_instructions = """
-Translate the following text to spanish:
+Translate the following text from {source_language} to {target_language}:
 {text_to_translate}
 
 Follow the instructions:
@@ -20,7 +20,7 @@ Follow the instructions:
 """
 
 update_translation_instructions = """
-These are the last two messages that have been exchanged so far from the user asking for the translation:
+These are the last two messages that have been exchanged so far from the user asking for the translation from {source_language} to {target_language}:
 <Messages>
 {messages}
 </Messages>
@@ -30,39 +30,6 @@ Take a look at the feedback made by the user and update the translation. Followi
 """
 
 
-# update_glossary_instructions = """
-# You are an assistant that extracts glossary updates from user feedback.
-
-# The last messages exchanged between the AI and the human.
-# <Messages>
-# {messages}
-# </Messages>
-
-# The original English text. Extract the source word from the original text.
-# <OriginalText>
-# {original_text}
-# </OriginalText>
-
-# Your task is to identify when the human requests a word substitution or correction.
-
-# ⚠️ Very important:
-
-# * `source` must always come from the **original English text**, never from the AI's output.
-# * `target` must be the **corrected word/phrase provided by the human**.
-# * `note` small note to be able to use the glossary in the future, be concise and imperative. (Use x instead of y)
-
-# Return only a JSON object in this format:
-
-# ```json
-# {{
-#   "source": "<word in English from original text>",
-#   "target": "<corrected translation from user>",
-#   "note": "<short explanation>"
-# }}
-# ```
-
-# If no correction is detected, return `null`.
-# """
 lead_update_glossary_prompt = """You are a update glossary supervisor. Your job is to update the glossary by calling the "ConductUpdate" tool. 
  
 The last messages exchanged between the AI and the human.
@@ -74,7 +41,7 @@ The last messages exchanged between the AI and the human.
 {user_feedback}
 </User Feedback>
 
-The original English text. Extract the source word from the original text.
+The original {source_language} text. Extract the source word from the original text.
 <OriginalText>
 {original_text}
 </OriginalText>

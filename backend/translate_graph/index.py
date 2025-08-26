@@ -43,14 +43,20 @@ llm = init_chat_model(
 
 def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
     text_to_translate = state["messages"][-1].content
+    source_language = state["source_language"]
+    target_language = state["target_language"]
 
-    # Load current glossary for English to Spanish
-    glossary_en_es = glossary_manager.get_all_sources("en", "es")
-    found_glossary_words = match_words_from_glossary(glossary_en_es, text_to_translate)
+    # Load current glossary for the specified language pair
+    glossary_data = glossary_manager.get_all_sources(source_language, target_language)
+    found_glossary_words = match_words_from_glossary(glossary_data, text_to_translate)
 
     prompt = first_translation_instructions.format(
         text_to_translate=text_to_translate,
+        source_language=source_language,
+        target_language=target_language,
         translation_instructions=translation_instructions.format(
+            source_language=source_language,
+            target_language=target_language,
             glossary=format_glossary(found_glossary_words),
         ),
     )
@@ -83,9 +89,18 @@ def refine_translation(
     state: TranslateState,
 ) -> Command[Literal["supervisor"]]:
     last_two_messages = state["messages"][-2:]
+    source_language = state["source_language"]
+    target_language = state["target_language"]
+
     prompt = update_translation_instructions.format(
         messages=get_buffer_string(last_two_messages),
-        translation_instructions=translation_instructions.format(glossary={}),
+        source_language=source_language,
+        target_language=target_language,
+        translation_instructions=translation_instructions.format(
+            source_language=source_language,
+            target_language=target_language,
+            glossary={},
+        ),
     )
     response = llm.invoke(prompt)
 

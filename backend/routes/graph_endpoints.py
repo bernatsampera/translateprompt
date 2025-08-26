@@ -44,13 +44,15 @@ def translate_basic(request: TranslateRequest):
 @router.post("/translate")
 def translate(request: TranslateRequest):
     """Chat endpoint to start the graph with a user message."""
-    # Get or create conversation ID (thread_id in LangGraph)
     thread_id = request.conversation_id
     if not thread_id:
         thread_id = str(uuid.uuid4())
 
-    # Create Input Data
-    input_data = {"messages": request.message}
+    input_data = {
+        "messages": request.message,
+        "source_language": request.source_language or "en",
+        "target_language": request.target_language or "es",
+    }
 
     result = run_graph(input_data, thread_id)
 

@@ -7,6 +7,8 @@ export interface GlossaryEntry {
   source: string;
   target: string;
   note: string;
+  source_language: string;
+  target_language: string;
 }
 
 export interface GlossaryResponse {
@@ -69,20 +71,29 @@ export const editGlossaryEntry = async (
 };
 
 export const deleteGlossaryEntry = async (
-  source: string
+  source: string,
+  source_language: string,
+  target_language: string
 ): Promise<{status: string; message: string}> => {
   const response = await axios.delete(
     `${GLOSSARY_BASE_URL}/delete-glossary-entry`,
     {
       data: {
-        source
+        source,
+        source_language,
+        target_language
       }
     }
   );
   return response.data;
 };
 
-export const getGlossaryEntries = async (): Promise<GlossaryResponse> => {
-  const response = await axios.get(`${GLOSSARY_BASE_URL}/glossary-entries`);
+export const getGlossaryEntries = async (
+  sourceLanguage: string,
+  targetLanguage: string
+): Promise<GlossaryResponse> => {
+  const response = await axios.get(
+    `${GLOSSARY_BASE_URL}/glossary-entries?source_language=${sourceLanguage}&target_language=${targetLanguage}`
+  );
   return response.data;
 };

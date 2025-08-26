@@ -29,7 +29,8 @@ class GlossaryManager:
             cursor = conn.cursor()
 
             # Create glossary entries table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS glossary_entries (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     source_language TEXT NOT NULL,
@@ -41,13 +42,16 @@ class GlossaryManager:
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(source_language, target_language, source_text)
                 )
-            """)
+            """
+            )
 
             # Create index for faster lookups
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_glossary_lookup 
                 ON glossary_entries(source_language, target_language, source_text)
-            """)
+            """
+            )
 
             conn.commit()
 

@@ -8,20 +8,38 @@ export interface TranslationResponse {
   conversation_id?: string;
 }
 
+export interface TranslationRequest {
+  message: string;
+  source_language?: string;
+  target_language?: string;
+}
+
 export const startTranslation = async (
-  message: string
+  message: string,
+  sourceLanguage: string,
+  targetLanguage: string
 ): Promise<TranslationResponse> => {
-  const response = await axios.post(`${GRAPH_BASE_URL}/translate`, {message});
+  const requestData: TranslationRequest = {
+    message,
+    source_language: sourceLanguage === "auto" ? undefined : sourceLanguage,
+    target_language: targetLanguage
+  };
+
+  const response = await axios.post(`${GRAPH_BASE_URL}/translate`, requestData);
   return response.data;
 };
 
 export const refineTranslation = async (
   message: string,
-  conversationId: string
+  conversationId: string,
+  sourceLanguage: string,
+  targetLanguage: string
 ): Promise<TranslationResponse> => {
   const response = await axios.post(`${GRAPH_BASE_URL}/refine-translation`, {
     message,
-    conversation_id: conversationId
+    conversation_id: conversationId,
+    source_language: sourceLanguage,
+    target_language: targetLanguage
   });
   return response.data;
 };

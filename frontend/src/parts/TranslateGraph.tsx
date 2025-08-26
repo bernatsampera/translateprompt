@@ -8,6 +8,21 @@ import {
 import {ArrowRightLeft, Copy, RotateCcw} from "lucide-react";
 import React, {useCallback, useState} from "react";
 
+// Language options for the selectors
+const LANGUAGE_OPTIONS = [
+  {value: "auto", label: "Auto-detect"},
+  {value: "en", label: "English"},
+  {value: "es", label: "Spanish"},
+  {value: "fr", label: "French"},
+  {value: "de", label: "German"},
+  {value: "it", label: "Italian"},
+  {value: "pt", label: "Portuguese"},
+  {value: "ru", label: "Russian"},
+  {value: "ja", label: "Japanese"},
+  {value: "ko", label: "Korean"},
+  {value: "zh", label: "Chinese"}
+];
+
 function TranslateGraph({
   conversationIdRef
 }: {
@@ -19,6 +34,10 @@ function TranslateGraph({
     "Birds look at the sky and smile"
   );
   const [textToRefine, setTextToRefine] = useState("");
+  const [sourceLanguage, setSourceLanguage] = useState("en");
+  const [targetLanguage, setTargetLanguage] = useState("es");
+  const [isCopying, setIsCopying] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const handleRefineTranslation = async (text: string) => {
     if (!conversationIdRef.current) {
@@ -28,7 +47,9 @@ function TranslateGraph({
 
     const response = await refineTranslation(
       textToRefine,
-      conversationIdRef.current
+      conversationIdRef.current,
+      sourceLanguage,
+      targetLanguage
     );
 
     setResponse(response.response);
@@ -44,14 +65,64 @@ function TranslateGraph({
   }, [conversationIdRef]);
 
   const handleStartTranslation = async (text: string) => {
-    console.log("start translation", text);
-    const response = await startTranslation(text);
+    if (!text.trim()) return;
 
-    setResponse(response.response);
+    setIsTranslating(true);
+    try {
+      console.log(
+        "start translation",
+        text,
+        "from",
+        sourceLanguage,
+        "to",
+        targetLanguage
+      );
+      const response = await startTranslation(
+        text,
+        sourceLanguage,
+        targetLanguage
+      );
 
-    if (response.conversation_id) {
-      conversationIdRef.current = response.conversation_id;
+      setResponse(response.response);
+
+      if (response.conversation_id) {
+        conversationIdRef.current = response.conversation_id;
+      }
+    } catch (error) {
+      console.error("Translation error:", error);
+      setResponse("Error: Translation failed. Please try again.");
+    } finally {
+      setIsTranslating(false);
     }
+  };
+
+  const handleCopyToClipboard = async () => {
+    if (!response) return;
+
+    setIsCopying(true);
+    try {
+      await navigator.clipboard.writeText(response);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    } finally {
+      setIsCopying(false);
+    }
+  };
+
+  const getLanguageLabel = (value: string) => {
+    return (
+      LANGUAGE_OPTIONS.find((option) => option.value === value)?.label || value
+    );
+  };
+
+  const getTranslationButtonText = () => {
+    if (sourceLanguage === "auto") {
+      return `Translate to ${getLanguageLabel(targetLanguage)}`;
+    }
+    return `Translate (${getLanguageLabel(sourceLanguage)} → ${getLanguageLabel(
+      targetLanguage
+    )})`;
   };
 
   return (
@@ -65,12 +136,16 @@ function TranslateGraph({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Original</h2>
-              <select className="select select-bordered select-sm">
-                <option>Auto-detect</option>
-                <option>English</option>
-                <option>Spanish</option>
-                <option>French</option>
-                <option>German</option>
+              <select
+                className="select select-bordered select-sm"
+                value={sourceLanguage}
+                onChange={(e) => setSourceLanguage(e.target.value)}
+              >
+                {LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="form-control">
@@ -84,9 +159,10 @@ function TranslateGraph({
             <button
               className="btn btn-primary w-full"
               onClick={() => handleStartTranslation(textToTranslate)}
+              disabled={!textToTranslate.trim() || isTranslating}
             >
               <ArrowRightLeft className="h-4 w-4" />
-              Translate
+              {isTranslating ? "Translating..." : getTranslationButtonText()}
             </button>
           </div>
 
@@ -94,15 +170,24 @@ function TranslateGraph({
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Translation</h2>
               <div className="flex items-center gap-2">
-                <select className="select select-bordered select-sm">
-                  <option>English</option>
-                  <option>Spanish</option>
-                  <option>French</option>
-                  <option>German</option>
+                <select
+                  className="select select-bordered select-sm"
+                  value={targetLanguage}
+                  onChange={(e) => setTargetLanguage(e.target.value)}
+                >
+                  {LANGUAGE_OPTIONS.filter(
+                    (option) => option.value !== "auto"
+                  ).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
                 <button
                   className="btn btn-ghost btn-sm"
                   title="Copy to clipboard"
+                  onClick={handleCopyToClipboard}
+                  disabled={!response || isCopying}
                 >
                   <Copy className="h-4 w-4" />
                 </button>
@@ -149,6 +234,8 @@ function TranslateGraph({
         improvements={improvements}
         conversationId={conversationIdRef.current ?? ""}
         loadImprovements={checkImprovements}
+        sourceLanguage={sourceLanguage}
+        targetLanguage={targetLanguage}
       />
     </div>
   );

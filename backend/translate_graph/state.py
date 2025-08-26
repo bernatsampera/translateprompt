@@ -34,6 +34,9 @@ class NoUpdate(BaseModel):
 class TranslateInputState(MessagesState):
     """Input state containing only messages."""
 
+    source_language: str
+    target_language: str
+
 
 def improvement_tool_calls_reducer(
     current_value: list[ToolCall], new_value: list[ToolCall] | dict

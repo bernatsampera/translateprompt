@@ -12,6 +12,8 @@ interface GlossaryImprovementsProps {
   improvements: GlossaryEntry[];
   conversationId: string;
   loadImprovements: () => void;
+  sourceLanguage: string;
+  targetLanguage: string;
 }
 
 interface EditingEntry extends GlossaryEntry {
@@ -21,7 +23,9 @@ interface EditingEntry extends GlossaryEntry {
 function GlossaryImprovements({
   improvements,
   conversationId,
-  loadImprovements
+  loadImprovements,
+  sourceLanguage,
+  targetLanguage
 }: GlossaryImprovementsProps) {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<EditingEntry | null>(null);
@@ -29,7 +33,7 @@ function GlossaryImprovements({
 
   // Load glossary entries
   const loadGlossaryEntries = () => {
-    getGlossaryEntries()
+    getGlossaryEntries(sourceLanguage, targetLanguage)
       .then((response) => {
         setGlossaryEntries(response.entries);
       })
@@ -60,7 +64,9 @@ function GlossaryImprovements({
       index,
       source: entry.source,
       target: entry.target,
-      note: entry.note
+      note: entry.note,
+      source_language: entry.source_language,
+      target_language: entry.target_language
     });
   };
 
@@ -90,13 +96,17 @@ function GlossaryImprovements({
   };
 
   // Delete an entry
-  const handleDeleteEntry = async (source: string) => {
+  const handleDeleteEntry = async (
+    source: string,
+    source_language: string,
+    target_language: string
+  ) => {
     if (!confirm("Are you sure you want to delete this glossary entry?")) {
       return;
     }
 
     try {
-      await deleteGlossaryEntry(source);
+      await deleteGlossaryEntry(source, source_language, target_language);
       loadGlossaryEntries();
     } catch (error) {
       console.error("Failed to delete entry:", error);
@@ -106,7 +116,7 @@ function GlossaryImprovements({
   useEffect(() => {
     // Load glossary entries on mount
     loadGlossaryEntries();
-  }, []);
+  }, [sourceLanguage, targetLanguage]);
 
   if (isCollapsed) {
     return (
@@ -190,7 +200,7 @@ function GlossaryImprovements({
         {/* Current Glossary Entries Section */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-base-content">
-            Current Entries
+            Current Entries ({sourceLanguage} → {targetLanguage})
           </h3>
 
           {glossaryEntries.length === 0 ? (
@@ -297,7 +307,13 @@ function GlossaryImprovements({
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDeleteEntry(entry.source)}
+                            onClick={() =>
+                              handleDeleteEntry(
+                                entry.source,
+                                entry.source_language,
+                                entry.target_language
+                              )
+                            }
                             className="btn btn-secondary btn-xs"
                           >
                             Delete
