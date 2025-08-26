@@ -1,6 +1,5 @@
+import {useRef} from "react";
 import TranslateGraph from "./parts/TranslateGraph";
-import GlossaryImprovements from "./components/GlossaryImprovements";
-import {useRef, useState} from "react";
 
 function App() {
   const conversationIdRef = useRef<string | null>(null);

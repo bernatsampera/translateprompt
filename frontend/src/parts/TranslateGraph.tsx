@@ -117,7 +117,6 @@ function TranslateGraph({
               ></textarea>
             </div>
 
-            {/* {response && ( */}
             <div className="bg-base-200/30 rounded-lg p-1">
               <div className="space-y-1">
                 <div className="flex items-center gap-1">
@@ -143,7 +142,6 @@ function TranslateGraph({
                 </div>
               </div>
             </div>
-            {/* )} */}
           </div>
         </div>
       </div>
