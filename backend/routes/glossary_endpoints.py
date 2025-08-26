@@ -1,25 +1,34 @@
 """Glossary-related endpoints for the translation API."""
 
 from fastapi import APIRouter, HTTPException
-from langchain_core.messages import ToolCall
 from langgraph.types import Command
 
-from models import ApplyGlossaryRequest, GlossaryResponse
+from models import ApplyGlossaryRequest, GlossaryEntry, GlossaryResponse
 from translate_graph.index import graph
 
 router = APIRouter(prefix="/glossary", tags=["glossary"])
 
 
 @router.get("/glossary-improvements/{conversation_id}")
-def get_glossary_improvements(conversation_id: str) -> list[ToolCall]:
+def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
     """Get glossary improvement suggestions for a conversation."""
     # Check if we have this conversation tracked
     config = {"configurable": {"thread_id": conversation_id}}
     subgraph_result = graph.invoke(Command(goto="check_glossary_updates"), config)
 
-    improvements = subgraph_result["improvement_tool_calls"]
+    improvement_tool_calls = subgraph_result["improvement_tool_calls"]
+
+    glossary_entries = [
+        GlossaryEntry(
+            source=improvement_tool_call["args"]["source"],
+            target=improvement_tool_call["args"]["target"],
+            note=improvement_tool_call["args"]["note"],
+        )
+        for improvement_tool_call in improvement_tool_calls
+    ]
+
     # If not tracked, return processing status (analysis not started yet)
-    return improvements
+    return glossary_entries
 
 
 @router.post("/apply-glossary-update")

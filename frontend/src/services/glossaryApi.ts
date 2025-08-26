@@ -3,19 +3,10 @@ import axios from "axios";
 const BASE_URL = "http://localhost:8008";
 const GLOSSARY_BASE_URL = `${BASE_URL}/glossary`;
 
-export interface ToolCall {
-  name: string;
-  args: {
-    source: string;
-    target: string;
-    note: string;
-  };
-}
-
 export interface ImprovementResponse {
   conversation_id: string;
   status: "processing" | "completed" | "error";
-  improvements: ToolCall[];
+  improvements: GlossaryEntry[];
   analysis_time?: string;
 }
 
@@ -31,7 +22,7 @@ export interface GlossaryResponse {
 
 export const getGlossaryImprovements = async (
   conversationId: string
-): Promise<ToolCall[]> => {
+): Promise<GlossaryEntry[]> => {
   const response = await axios.get(
     `${GLOSSARY_BASE_URL}/glossary-improvements/${conversationId}`
   );

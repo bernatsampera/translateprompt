@@ -1,13 +1,12 @@
 import {
   applyGlossaryUpdate,
   getGlossaryEntries,
-  type GlossaryEntry,
-  type ToolCall
+  type GlossaryEntry
 } from "@/services/translateApi";
 import {useEffect, useState} from "react";
 
 interface GlossaryImprovementsProps {
-  improvements: ToolCall[];
+  improvements: GlossaryEntry[];
 }
 
 function GlossaryImprovements({improvements}: GlossaryImprovementsProps) {
@@ -26,23 +25,23 @@ function GlossaryImprovements({improvements}: GlossaryImprovementsProps) {
   };
 
   // Apply a glossary update
-  const handleApplyUpdate = async (improvement: ToolCall) => {
-    const updateKey = `${improvement.args.source}-${improvement.args.target}`;
+  const handleApplyUpdate = async (improvement: GlossaryEntry) => {
+    const updateKey = `${improvement.source}-${improvement.target}`;
     setApplyingUpdates((prev) => new Set(prev).add(updateKey));
 
     try {
       await applyGlossaryUpdate(
-        improvement.args.source,
-        improvement.args.target,
-        improvement.args.note
+        improvement.source,
+        improvement.target,
+        improvement.note
       );
 
       // Remove this improvement from the list
       // improvements = improvements.filter(
       //   (imp) =>
       //     !(
-      //       imp.args.source === improvement.args.source &&
-      //       imp.args.target === improvement.args.target
+      //       imp.source === improvement.source &&
+      //       imp.target === improvement.target
       //     )
       // );
 
@@ -73,23 +72,21 @@ function GlossaryImprovements({improvements}: GlossaryImprovementsProps) {
             <h3 className="font-semibold mb-4">Suggested Glossary Updates</h3>
 
             {improvements.map((improvement, index) => {
-              const updateKey = `${improvement.args.source}-${improvement.args.target}`;
+              const updateKey = `${improvement.source}-${improvement.target}`;
               const isApplying = applyingUpdates.has(updateKey);
 
               return (
                 <div key={index} className="border p-3 rounded bg-blue-50">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <div className="font-medium">
-                        "{improvement.args.source}"
-                      </div>
+                      <div className="font-medium">"{improvement.source}"</div>
                       <div className="text-sm text-gray-600">
-                        {improvement.args.target
-                          ? `${improvement.args.target} → ${improvement.args.target}`
-                          : `→ ${improvement.args.target}`}
+                        {improvement.target
+                          ? `${improvement.target} → ${improvement.target}`
+                          : `→ ${improvement.target}`}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {improvement.args.note}
+                        {improvement.note}
                       </div>
                     </div>
                     <button

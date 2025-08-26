@@ -4,7 +4,7 @@ import {
   getGlossaryImprovements,
   refineTranslation,
   translate,
-  type ToolCall
+  type GlossaryEntry
 } from "@/services/translateApi";
 import {
   AssistantRuntimeProvider,
@@ -19,7 +19,7 @@ function TranslateGraph({
   conversationIdRef: React.RefObject<string | null>;
 }) {
   const [response, setResponse] = useState<string | null>(null);
-  const [improvements, setImprovements] = useState<ToolCall[]>([]);
+  const [improvements, setImprovements] = useState<GlossaryEntry[]>([]);
 
   const chatModelAdapter: ChatModelAdapter = {
     async run({messages}) {
