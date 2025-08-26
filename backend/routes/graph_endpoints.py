@@ -7,6 +7,7 @@ from langgraph.types import Command
 
 from basic_translate.index import graph as basic_translate_graph
 from models import TranslateRequest
+from routes.glossary_endpoints import check_glossary_updates
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
 
@@ -67,5 +68,7 @@ def refine_translation(request: TranslateRequest, background_tasks: BackgroundTa
 
     user_refinement_message = request.message
     result = run_graph(Command(resume=user_refinement_message), thread_id)
+
+    check_glossary_updates(thread_id)  # Just checking, hopefully not waiting
 
     return {"response": extractInterruption(result), "conversation_id": thread_id}

@@ -10,5 +10,9 @@
   "global history": {
     "target": "historia universal",
     "note": "When used as a subject. Just when the whole word global history appears, never use when global is not present"
+  },
+  "prays": {
+    "target": "canta",
+    "note": "use canta instead reza"
   }
 }

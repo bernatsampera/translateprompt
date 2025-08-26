@@ -11,7 +11,7 @@ import {
   useLocalRuntime,
   type ChatModelAdapter
 } from "@assistant-ui/react";
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 
 function TranslateGraph({
   conversationIdRef
@@ -47,21 +47,19 @@ function TranslateGraph({
     }
   };
 
+  const checkImprovements = useCallback(() => {
+    getGlossaryImprovements(conversationIdRef.current ?? "").then(
+      (improvements) => {
+        setImprovements(improvements);
+      }
+    );
+  }, [conversationIdRef]);
+
   React.useEffect(() => {
     if (!response) return;
 
-    // Check for improvements every 5 seconds
-    const checkImprovements = () => {
-      getGlossaryImprovements(conversationIdRef.current ?? "")
-        .then((response) => {
-          setImprovements(response);
-        })
-        .catch(console.error);
-    };
-
-    // Check immediately
     checkImprovements();
-  }, [response, conversationIdRef]);
+  }, [response, checkImprovements]);
 
   return (
     <div className="flex h-screen">
@@ -75,6 +73,7 @@ function TranslateGraph({
         <GlossaryImprovements
           improvements={improvements}
           conversationId={conversationIdRef.current ?? ""}
+          loadImprovements={checkImprovements}
         />
       </div>
     </div>

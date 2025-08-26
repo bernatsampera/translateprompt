@@ -31,9 +31,7 @@ router = APIRouter(prefix="/glossary", tags=["glossary"])
 # --- Routes -------------------------------------------------------------------
 
 
-@router.get("/glossary-improvements/{conversation_id}")
-def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
-    """Get glossary improvement suggestions for a conversation."""
+def check_glossary_updates(conversation_id: str):
     config = {"configurable": {"thread_id": conversation_id}}
     state = graph.get_state(config).values
 
@@ -53,6 +51,12 @@ def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
 
     if response.tool_calls:
         graph.update_state(config, {"improvement_tool_calls": response.tool_calls})
+
+
+@router.get("/glossary-improvements/{conversation_id}")
+def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
+    """Get glossary improvement suggestions for a conversation."""
+    config = {"configurable": {"thread_id": conversation_id}}
 
     # Reload updated state
     improvement_tool_calls = graph.get_state(config).values.get(
@@ -76,19 +80,20 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
 
     if conversation_id:
         config = {"configurable": {"thread_id": conversation_id}}
-        graph_values = graph.get_state(config).values
-        improvement_tool_calls = graph_values.get("improvement_tool_calls", [])
 
         # Remove the applied glossary entry
-        filtered_calls = [
-            call
-            for call in improvement_tool_calls
-            if call["args"]["source"] != glossary_entry.source
-            or call["args"]["target"] != glossary_entry.target
-        ]
-
-        # Update state
-        graph.update_state(config, {"improvement_tool_calls": filtered_calls})
+        graph.update_state(
+            config,
+            {
+                "improvement_tool_calls": {
+                    "action": "remove",
+                    "filter": {
+                        "source": glossary_entry.source,
+                        "target": glossary_entry.target,
+                    },
+                }
+            },
+        )
 
     glossary_manager = GlossaryManager()
     if glossary_manager.add_source(

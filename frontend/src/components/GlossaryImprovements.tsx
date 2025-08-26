@@ -8,16 +8,15 @@ import {useEffect, useState} from "react";
 interface GlossaryImprovementsProps {
   improvements: GlossaryEntry[];
   conversationId: string;
+  loadImprovements: () => void;
 }
 
 function GlossaryImprovements({
   improvements,
-  conversationId
+  conversationId,
+  loadImprovements
 }: GlossaryImprovementsProps) {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
-  const [applyingUpdates, setApplyingUpdates] = useState<Set<string>>(
-    new Set()
-  );
 
   // Load glossary entries
   const loadGlossaryEntries = () => {
@@ -30,9 +29,6 @@ function GlossaryImprovements({
 
   // Apply a glossary update
   const handleApplyUpdate = async (improvement: GlossaryEntry) => {
-    const updateKey = `${improvement.source}-${improvement.target}`;
-    setApplyingUpdates((prev) => new Set(prev).add(updateKey));
-
     try {
       await applyGlossaryUpdate(
         improvement.source,
@@ -41,25 +37,11 @@ function GlossaryImprovements({
         conversationId
       );
 
-      // Remove this improvement from the list
-      // improvements = improvements.filter(
-      //   (imp) =>
-      //     !(
-      //       imp.source === improvement.source &&
-      //       imp.target === improvement.target
-      //     )
-      // );
-
       // Refresh glossary entries
       loadGlossaryEntries();
+      loadImprovements();
     } catch (error) {
       console.error("Failed to apply update:", error);
-    } finally {
-      setApplyingUpdates((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(updateKey);
-        return newSet;
-      });
     }
   };
 
@@ -77,9 +59,6 @@ function GlossaryImprovements({
             <h3 className="font-semibold mb-4">Suggested Glossary Updates</h3>
 
             {improvements.map((improvement, index) => {
-              const updateKey = `${improvement.source}-${improvement.target}`;
-              const isApplying = applyingUpdates.has(updateKey);
-
               return (
                 <div key={index} className="border p-3 rounded bg-blue-50">
                   <div className="flex justify-between items-start">
@@ -96,14 +75,9 @@ function GlossaryImprovements({
                     </div>
                     <button
                       onClick={() => handleApplyUpdate(improvement)}
-                      disabled={isApplying}
-                      className={`px-3 py-1 text-xs rounded ${
-                        isApplying
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
+                      className={`px-3 py-1 text-xs rounded ${"bg-blue-600 text-white hover:bg-blue-700"}`}
                     >
-                      {isApplying ? "Applying..." : "Apply"}
+                      Apply
                     </button>
                   </div>
                 </div>
