@@ -145,13 +145,11 @@ function TranslateGraph({
           </div>
         </div>
       </div>
-      <div className="w-80 border-l">
-        <GlossaryImprovements
-          improvements={improvements}
-          conversationId={conversationIdRef.current ?? ""}
-          loadImprovements={checkImprovements}
-        />
-      </div>
+      <GlossaryImprovements
+        improvements={improvements}
+        conversationId={conversationIdRef.current ?? ""}
+        loadImprovements={checkImprovements}
+      />
     </div>
   );
 }
