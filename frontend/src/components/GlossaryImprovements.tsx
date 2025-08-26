@@ -1,27 +1,20 @@
-import {useState, useEffect} from "react";
 import {
-  getGlossaryImprovements,
   applyGlossaryUpdate,
   getGlossaryEntries,
-  type ToolCall,
-  type GlossaryEntry
+  type GlossaryEntry,
+  type ToolCall
 } from "@/services/translateApi";
+import {useEffect, useState} from "react";
 
 interface GlossaryImprovementsProps {
-  conversationIdRef: React.RefObject<string | null>;
-  response: string | null;
+  improvements: ToolCall[];
 }
 
-function GlossaryImprovements({
-  conversationIdRef,
-  response
-}: GlossaryImprovementsProps) {
-  const [improvements, setImprovements] = useState<ToolCall[]>([]);
+function GlossaryImprovements({improvements}: GlossaryImprovementsProps) {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
   const [applyingUpdates, setApplyingUpdates] = useState<Set<string>>(
     new Set()
   );
-  console.log("improvements", improvements);
 
   // Load glossary entries
   const loadGlossaryEntries = () => {
@@ -45,15 +38,13 @@ function GlossaryImprovements({
       );
 
       // Remove this improvement from the list
-      setImprovements((prev) =>
-        prev.filter(
-          (imp) =>
-            !(
-              imp.args.source === improvement.args.source &&
-              imp.args.target === improvement.args.target
-            )
-        )
-      );
+      // improvements = improvements.filter(
+      //   (imp) =>
+      //     !(
+      //       imp.args.source === improvement.args.source &&
+      //       imp.args.target === improvement.args.target
+      //     )
+      // );
 
       // Refresh glossary entries
       loadGlossaryEntries();
@@ -73,42 +64,14 @@ function GlossaryImprovements({
     loadGlossaryEntries();
   }, []);
 
-  useEffect(() => {
-    if (!response) return;
-
-    // Check for improvements every 5 seconds
-    const checkImprovements = () => {
-      getGlossaryImprovements(conversationIdRef.current ?? "")
-        .then((response) => {
-          setImprovements(response);
-        })
-        .catch(console.error);
-    };
-
-    // Check immediately
-    checkImprovements();
-
-    // Then check every 5 seconds
-    // const interval = setInterval(checkImprovements, 5000);
-
-    // return () => clearInterval(interval);
-  }, [response]);
-
-  if (!conversationIdRef.current) {
-    return <div className="p-4">No active conversation</div>;
-  }
-
   return (
     <div className="p-4 space-y-6">
       {/* Suggested Improvements Section */}
       <div>
-        <h3 className="font-semibold mb-4">Suggested Glossary Updates</h3>
-        {improvements.length === 0 ? (
-          <p className="text-gray-500">
-            {status === "processing" ? "Analyzing..." : "No suggestions found"}
-          </p>
-        ) : (
+        {improvements.length !== 0 && (
           <div className="space-y-2">
+            <h3 className="font-semibold mb-4">Suggested Glossary Updates</h3>
+
             {improvements.map((improvement, index) => {
               const updateKey = `${improvement.args.source}-${improvement.args.target}`;
               const isApplying = applyingUpdates.has(updateKey);
@@ -150,7 +113,7 @@ function GlossaryImprovements({
 
       {/* Current Glossary Entries Section */}
       <div>
-        <h3 className="font-semibold mb-4">Current Glossary Entries</h3>
+        <h3 className="font-semibold mb-4">Glossary Entries</h3>
         {glossaryEntries.length === 0 ? (
           <p className="text-gray-500">No glossary entries found</p>
         ) : (

@@ -1,12 +1,17 @@
+import {Thread} from "@/components/assistant-ui/thread";
+import GlossaryImprovements from "@/components/GlossaryImprovements";
+import {
+  getGlossaryImprovements,
+  refineTranslation,
+  translate,
+  type ToolCall
+} from "@/services/translateApi";
 import {
   AssistantRuntimeProvider,
   useLocalRuntime,
   type ChatModelAdapter
 } from "@assistant-ui/react";
-import {Thread} from "@/components/assistant-ui/thread";
-import {useState} from "react";
-import {translate, refineTranslation} from "@/services/translateApi";
-import GlossaryImprovements from "@/components/GlossaryImprovements";
+import React, {useState} from "react";
 
 function TranslateGraph({
   conversationIdRef
@@ -14,6 +19,8 @@ function TranslateGraph({
   conversationIdRef: React.RefObject<string | null>;
 }) {
   const [response, setResponse] = useState<string | null>(null);
+  const [improvements, setImprovements] = useState<ToolCall[]>([]);
+
   const chatModelAdapter: ChatModelAdapter = {
     async run({messages}) {
       const userMessage = messages[messages.length - 1]?.content?.[0];
@@ -40,6 +47,22 @@ function TranslateGraph({
     }
   };
 
+  React.useEffect(() => {
+    if (!response) return;
+
+    // Check for improvements every 5 seconds
+    const checkImprovements = () => {
+      getGlossaryImprovements(conversationIdRef.current ?? "")
+        .then((response) => {
+          setImprovements(response);
+        })
+        .catch(console.error);
+    };
+
+    // Check immediately
+    checkImprovements();
+  }, [response, conversationIdRef]);
+
   return (
     <div className="flex h-screen">
       <div className="flex-1">
@@ -48,10 +71,7 @@ function TranslateGraph({
         </AssistantRuntimeProvider>
       </div>
       <div className="w-80 border-l">
-        <GlossaryImprovements
-          conversationIdRef={conversationIdRef}
-          response={response}
-        />
+        <GlossaryImprovements improvements={improvements} />
       </div>
     </div>
   );
