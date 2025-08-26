@@ -6,7 +6,13 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 from langchain.chat_models import init_chat_model
 
-from models import ApplyGlossaryRequest, GlossaryEntry, GlossaryResponse
+from models import (
+    ApplyGlossaryRequest,
+    DeleteGlossaryRequest,
+    EditGlossaryRequest,
+    GlossaryEntry,
+    GlossaryResponse,
+)
 from translate_graph.glossary_manager import GlossaryManager
 from translate_graph.index import graph
 from translate_graph.prompts import lead_update_glossary_prompt
@@ -104,6 +110,33 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
     raise HTTPException(status_code=500, detail="Failed to add entry to glossary")
 
 
+@router.put("/edit-glossary-entry")
+def edit_glossary_entry(request: EditGlossaryRequest):
+    """Edit an existing glossary entry."""
+    glossary_manager = GlossaryManager()
+
+    # First remove the old entry
+    if not glossary_manager.remove_source(request.old_source):
+        raise HTTPException(status_code=404, detail="Source not found in glossary")
+
+    # Then add the new entry
+    if glossary_manager.add_source(request.new_source, request.target, request.note):
+        return {"message": "success"}
+
+    raise HTTPException(status_code=500, detail="Failed to update glossary entry")
+
+
+@router.delete("/delete-glossary-entry")
+def delete_glossary_entry(request: DeleteGlossaryRequest):
+    """Delete a glossary entry."""
+    glossary_manager = GlossaryManager()
+
+    if glossary_manager.remove_source(request.source):
+        return {"message": "success"}
+
+    raise HTTPException(status_code=404, detail="Source not found in glossary")
+
+
 @router.get("/glossary-entries")
 def get_glossary_entries() -> GlossaryResponse:
     """Get all current glossary entries."""
@@ -114,4 +147,6 @@ def get_glossary_entries() -> GlossaryResponse:
         GlossaryEntry(source=src, target=data["target"], note=data.get("note", ""))
         for src, data in glossary_data.items()
     ]
-    return GlossaryResponse(entries=entries)
+
+    sorted_entries = sorted(entries, key=lambda x: x.source)
+    return GlossaryResponse(entries=sorted_entries)

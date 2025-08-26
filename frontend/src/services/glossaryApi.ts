@@ -13,6 +13,17 @@ export interface GlossaryResponse {
   entries: GlossaryEntry[];
 }
 
+export interface EditGlossaryRequest {
+  old_source: string;
+  new_source: string;
+  target: string;
+  note: string;
+}
+
+export interface DeleteGlossaryRequest {
+  source: string;
+}
+
 export const getGlossaryImprovements = async (
   conversationId: string
 ): Promise<GlossaryEntry[]> => {
@@ -37,6 +48,35 @@ export const applyGlossaryUpdate = async (
         note
       },
       conversation_id: conversationId
+    }
+  );
+  return response.data;
+};
+
+export const editGlossaryEntry = async (
+  oldSource: string,
+  newSource: string,
+  target: string,
+  note: string = ""
+): Promise<{status: string; message: string}> => {
+  const response = await axios.put(`${GLOSSARY_BASE_URL}/edit-glossary-entry`, {
+    old_source: oldSource,
+    new_source: newSource,
+    target,
+    note
+  });
+  return response.data;
+};
+
+export const deleteGlossaryEntry = async (
+  source: string
+): Promise<{status: string; message: string}> => {
+  const response = await axios.delete(
+    `${GLOSSARY_BASE_URL}/delete-glossary-entry`,
+    {
+      data: {
+        source
+      }
     }
   );
   return response.data;
