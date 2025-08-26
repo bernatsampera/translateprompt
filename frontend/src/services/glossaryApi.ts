@@ -3,13 +3,6 @@ import axios from "axios";
 const BASE_URL = "http://localhost:8008";
 const GLOSSARY_BASE_URL = `${BASE_URL}/glossary`;
 
-export interface ImprovementResponse {
-  conversation_id: string;
-  status: "processing" | "completed" | "error";
-  improvements: GlossaryEntry[];
-  analysis_time?: string;
-}
-
 export interface GlossaryEntry {
   source: string;
   target: string;
