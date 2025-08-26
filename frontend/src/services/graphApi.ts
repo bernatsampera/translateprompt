@@ -8,7 +8,7 @@ export interface TranslationResponse {
   conversation_id?: string;
 }
 
-export const translate = async (
+export const startTranslation = async (
   message: string
 ): Promise<TranslationResponse> => {
   const response = await axios.post(`${GRAPH_BASE_URL}/translate`, {message});
