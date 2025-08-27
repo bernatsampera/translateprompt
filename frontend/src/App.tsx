@@ -2,8 +2,8 @@ import {useRef} from "react";
 import {Toaster} from "sonner";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import SystemExplanation from "./components/SystemExplanation";
 // import TranslateGraph from "./features/TranslateGraph";
+import SystemExplanation from "./components/SystemExplanation";
 import TranslateGraph from "./features/TranslateGraph";
 import type {FooterConfig, NavItem} from "./types/navigation";
 
@@ -63,17 +63,15 @@ function App() {
           </p>
         </div>
 
-        {/* System Explanation */}
-        <div className="mb-16 lg:mb-32">
-          <SystemExplanation />
-        </div>
-
         {/* Translation Interface */}
-        <div className="mb-16 lg:mb-20">
+        <div className="">
           <TranslateGraph conversationIdRef={conversationIdRef} />
         </div>
       </main>
-
+      {/* System Explanation */}
+      <div className="mb-16 lg:mb-32">
+        <SystemExplanation />
+      </div>
       <Footer {...footerConfig} />
 
       <Toaster richColors position="bottom-center" />
