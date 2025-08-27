@@ -1,12 +1,13 @@
-import {
-  getGlossaryImprovements,
-  refineTranslation,
-  startTranslation,
-  type GlossaryEntry
-} from "@/api/translateApi";
+import {getGlossaryImprovements, type GlossaryEntry} from "@/api/translateApi";
 import GlossaryImprovements from "@/components/GlossaryImprovements";
 import {LanguageInput} from "@/components/LanguageInput";
 import TranslationPanel from "@/components/TranslationPanel";
+import {
+  useClipboard,
+  useLanguageSelection,
+  useTextInput,
+  useTranslation
+} from "@/hooks";
 import React, {useCallback, useState} from "react";
 
 function TranslateGraph({
@@ -15,52 +16,33 @@ function TranslateGraph({
   conversationIdRef: React.RefObject<string | null>;
 }) {
   const [improvements, setImprovements] = useState<GlossaryEntry[]>([]);
-  const [textToTranslate, setTextToTranslate] = useState(
-    "Dos cervezas, por favor"
-  );
-  const [translation, setTranslation] = useState<string | null>(
-    "Two pints, please"
-  );
-  const [textToRefine, setTextToRefine] = useState("");
-  const [sourceLanguage, setSourceLanguage] = useState("");
-  const [targetLanguage, setTargetLanguage] = useState("en");
-  const [isCopying, setIsCopying] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [isAutoDetectionEnabled, setIsAutoDetectionEnabled] = useState(true);
 
-  const handleTextToTranslateChange = (text: string) => {
-    // Ensure text is never undefined
-    const validText = text || "";
-    setTextToTranslate(validText);
-  };
+  // Use custom hooks for state management
+  const {text: textToTranslate, handleTextChange: handleTextToTranslateChange} =
+    useTextInput();
+  const {text: textToRefine, handleTextChange: setTextToRefine} =
+    useTextInput("");
 
-  const handleLanguageDetected = (detectedLanguage: string) => {
-    if (isAutoDetectionEnabled) {
-      setSourceLanguage(detectedLanguage);
+  const {
+    sourceLanguage,
+    targetLanguage,
+    isAutoDetectionEnabled,
+    handleSourceLanguageChange,
+    handleTargetLanguageChange,
+    handleLanguageDetected,
+    toggleAutoDetection: setIsAutoDetectionEnabled
+  } = useLanguageSelection();
+
+  const {isCopying, copyToClipboard} = useClipboard();
+
+  const {translation, isTranslating, translate, refine} = useTranslation({
+    onTranslationComplete: (response) => {
+      checkImprovements();
+      if (response.conversation_id) {
+        conversationIdRef.current = response.conversation_id;
+      }
     }
-  };
-
-  const handleSourceLanguageChange = (language: string) => {
-    setIsAutoDetectionEnabled(false);
-    setSourceLanguage(language);
-  };
-
-  const handleRefineTranslation = async (text: string) => {
-    if (!conversationIdRef.current) {
-      alert("Please start a new conversation first");
-      return;
-    }
-
-    const response = await refineTranslation(
-      textToRefine,
-      conversationIdRef.current,
-      sourceLanguage,
-      targetLanguage
-    );
-
-    setTranslation(response.response);
-    checkImprovements();
-  };
+  });
 
   const checkImprovements = useCallback(() => {
     getGlossaryImprovements(conversationIdRef.current ?? "").then(
@@ -71,48 +53,22 @@ function TranslateGraph({
   }, [conversationIdRef]);
 
   const handleStartTranslation = async (text: string) => {
-    if (!text.trim()) return;
+    await translate(text, sourceLanguage, targetLanguage);
+  };
 
-    setIsTranslating(true);
-    try {
-      console.log(
-        "start translation",
-        text,
-        "from",
-        sourceLanguage,
-        "to",
-        targetLanguage
-      );
-      const response = await startTranslation(
-        text,
-        sourceLanguage,
-        targetLanguage
-      );
-
-      setTranslation(response.response);
-
-      if (response.conversation_id) {
-        conversationIdRef.current = response.conversation_id;
-      }
-    } catch (error) {
-      console.error("Translation error:", error);
-      setTranslation("Error: Translation failed. Please try again.");
-    } finally {
-      setIsTranslating(false);
+  const handleRefineTranslation = async () => {
+    if (!conversationIdRef.current) {
+      alert("Please start a new conversation first");
+      return;
     }
+
+    await refine(textToRefine, sourceLanguage, targetLanguage);
+    checkImprovements();
   };
 
   const handleCopyToClipboard = async () => {
-    if (!translation) return;
-
-    setIsCopying(true);
-    try {
-      await navigator.clipboard.writeText(translation);
-      // You could add a toast notification here
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    } finally {
-      setIsCopying(false);
+    if (translation) {
+      await copyToClipboard(translation);
     }
   };
 
@@ -133,7 +89,7 @@ function TranslateGraph({
           onTranslate={handleStartTranslation}
           isTranslating={isTranslating}
           targetLanguage={targetLanguage}
-          onTargetLanguageChange={setTargetLanguage}
+          onTargetLanguageChange={handleTargetLanguageChange}
           translation={translation}
           onCopyToClipboard={handleCopyToClipboard}
           isCopying={isCopying}
