@@ -5,6 +5,7 @@ import {
   type GlossaryEntry
 } from "@/api/translateApi";
 import GlossaryImprovements from "@/components/GlossaryImprovements";
+import {LanguageInput} from "@/components/LanguageInput";
 import TranslationPanel from "@/components/TranslationPanel";
 import React, {useCallback, useState} from "react";
 
@@ -21,10 +22,28 @@ function TranslateGraph({
     "Two pints, please"
   );
   const [textToRefine, setTextToRefine] = useState("");
-  const [sourceLanguage, setSourceLanguage] = useState("es");
+  const [sourceLanguage, setSourceLanguage] = useState("");
   const [targetLanguage, setTargetLanguage] = useState("en");
   const [isCopying, setIsCopying] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isAutoDetectionEnabled, setIsAutoDetectionEnabled] = useState(true);
+
+  const handleTextToTranslateChange = (text: string) => {
+    // Ensure text is never undefined
+    const validText = text || "";
+    setTextToTranslate(validText);
+  };
+
+  const handleLanguageDetected = (detectedLanguage: string) => {
+    if (isAutoDetectionEnabled) {
+      setSourceLanguage(detectedLanguage);
+    }
+  };
+
+  const handleSourceLanguageChange = (language: string) => {
+    setIsAutoDetectionEnabled(false);
+    setSourceLanguage(language);
+  };
 
   const handleRefineTranslation = async (text: string) => {
     if (!conversationIdRef.current) {
@@ -100,11 +119,17 @@ function TranslateGraph({
   return (
     <div className="flex h-full">
       <div className="flex-1 mx-auto max-w-6xl p-2 lg:p-4">
+        <LanguageInput
+          text={textToTranslate}
+          onLanguageDetected={handleLanguageDetected}
+          isAutoDetectionEnabled={isAutoDetectionEnabled}
+          onAutoDetectionToggle={setIsAutoDetectionEnabled}
+        />
         <TranslationPanel
           sourceLanguage={sourceLanguage}
-          onSourceLanguageChange={setSourceLanguage}
+          onSourceLanguageChange={handleSourceLanguageChange}
           textToTranslate={textToTranslate}
-          onTextToTranslateChange={setTextToTranslate}
+          onTextToTranslateChange={handleTextToTranslateChange}
           onTranslate={handleStartTranslation}
           isTranslating={isTranslating}
           targetLanguage={targetLanguage}

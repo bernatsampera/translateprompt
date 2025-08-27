@@ -12,7 +12,8 @@ const featured = [
   "zh",
   "ja",
   "ko",
-  "ar"
+  "ar",
+  "ca"
 ];
 const allLanguages = ISO6391.getAllCodes();
 
@@ -46,7 +47,7 @@ function LanguageSelector({
   return (
     <Select
       options={LANGUAGE_OPTIONS}
-      defaultValue={LANGUAGE_OPTIONS.find((o) => o.value === value)}
+      value={LANGUAGE_OPTIONS.find((o) => o.value === value)}
       className={`${className} text-sm lg:text-base bg-base-100`}
       onChange={(e) => onChange(e?.value ?? value)}
       styles={{
