@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./axiosConfig";
 
 const BASE_URL = "http://localhost:8008";
 const GRAPH_BASE_URL = `${BASE_URL}/graphs`;
@@ -25,7 +25,10 @@ export const startTranslation = async (
     target_language: targetLanguage
   };
 
-  const response = await axios.post(`${GRAPH_BASE_URL}/translate`, requestData);
+  const response = await axiosInstance.post(
+    `${GRAPH_BASE_URL}/translate`,
+    requestData
+  );
   return response.data;
 };
 
@@ -35,11 +38,14 @@ export const refineTranslation = async (
   sourceLanguage: string,
   targetLanguage: string
 ): Promise<TranslationResponse> => {
-  const response = await axios.post(`${GRAPH_BASE_URL}/refine-translation`, {
-    message,
-    conversation_id: conversationId,
-    source_language: sourceLanguage,
-    target_language: targetLanguage
-  });
+  const response = await axiosInstance.post(
+    `${GRAPH_BASE_URL}/refine-translation`,
+    {
+      message,
+      conversation_id: conversationId,
+      source_language: sourceLanguage,
+      target_language: targetLanguage
+    }
+  );
   return response.data;
 };

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./axiosConfig";
 
 const BASE_URL = "http://localhost:8008";
 const GLOSSARY_BASE_URL = `${BASE_URL}/glossary`;
@@ -29,7 +29,7 @@ export interface DeleteGlossaryRequest {
 export const getGlossaryImprovements = async (
   conversationId: string
 ): Promise<GlossaryEntry[]> => {
-  const response = await axios.get(
+  const response = await axiosInstance.get(
     `${GLOSSARY_BASE_URL}/glossary-improvements/${conversationId}`
   );
   return response.data;
@@ -41,7 +41,7 @@ export const applyGlossaryUpdate = async (
   note: string = "",
   conversationId: string
 ): Promise<{status: string; message: string}> => {
-  const response = await axios.post(
+  const response = await axiosInstance.post(
     `${GLOSSARY_BASE_URL}/apply-glossary-update`,
     {
       glossary_entry: {
@@ -61,12 +61,15 @@ export const editGlossaryEntry = async (
   target: string,
   note: string = ""
 ): Promise<{status: string; message: string}> => {
-  const response = await axios.put(`${GLOSSARY_BASE_URL}/edit-glossary-entry`, {
-    old_source: oldSource,
-    new_source: newSource,
-    target,
-    note
-  });
+  const response = await axiosInstance.put(
+    `${GLOSSARY_BASE_URL}/edit-glossary-entry`,
+    {
+      old_source: oldSource,
+      new_source: newSource,
+      target,
+      note
+    }
+  );
   return response.data;
 };
 
@@ -75,7 +78,7 @@ export const deleteGlossaryEntry = async (
   source_language: string,
   target_language: string
 ): Promise<{status: string; message: string}> => {
-  const response = await axios.delete(
+  const response = await axiosInstance.delete(
     `${GLOSSARY_BASE_URL}/delete-glossary-entry`,
     {
       data: {
@@ -92,7 +95,7 @@ export const getGlossaryEntries = async (
   sourceLanguage: string,
   targetLanguage: string
 ): Promise<GlossaryResponse> => {
-  const response = await axios.get(
+  const response = await axiosInstance.get(
     `${GLOSSARY_BASE_URL}/glossary-entries?source_language=${sourceLanguage}&target_language=${targetLanguage}`
   );
   return response.data;
