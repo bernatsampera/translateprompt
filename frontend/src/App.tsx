@@ -50,7 +50,7 @@ function App() {
       <Header navItems={topNavItems} />
 
       {/* Main Content */}
-      <main className="flex-1 py-4">
+      <main className="flex-1 py-4 px-8 max-w-7xl w-full  mx-auto ">
         <TranslateGraph conversationIdRef={conversationIdRef} />
       </main>
 

@@ -120,9 +120,9 @@ function GlossaryImprovements({
 
   if (isCollapsed) {
     return (
-      <div className="h-full bg-base-100  flex flex-col">
+      <div className="h-full bg-base-100 relative  flex flex-col">
         {/* Collapsed Header */}
-        <div className="p-2  flex items-center justify-center">
+        <div className="p-2  flex items-center justify-center absolute top-0 left-0 right-0">
           <button
             onClick={() => setIsCollapsed(false)}
             className="btn btn-ghost btn-sm p-1"
