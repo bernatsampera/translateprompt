@@ -316,7 +316,7 @@ function GlossaryImprovements({
                           <div className="flex gap-1">
                             <button
                               onClick={() => handleStartEdit(entry, index)}
-                              className="btn btn-neutral btn-xs"
+                              className="btn btn-accent btn-xs"
                             >
                               Edit
                             </button>
@@ -328,7 +328,7 @@ function GlossaryImprovements({
                                   entry.target_language
                                 )
                               }
-                              className="btn btn-secondary btn-xs"
+                              className="btn btn-accent btn-xs"
                             >
                               Delete
                             </button>
@@ -507,10 +507,10 @@ function GlossaryImprovements({
                               </div>
                             )}
                           </div>
-                          <div className="flex gap-1">
+                          <div className="flex flex-col gap-2">
                             <button
                               onClick={() => handleStartEdit(entry, index)}
-                              className="btn btn-neutral btn-xs"
+                              className="btn btn-primary btn-xs "
                             >
                               Edit
                             </button>
@@ -522,7 +522,7 @@ function GlossaryImprovements({
                                   entry.target_language
                                 )
                               }
-                              className="btn btn-secondary btn-xs"
+                              className="btn bg-accent/20 border-primary btn-xs "
                             >
                               Delete
                             </button>

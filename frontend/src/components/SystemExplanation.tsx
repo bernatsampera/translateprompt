@@ -6,7 +6,7 @@ const SystemExplanation = () => {
       <div className="steps steps-vertical lg:steps-horizontal w-full mt-6">
         <Step
           title="1. Correct translation"
-          description="Use 'word x' instead of 'word y'"
+          description="Use 'pint' instead of 'beer'"
           index={"🗣️"}
         />
         <Step
