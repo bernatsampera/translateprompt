@@ -1,22 +1,7 @@
-import {francAll} from "franc";
 import {useCallback, useEffect, useState} from "react";
+import {detectAll} from "tinyld";
 
-const preferredLangs = ["eng", "deu", "spa", "fra", "ita"];
-
-// Convert franc language code to ISO 639-1 format for consistency
-const langMapping: {[key: string]: string} = {
-  eng: "en",
-  deu: "de",
-  spa: "es",
-  fra: "fr",
-  ita: "it",
-  rus: "ru",
-  cmn: "zh",
-  jpn: "ja",
-  kor: "ko",
-  ara: "ar",
-  cat: "ca"
-};
+const preferredLangs = ["en", "de", "es", "fr", "it"];
 
 interface UseLanguageDetectionOptions {
   onLanguageDetected?: (language: string) => void;
@@ -40,23 +25,22 @@ export function useLanguageDetection(
     }
 
     try {
-      const results = francAll(validText);
-      if (!results.length || results[0][1] === 0) {
+      // Get candidates with confidence scores
+      const results = detectAll(validText); // [{ lang: "en", accuracy: 0.98 }, ...]
+      if (!results.length) {
         setDetectedLanguage("Unknown");
         return "Unknown";
       }
 
-      // Try to find a preferred language among the top 3 candidates
+      // Prefer a main language if it's in the top 3
       const preferred = results
         .slice(0, 3)
-        .find(([code]) => preferredLangs.includes(code));
+        .find((res) => preferredLangs.includes(res.lang));
 
-      const detectedLang = preferred ? preferred[0] : results[0][0];
-      setDetectedLanguage(detectedLang);
+      const detected = preferred ? preferred.lang : results[0].lang;
 
-      // Convert to ISO code
-      const isoCode = langMapping[detectedLang] || detectedLang;
-      return isoCode;
+      setDetectedLanguage(detected);
+      return detected;
     } catch (error) {
       console.error("Language detection error:", error);
       setDetectedLanguage("Unknown");
