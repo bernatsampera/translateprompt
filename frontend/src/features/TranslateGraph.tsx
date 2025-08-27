@@ -5,22 +5,40 @@ import {
   type GlossaryEntry
 } from "@/api/translateApi";
 import GlossaryImprovements from "@/components/GlossaryImprovements";
+import ISO6391 from "iso-639-1";
 import {ArrowRightLeft, Copy, RotateCcw} from "lucide-react";
 import React, {useCallback, useState} from "react";
+import Select from "react-select";
 
-// Language options for the selectors
+const featured = [
+  "en",
+  "es",
+  "fr",
+  "de",
+  "it",
+  "pt",
+  "ru",
+  "zh",
+  "ja",
+  "ko",
+  "ar"
+];
+const allLanguages = ISO6391.getAllCodes();
+
 const LANGUAGE_OPTIONS = [
-  {value: "auto", label: "Auto-detect"},
-  {value: "en", label: "English"},
-  {value: "es", label: "Spanish"},
-  {value: "fr", label: "French"},
-  {value: "de", label: "German"},
-  {value: "it", label: "Italian"},
-  {value: "pt", label: "Portuguese"},
-  {value: "ru", label: "Russian"},
-  {value: "ja", label: "Japanese"},
-  {value: "ko", label: "Korean"},
-  {value: "zh", label: "Chinese"}
+  // featured first
+  ...featured.map((code) => ({
+    value: code,
+    label: ISO6391.getName(code),
+    featured: true
+  })),
+  // then the rest
+  ...allLanguages
+    .filter((code) => !featured.includes(code))
+    .map((code) => ({
+      value: code,
+      label: ISO6391.getName(code)
+    }))
 ];
 
 function TranslateGraph({
@@ -28,14 +46,16 @@ function TranslateGraph({
 }: {
   conversationIdRef: React.RefObject<string | null>;
 }) {
-  const [response, setResponse] = useState<string | null>(null);
   const [improvements, setImprovements] = useState<GlossaryEntry[]>([]);
   const [textToTranslate, setTextToTranslate] = useState(
-    "Birds look at the sky and smile"
+    "Dos cervezas, por favor"
+  );
+  const [translation, setTranslation] = useState<string | null>(
+    "Two pints, please"
   );
   const [textToRefine, setTextToRefine] = useState("");
-  const [sourceLanguage, setSourceLanguage] = useState("en");
-  const [targetLanguage, setTargetLanguage] = useState("es");
+  const [sourceLanguage, setSourceLanguage] = useState("es");
+  const [targetLanguage, setTargetLanguage] = useState("en");
   const [isCopying, setIsCopying] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
@@ -52,7 +72,7 @@ function TranslateGraph({
       targetLanguage
     );
 
-    setResponse(response.response);
+    setTranslation(response.response);
     checkImprovements();
   };
 
@@ -83,25 +103,25 @@ function TranslateGraph({
         targetLanguage
       );
 
-      setResponse(response.response);
+      setTranslation(response.response);
 
       if (response.conversation_id) {
         conversationIdRef.current = response.conversation_id;
       }
     } catch (error) {
       console.error("Translation error:", error);
-      setResponse("Error: Translation failed. Please try again.");
+      setTranslation("Error: Translation failed. Please try again.");
     } finally {
       setIsTranslating(false);
     }
   };
 
   const handleCopyToClipboard = async () => {
-    if (!response) return;
+    if (!translation) return;
 
     setIsCopying(true);
     try {
-      await navigator.clipboard.writeText(response);
+      await navigator.clipboard.writeText(translation);
       // You could add a toast notification here
     } catch (err) {
       console.error("Failed to copy text: ", err);
@@ -132,17 +152,18 @@ function TranslateGraph({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base lg:text-lg font-semibold">Original</h2>
-              <select
-                className="select select-bordered select-sm text-xs lg:text-sm"
-                value={sourceLanguage}
-                onChange={(e) => setSourceLanguage(e.target.value)}
-              >
-                {LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <Select
+                options={LANGUAGE_OPTIONS}
+                defaultValue={LANGUAGE_OPTIONS.find((o) => o.value === "es")}
+                className="w-40 text-sm lg:text-base bg-base-100"
+                onChange={(e) => setSourceLanguage(e?.value ?? "es")}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    backgroundColor: "var(--bg-base-100)"
+                  })
+                }}
+              />
             </div>
             <div className="form-control">
               <textarea
@@ -168,24 +189,23 @@ function TranslateGraph({
                 Translation
               </h2>
               <div className="flex items-center gap-2">
-                <select
-                  className="select select-bordered select-sm text-xs lg:text-sm"
-                  value={targetLanguage}
-                  onChange={(e) => setTargetLanguage(e.target.value)}
-                >
-                  {LANGUAGE_OPTIONS.filter(
-                    (option) => option.value !== "auto"
-                  ).map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  options={LANGUAGE_OPTIONS}
+                  defaultValue={LANGUAGE_OPTIONS.find((o) => o.value === "en")}
+                  className="w-40 text-sm lg:text-base bg-base-100"
+                  onChange={(e) => setTargetLanguage(e?.value ?? "en")}
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      backgroundColor: "var(--bg-base-100)"
+                    })
+                  }}
+                />
                 <button
                   className="btn btn-ghost btn-sm"
                   title="Copy to clipboard"
                   onClick={handleCopyToClipboard}
-                  disabled={!response || isCopying}
+                  disabled={!translation || isCopying}
                 >
                   <Copy className="h-4 w-4" />
                 </button>
@@ -195,7 +215,7 @@ function TranslateGraph({
               <textarea
                 className="textarea textarea-bordered textarea w-full min-h-32 lg:min-h-48 resize-none bg-base-200/50 text-sm lg:text-base"
                 placeholder="Translation will appear here..."
-                value={response || ""}
+                value={translation || ""}
                 readOnly
               ></textarea>
             </div>

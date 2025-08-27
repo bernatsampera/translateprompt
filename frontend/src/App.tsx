@@ -3,6 +3,7 @@ import {Toaster} from "sonner";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import SystemExplanation from "./components/SystemExplanation";
+// import TranslateGraph from "./features/TranslateGraph";
 import TranslateGraph from "./features/TranslateGraph";
 import type {FooterConfig, NavItem} from "./types/navigation";
 
@@ -69,6 +70,7 @@ function App() {
 
         {/* Translation Interface */}
         <div className="mb-16 lg:mb-20">
+          new
           <TranslateGraph conversationIdRef={conversationIdRef} />
         </div>
       </main>
