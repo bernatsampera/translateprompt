@@ -76,5 +76,6 @@ test: test-backend
 
 langgraph-dev:
 	@echo "Starting langgraph dev server..."
-	cd backend && .venv/bin/python3 -m langgraph dev --allow-blocking
+	cd backend && source .venv/bin/activate && uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.12 langgraph dev --allow-blocking
+
 
