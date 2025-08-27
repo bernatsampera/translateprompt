@@ -17,6 +17,8 @@ dependencies = [
     "rapidfuzz>=3.13.0",
     "rich>=14.1.0",
     "langgraph-cli>=0.3.8",
+    "langchain-ollama>=0.3.7",
+    "langchain-openai>=0.3.32",
 ]
 
 [tool.setuptools]

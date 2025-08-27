@@ -1,8 +1,6 @@
 import os
 from typing import Literal
 
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
 from langchain_core.messages import (
     AIMessage,
     HumanMessage,
@@ -24,9 +22,7 @@ from translate_graph.state import (
     TranslateState,
 )
 from translate_graph.utils import format_glossary
-
-# Load environment variables
-load_dotenv()
+from utils.llm_service import LLM_Service
 
 # Initialize glossary manager
 glossary_manager = GlossaryManager()
@@ -36,9 +32,7 @@ google_api_key = os.getenv("GOOGLE_API_KEY")
 if not google_api_key:
     raise ValueError("GOOGLE_API_KEY environment variable is required")
 
-llm = init_chat_model(
-    model="google_genai:gemini-2.5-flash-lite", google_api_key=google_api_key
-)
+llm = LLM_Service()
 
 
 def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:

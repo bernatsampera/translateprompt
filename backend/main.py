@@ -1,17 +1,14 @@
 """Translation API with background glossary improvement analysis."""
 
 import uvicorn
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes import glossary_endpoints, graph_endpoints
 
-load_dotenv()
-
 app = FastAPI(
-    title="Template Project REACT + Fastapi",
-    description="Template Project REACT + Fastapi",
+    title="DocTranscriber",
+    description="DocTranscriber is a tool that transcribes documents into a structured format.",
     version="1.0.0",
 )
 

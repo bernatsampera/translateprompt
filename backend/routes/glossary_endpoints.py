@@ -1,10 +1,6 @@
 """Glossary-related endpoints for the translation API."""
 
-import os
-
-from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Query
-from langchain.chat_models import init_chat_model
 
 from models import (
     ApplyGlossaryRequest,
@@ -17,19 +13,12 @@ from translate_graph.glossary_manager import GlossaryManager
 from translate_graph.index import graph
 from translate_graph.prompts import lead_update_glossary_prompt
 from translate_graph.state import ConductUpdate, NoUpdate
+from utils.llm_service import LLM_Service
 
 # --- Setup --------------------------------------------------------------------
 
-load_dotenv()
 
-google_api_key = os.getenv("GOOGLE_API_KEY")
-if not google_api_key:
-    raise ValueError("GOOGLE_API_KEY environment variable is required")
-
-llm = init_chat_model(
-    model="google_genai:gemini-2.5-flash-lite",
-    google_api_key=google_api_key,
-)
+llm = LLM_Service()
 
 router = APIRouter(prefix="/glossary", tags=["glossary"])
 

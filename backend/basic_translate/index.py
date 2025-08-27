@@ -1,8 +1,6 @@
 import os
 from typing import Annotated, Literal
 
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
 from langchain_core.messages import (
     BaseMessage,
     get_buffer_string,
@@ -10,7 +8,7 @@ from langchain_core.messages import (
 from langgraph.graph import END, START, MessagesState, StateGraph, add_messages
 from langgraph.types import Command
 
-load_dotenv()
+from utils.llm_service import LLM_Service
 
 # Get API key from environment
 google_api_key = os.getenv("GOOGLE_API_KEY")
@@ -52,9 +50,10 @@ Take a look at the feedback made by the user and improve the translation. Follow
 {translation_instructions}
 """
 
-llm = init_chat_model(
-    model="google_genai:gemini-2.5-flash-lite", google_api_key=google_api_key
-)
+# llm = init_chat_model(
+#     model="google_genai:gemini-2.5-flash-lite", google_api_key=google_api_key
+# )
+llm = LLM_Service()
 
 
 def translate(state: TranslateState) -> Command[Literal["__end__"]]:
