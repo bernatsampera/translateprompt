@@ -13,6 +13,7 @@ from translate_graph.glossary_manager import GlossaryManager
 from translate_graph.index import graph
 from translate_graph.prompts import lead_update_glossary_prompt
 from translate_graph.state import ConductUpdate, NoUpdate
+from utils.graph_utils import create_graph_config, get_graph_state
 from utils.llm_service import LLM_Service
 
 # --- Setup --------------------------------------------------------------------
@@ -27,8 +28,8 @@ router = APIRouter(prefix="/glossary", tags=["glossary"])
 
 
 def check_glossary_updates(conversation_id: str):
-    config = {"configurable": {"thread_id": conversation_id}}
-    state = graph.get_state(config).values
+    config = create_graph_config(conversation_id)
+    state = get_graph_state(conversation_id)
 
     if not state.get("messages") or len(state["messages"]) < 3:
         return []
@@ -53,9 +54,9 @@ def check_glossary_updates(conversation_id: str):
 @router.get("/glossary-improvements/{conversation_id}")
 def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
     """Get glossary improvement suggestions for a conversation."""
-    config = {"configurable": {"thread_id": conversation_id}}
+    config = create_graph_config(conversation_id)
 
-    graph_values = graph.get_state(config).values
+    graph_values = get_graph_state(conversation_id)
 
     # Reload updated state
     improvement_tool_calls = graph_values.get("improvement_tool_calls", [])
@@ -81,15 +82,11 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
     glossary_entry, conversation_id = request.glossary_entry, request.conversation_id
 
     if conversation_id:
-        config = {"configurable": {"thread_id": conversation_id}}
+        config = create_graph_config(conversation_id)
 
-        graph_values = graph.get_state(config).values
+        graph_values = get_graph_state(conversation_id)
         glossary_entry.source_language = graph_values.get("source_language")
         glossary_entry.target_language = graph_values.get("target_language")
-
-        print(
-            f"Applying glossary update for {glossary_entry.source} to {glossary_entry.target} in {glossary_entry.source_language} to {glossary_entry.target_language}"
-        )
 
         # Remove the applied glossary entry
         graph.update_state(
@@ -162,7 +159,6 @@ def get_glossary_entries(
 ) -> GlossaryResponse:
     """Get all current glossary entries for a specific language pair."""
     glossary_manager = GlossaryManager()
-    print(f"Getting glossary entries for {source_language} to {target_language}")
     glossary_data = glossary_manager.get_all_sources(source_language, target_language)
 
     entries = [

@@ -10,6 +10,7 @@ from models import TranslateRequest
 from routes.glossary_endpoints import check_glossary_updates
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
+from utils.graph_utils import create_graph_config
 
 router = APIRouter(prefix="/graphs", tags=["graph"])
 
@@ -21,7 +22,7 @@ def extractInterruption(state: TranslateState):
 
 def run_graph(input_data, thread_id: str):
     """Run the translation graph with the given input data and thread ID."""
-    config = {"configurable": {"thread_id": thread_id}}
+    config = create_graph_config(thread_id)
     result: TranslateState = graph.invoke(input_data, config)
     return result
 
