@@ -1,20 +1,8 @@
 # Glossary Management System
 
-This directory contains the refactored glossary management system, separated into focused modules for better maintainability.
+This directory contains the glossary management system, which provides a high-level interface for glossary operations.
 
 ## Structure
-
-### `models.py`
-
-- **GlossaryEntry**: Data class representing a glossary entry
-- **Database schema definitions**: SQL table and index creation statements
-
-### `database.py`
-
-- **GlossaryDatabase**: Handles all SQLite database operations
-- Connection management with context managers
-- CRUD operations for glossary entries
-- Error handling and logging
 
 ### `manager.py`
 
@@ -27,6 +15,15 @@ This directory contains the refactored glossary management system, separated int
 
 - Package initialization and exports
 - Clean import interface
+
+## Database Integration
+
+The glossary system now uses the general database package (`../database/`) for all database operations:
+
+- **Database Connection**: `../database/connection.py`
+- **Glossary Operations**: `../database/glossary_operations.py`
+- **Data Models**: `../database/models.py`
+- **Schema Definitions**: `../database/schemas.py`
 
 ## Usage
 
@@ -53,15 +50,11 @@ The glossary system has been moved from `translate_graph/glossary_manager.py` to
 - Old: `from translate_graph.glossary_manager import GlossaryManager`
 - New: `from glossary import GlossaryManager`
 
-## Files Moved
-
-- `glossary.db`: SQLite database file
-- `glossary.json`: Configuration/data file
-
 ## Benefits of the New Structure
 
-1. **Separation of Concerns**: Models, database operations, and business logic are now separate
-2. **Better Maintainability**: Each file has a single responsibility
+1. **Separation of Concerns**: Database operations are now handled by a dedicated database package
+2. **Better Maintainability**: Each component has a single responsibility
 3. **Improved Testability**: Individual components can be tested in isolation
 4. **Cleaner Imports**: Dedicated package with clear exports
 5. **Future Extensibility**: Easy to add new features or modify existing ones
+6. **Shared Database**: Multiple systems can share the same database infrastructure

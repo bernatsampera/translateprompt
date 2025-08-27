@@ -1,4 +1,4 @@
-"""Data models and database schema for glossary management."""
+"""Data models for all database entities."""
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -49,22 +49,29 @@ class GlossaryEntry:
         )
 
 
-# Database schema definitions
-GLOSSARY_TABLE_SCHEMA = """
-CREATE TABLE IF NOT EXISTS glossary_entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    source_language TEXT NOT NULL,
-    target_language TEXT NOT NULL,
-    source_text TEXT NOT NULL,
-    target_text TEXT NOT NULL,
-    note TEXT DEFAULT '',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(source_language, target_language, source_text)
-)
-"""
+@dataclass
+class UserIP:
+    """Data class representing a user IP record."""
 
-GLOSSARY_INDEX_SCHEMA = """
-CREATE INDEX IF NOT EXISTS idx_glossary_lookup 
-ON glossary_entries(source_language, target_language, source_text)
-"""
+    ip_address: str
+    created_at: datetime | None = None
+    token_count: int = 0
+
+    def to_dict(self) -> dict:
+        """Convert the entry to a dictionary."""
+        return {
+            "ip_address": self.ip_address,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "token_count": self.token_count,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "UserIP":
+        """Create an entry from a dictionary."""
+        return cls(
+            ip_address=data["ip_address"],
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else None,
+            token_count=data.get("token_count", 0),
+        )
