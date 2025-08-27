@@ -45,6 +45,9 @@ function TranslateGraph({
   });
 
   const checkImprovements = useCallback(() => {
+    if (!conversationIdRef.current) {
+      return;
+    }
     getGlossaryImprovements(conversationIdRef.current ?? "").then(
       (improvements) => {
         setImprovements(improvements);
