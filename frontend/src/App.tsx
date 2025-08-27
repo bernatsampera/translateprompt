@@ -70,7 +70,6 @@ function App() {
 
         {/* Translation Interface */}
         <div className="mb-16 lg:mb-20">
-          new
           <TranslateGraph conversationIdRef={conversationIdRef} />
         </div>
       </main>
