@@ -44,7 +44,7 @@ install-frontend:
 # Run backend development server
 dev-backend:
 	@echo "Starting backend server on http://localhost:8008"
-	cd backend && source .venv/bin/activate && uvicorn main:app --reload --port 8008
+	cd backend && .venv/bin/python3 -m uvicorn main:app --reload --port 8008
 
 # Run frontend development server
 dev-frontend:
@@ -76,5 +76,5 @@ test: test-backend
 
 langgraph-dev:
 	@echo "Starting langgraph dev server..."
-	cd backend && uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 langgraph dev --allow-blocking
+	cd backend && .venv/bin/python3 -m langgraph dev --allow-blocking
 

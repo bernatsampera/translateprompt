@@ -26,7 +26,7 @@ function Header({navItems}: HeaderProps) {
         </div>
         <div className="flex items-center gap-2">
           <Globe className="h-8 w-8 text-primary" />
-          <a className="btn btn-ghost text-xl font-bold">CheapTranscript</a>
+          <a className="btn btn-ghost text-xl font-bold">TranslatePrompt</a>
         </div>
       </div>
       <div className="navbar-center hidden lg:flex">

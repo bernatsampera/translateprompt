@@ -24,7 +24,7 @@ const topNavItems: NavItem[] = [
 
 // Footer configuration
 const footerConfig: FooterConfig = {
-  companyName: "CheapTranscript",
+  companyName: "TranslatePrompt",
   tagline: "Professional translation services powered by AI",
   madeWithText: "Made with",
   links: [
@@ -55,7 +55,7 @@ function App() {
         {/* Hero Section */}
         <div className="text-center mb-8 lg:mb-16">
           <h1 className="text-3xl lg:text-5xl font-bold text-base-content mb-4">
-            Cheap Transcript
+            Translate Prompt
           </h1>
           <p className="text-lg lg:text-xl text-base-content/70 max-w-2xl mx-auto leading-relaxed px-4">
             AI-powered translation with automatic glossary
