@@ -1,6 +1,6 @@
 import {useRef} from "react";
 import {Toaster} from "sonner";
-import TranslateGraph from "./parts/TranslateGraph";
+import TranslateGraph from "./features/TranslateGraph";
 
 function App() {
   const conversationIdRef = useRef<string | null>(null);

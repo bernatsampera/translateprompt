@@ -1,10 +1,10 @@
-import GlossaryImprovements from "@/components/GlossaryImprovements";
 import {
   getGlossaryImprovements,
   refineTranslation,
   startTranslation,
   type GlossaryEntry
-} from "@/services/translateApi";
+} from "@/api/translateApi";
+import GlossaryImprovements from "@/components/GlossaryImprovements";
 import {ArrowRightLeft, Copy, RotateCcw} from "lucide-react";
 import React, {useCallback, useState} from "react";
 

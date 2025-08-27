@@ -4,7 +4,7 @@ import {
   editGlossaryEntry,
   getGlossaryEntries,
   type GlossaryEntry
-} from "@/services/glossaryApi";
+} from "@/api/glossaryApi";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {useEffect, useState} from "react";
 
