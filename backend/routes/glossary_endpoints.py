@@ -79,7 +79,10 @@ def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
 @router.post("/apply-glossary-update")
 def apply_glossary_update(request: ApplyGlossaryRequest):
     """Apply a selected glossary update and persist it to the glossary database."""
-    glossary_entry, conversation_id = request.glossary_entry, request.conversation_id
+    glossary_entry, conversation_id = (
+        request.glossary_entry,
+        request.conversation_id,
+    )
 
     if conversation_id:
         config = create_graph_config(conversation_id)

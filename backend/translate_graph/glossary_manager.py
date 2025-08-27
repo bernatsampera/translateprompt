@@ -5,6 +5,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict
 
+from config import config
+
 
 class GlossaryManager:
     """Manages glossary operations with SQLite database storage and language support."""
@@ -85,6 +87,9 @@ class GlossaryManager:
         Returns:
             True if added successfully, False otherwise.
         """
+        # Check production mode before making changes
+        config.validate_production_operation("add glossary entry")
+
         try:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
@@ -118,6 +123,9 @@ class GlossaryManager:
         Returns:
             True if removed successfully, False if source not found or error occurred.
         """
+        # Check production mode before making changes
+        config.validate_production_operation("remove glossary entry")
+
         try:
             with self._get_connection() as conn:
                 cursor = conn.cursor()

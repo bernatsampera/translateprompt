@@ -42,6 +42,17 @@ A simple, modular translation workflow using LangGraph with interactive feedback
    - FastAPI: http://localhost:8008
    - LangGraph: http://localhost:8123
 
+## Configuration
+
+The application uses environment variables for configuration. See `backend/CONFIG.md` for detailed configuration options.
+
+**Key settings:**
+
+- `PROD`: Set to `true` to enable production mode (prevents database modifications)
+- `API_HOST`: Server host (default: 127.0.0.1)
+- `API_PORT`: Server port (default: 8008)
+- `LLM_API_KEY`: Your OpenAI API key
+
 ## Workflow
 
 1. **Start Translation**: Enter text to translate

@@ -31,10 +31,24 @@ axiosInstance.interceptors.response.use(
       // Server responded with error status
       const status = error.response.status;
       const data = error.response.data;
+      console.log("error.response", error.response);
 
-      errorMessage = data?.message || data?.detail || `Error ${status}`;
+      // Handle different error response formats
+      if (typeof data === "string") {
+        errorMessage = data;
+      } else if (data?.detail) {
+        errorMessage = data.detail;
+      } else if (data?.message) {
+        errorMessage = data.message;
+      } else if (data?.error) {
+        errorMessage = data.error;
+      } else {
+        errorMessage = `Error ${status}: ${JSON.stringify(data)}`;
+      }
     } else if (error.request) {
       // Request was made but no response received
+      console.log("error.request", error.request);
+
       errorMessage = "Network error - please check your connection";
     } else {
       // Something else happened
