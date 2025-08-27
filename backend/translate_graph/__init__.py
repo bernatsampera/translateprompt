@@ -3,7 +3,8 @@
 Provides glossary-based translation functionality using LangGraph.
 """
 
-from .glossary_manager import GlossaryManager
+from glossary import GlossaryManager
+
 from .index import graph
 from .state import TranslateInputState, TranslateState
 

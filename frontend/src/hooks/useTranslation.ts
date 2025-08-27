@@ -18,15 +18,6 @@ export function useTranslation(options: UseTranslationOptions = {}) {
     async (text: string, sourceLanguage: string, targetLanguage: string) => {
       setIsTranslating(true);
       try {
-        console.log(
-          "start translation",
-          text,
-          "from",
-          sourceLanguage,
-          "to",
-          targetLanguage
-        );
-
         const response = await translationService.translate(
           text,
           sourceLanguage,

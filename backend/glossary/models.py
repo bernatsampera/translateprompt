@@ -1,0 +1,70 @@
+"""Data models and database schema for glossary management."""
+
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class GlossaryEntry:
+    """Data class representing a glossary entry."""
+
+    id: int | None = None
+    source_language: str = "en"
+    target_language: str = "es"
+    source_text: str = ""
+    target_text: str = ""
+    note: str = ""
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+    def to_dict(self) -> dict:
+        """Convert the entry to a dictionary."""
+        return {
+            "id": self.id,
+            "source_language": self.source_language,
+            "target_language": self.target_language,
+            "source_text": self.source_text,
+            "target_text": self.target_text,
+            "note": self.note,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "GlossaryEntry":
+        """Create an entry from a dictionary."""
+        return cls(
+            id=data.get("id"),
+            source_language=data.get("source_language", "en"),
+            target_language=data.get("target_language", "es"),
+            source_text=data.get("source_text", ""),
+            target_text=data.get("target_text", ""),
+            note=data.get("note", ""),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else None,
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else None,
+        )
+
+
+# Database schema definitions
+GLOSSARY_TABLE_SCHEMA = """
+CREATE TABLE IF NOT EXISTS glossary_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_language TEXT NOT NULL,
+    target_language TEXT NOT NULL,
+    source_text TEXT NOT NULL,
+    target_text TEXT NOT NULL,
+    note TEXT DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(source_language, target_language, source_text)
+)
+"""
+
+GLOSSARY_INDEX_SCHEMA = """
+CREATE INDEX IF NOT EXISTS idx_glossary_lookup 
+ON glossary_entries(source_language, target_language, source_text)
+"""

@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Query
 
+from glossary import GlossaryManager
 from models import (
     ApplyGlossaryRequest,
     DeleteGlossaryRequest,
@@ -9,7 +10,6 @@ from models import (
     GlossaryEntry,
     GlossaryResponse,
 )
-from translate_graph.glossary_manager import GlossaryManager
 from translate_graph.index import graph
 from translate_graph.prompts import lead_update_glossary_prompt
 from translate_graph.state import ConductUpdate, NoUpdate

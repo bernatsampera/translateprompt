@@ -10,7 +10,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, StateGraph
 from langgraph.types import Command, interrupt
 
-from translate_graph.glossary_manager import GlossaryManager
+from glossary import GlossaryManager
 from translate_graph.match_words import match_words_from_glossary
 from translate_graph.prompts import (
     first_translation_instructions,
