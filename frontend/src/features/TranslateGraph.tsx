@@ -126,7 +126,7 @@ function TranslateGraph({
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       <div className="flex-1 mx-auto max-w-6xl p-4">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-primary">Text Translation</h1>
