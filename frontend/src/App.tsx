@@ -2,6 +2,7 @@ import {useRef} from "react";
 import {Toaster} from "sonner";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import SystemExplanation from "./components/SystemExplanation";
 import TranslateGraph from "./features/TranslateGraph";
 import type {FooterConfig, NavItem} from "./types/navigation";
 
@@ -50,8 +51,26 @@ function App() {
       <Header navItems={topNavItems} />
 
       {/* Main Content */}
-      <main className="flex-1 py-4 px-8 max-w-7xl w-full  mx-auto ">
-        <TranslateGraph conversationIdRef={conversationIdRef} />
+      <main className="flex-1 py-12 px-8 max-w-7xl w-full mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-base-content mb-4">
+            Cheap Transcript
+          </h1>
+          <p className="text-xl text-base-content/70 max-w-2xl mx-auto leading-relaxed">
+            AI-powered translation with automatic glossary
+          </p>
+        </div>
+
+        {/* System Explanation */}
+        <div className="mb-20">
+          <SystemExplanation />
+        </div>
+
+        {/* Translation Interface */}
+        <div className="mb-20">
+          <TranslateGraph conversationIdRef={conversationIdRef} />
+        </div>
       </main>
 
       <Footer {...footerConfig} />

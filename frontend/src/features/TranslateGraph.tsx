@@ -128,10 +128,6 @@ function TranslateGraph({
   return (
     <div className="flex h-full">
       <div className="flex-1 mx-auto max-w-6xl p-4">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-primary">Text Translation</h1>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
