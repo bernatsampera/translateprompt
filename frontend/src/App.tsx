@@ -51,24 +51,24 @@ function App() {
       <Header navItems={topNavItems} />
 
       {/* Main Content */}
-      <main className="flex-1 py-12 px-8 max-w-7xl w-full mx-auto">
+      <main className="flex-1 py-6 lg:py-12 px-4 lg:px-8 max-w-7xl w-full mx-auto">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-base-content mb-4">
+        <div className="text-center mb-8 lg:mb-16">
+          <h1 className="text-3xl lg:text-5xl font-bold text-base-content mb-4">
             Cheap Transcript
           </h1>
-          <p className="text-xl text-base-content/70 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg lg:text-xl text-base-content/70 max-w-2xl mx-auto leading-relaxed px-4">
             AI-powered translation with automatic glossary
           </p>
         </div>
 
         {/* System Explanation */}
-        <div className="mb-20">
+        <div className="mb-16 lg:mb-32">
           <SystemExplanation />
         </div>
 
         {/* Translation Interface */}
-        <div className="mb-20">
+        <div className="mb-16 lg:mb-20">
           <TranslateGraph conversationIdRef={conversationIdRef} />
         </div>
       </main>

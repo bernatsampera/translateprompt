@@ -1,9 +1,9 @@
 const SystemExplanation = () => {
   return (
     <div className="card">
-      <h2 className="text-2xl font-bold mx-auto">Steps</h2>
+      <h2 className="text-2xl font-bold mx-auto text-center">Steps</h2>
 
-      <div className="steps steps-horizontal w-full">
+      <div className="steps steps-vertical lg:steps-horizontal w-full mt-6">
         <Step
           title="1. Correct translation"
           description="Use 'word x' instead of 'word y'"
@@ -39,10 +39,10 @@ const Step = ({
   index: string;
 }) => {
   return (
-    <div className="step " data-content={index}>
-      <div className="text-text-center">
-        <div className="font-semibold pt-4">{title}</div>
-        <div className="text-xs  pt-2">{description}</div>
+    <div className="step" data-content={index}>
+      <div className="text-left">
+        <div className="font-semibold pt-4 text-sm lg:text-base">{title}</div>
+        <div className="text-xs pt-2 text-base-content/70">{description}</div>
       </div>
     </div>
   );

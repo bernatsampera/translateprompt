@@ -127,13 +127,13 @@ function TranslateGraph({
 
   return (
     <div className="flex h-full">
-      <div className="flex-1 mx-auto max-w-6xl p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="flex-1 mx-auto max-w-6xl p-2 lg:p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-4 lg:mb-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Original</h2>
+              <h2 className="text-base lg:text-lg font-semibold">Original</h2>
               <select
-                className="select select-bordered select-sm"
+                className="select select-bordered select-sm text-xs lg:text-sm"
                 value={sourceLanguage}
                 onChange={(e) => setSourceLanguage(e.target.value)}
               >
@@ -146,14 +146,14 @@ function TranslateGraph({
             </div>
             <div className="form-control">
               <textarea
-                className="textarea textarea-bordered w-full min-h-48 resize-none focus:textarea-primary"
+                className="textarea textarea-bordered w-full min-h-32 lg:min-h-48 resize-none focus:textarea-primary text-sm lg:text-base"
                 placeholder="Enter text to translate..."
                 value={textToTranslate}
                 onChange={(e) => setTextToTranslate(e.target.value)}
               ></textarea>
             </div>
             <button
-              className="btn btn-primary w-full"
+              className="btn btn-primary w-full text-sm lg:text-base"
               onClick={() => handleStartTranslation(textToTranslate)}
               disabled={!textToTranslate.trim() || isTranslating}
             >
@@ -164,10 +164,12 @@ function TranslateGraph({
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Translation</h2>
+              <h2 className="text-base lg:text-lg font-semibold">
+                Translation
+              </h2>
               <div className="flex items-center gap-2">
                 <select
-                  className="select select-bordered select-sm"
+                  className="select select-bordered select-sm text-xs lg:text-sm"
                   value={targetLanguage}
                   onChange={(e) => setTargetLanguage(e.target.value)}
                 >
@@ -191,7 +193,7 @@ function TranslateGraph({
             </div>
             <div className="form-control">
               <textarea
-                className="textarea textarea-bordered textarea w-full min-h-48 resize-none bg-base-200/50"
+                className="textarea textarea-bordered textarea w-full min-h-32 lg:min-h-48 resize-none bg-base-200/50 text-sm lg:text-base"
                 placeholder="Translation will appear here..."
                 value={response || ""}
                 readOnly
@@ -205,7 +207,7 @@ function TranslateGraph({
                 </div>
                 <div className="form-control">
                   <textarea
-                    className="textarea textarea-bordered w-full h-16 resize-none"
+                    className="textarea textarea-bordered w-full h-16 resize-none text-sm lg:text-base"
                     placeholder="Suggest improvements..."
                     value={textToRefine}
                     onChange={(e) => setTextToRefine(e.target.value)}
@@ -213,7 +215,7 @@ function TranslateGraph({
                 </div>
                 <div className="flex gap-2">
                   <button
-                    className="btn btn-accent flex-1"
+                    className="btn btn-accent flex-1 text-sm lg:text-base"
                     onClick={() => handleRefineTranslation(textToRefine)}
                     disabled={!textToRefine}
                   >
