@@ -18,6 +18,7 @@ interface GlossaryImprovementsProps {
 
 interface EditingEntry extends GlossaryEntry {
   index: number;
+  originalSource: string;
 }
 
 function GlossaryImprovements({
@@ -66,7 +67,8 @@ function GlossaryImprovements({
       target: entry.target,
       note: entry.note,
       source_language: entry.source_language,
-      target_language: entry.target_language
+      target_language: entry.target_language,
+      originalSource: entry.source
     });
   };
 
@@ -81,10 +83,12 @@ function GlossaryImprovements({
 
     try {
       await editGlossaryEntry(
-        editingEntry.source, // old source
-        editingEntry.source, // new source (same for now, could be made editable)
+        editingEntry.originalSource, // old source
+        editingEntry.source, // new source
         editingEntry.target,
-        editingEntry.note
+        editingEntry.note,
+        editingEntry.source_language,
+        editingEntry.target_language
       );
 
       // Refresh glossary entries

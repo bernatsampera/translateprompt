@@ -36,8 +36,8 @@ class EditGlossaryRequest(BaseModel):
     new_source: str
     target: str
     note: str
-    source_language: str | None = None
-    target_language: str | None = None
+    source_language: str
+    target_language: str
 
 
 class DeleteGlossaryRequest(BaseModel):

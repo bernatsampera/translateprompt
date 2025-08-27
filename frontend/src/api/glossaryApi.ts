@@ -59,7 +59,9 @@ export const editGlossaryEntry = async (
   oldSource: string,
   newSource: string,
   target: string,
-  note: string = ""
+  note: string = "",
+  source_language: string,
+  target_language: string
 ): Promise<{status: string; message: string}> => {
   const response = await axiosInstance.put(
     `${GLOSSARY_BASE_URL}/edit-glossary-entry`,
@@ -67,7 +69,9 @@ export const editGlossaryEntry = async (
       old_source: oldSource,
       new_source: newSource,
       target,
-      note
+      note,
+      source_language,
+      target_language
     }
   );
   return response.data;
