@@ -1,4 +1,5 @@
-import {Globe, Heart} from "lucide-react";
+import {Globe} from "lucide-react";
+import {Link} from "react-router-dom";
 import type {FooterConfig} from "../types/navigation";
 
 interface FooterProps extends FooterConfig {}
@@ -12,22 +13,35 @@ function Footer({companyName, tagline, madeWithText, links}: FooterProps) {
           <p className="font-bold text-lg">{companyName}</p>
         </div>
         <p className="text-sm opacity-70">{tagline}</p>
-        <p className="text-xs opacity-50 mt-2">
-          {madeWithText} <Heart className="h-3 w-3 inline text-red-500" /> for
-          global communication
-        </p>
       </div>
       <div>
         <div className="grid grid-flow-col gap-4">
-          {links.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="link link-hover text-sm"
-            >
-              {link.label}
-            </a>
-          ))}
+          {links.map((link) => {
+            // Use Link for internal routes, a tag for external
+            const isInternal = link.href.startsWith("/");
+
+            if (isInternal) {
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="link link-hover text-sm"
+                >
+                  {link.label}
+                </Link>
+              );
+            } else {
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="link link-hover text-sm"
+                >
+                  {link.label}
+                </a>
+              );
+            }
+          })}
         </div>
       </div>
     </footer>

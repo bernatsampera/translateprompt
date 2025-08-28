@@ -1,10 +1,9 @@
-import {useRef} from "react";
+import {Route, BrowserRouter as Router, Routes} from "react-router-dom";
 import {Toaster} from "sonner";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-// import TranslateGraph from "./features/TranslateGraph";
-import SystemExplanation from "./components/SystemExplanation";
-import TranslateGraph from "./features/TranslateGraph";
+import Home from "./components/Home";
+import TermsOfService from "./components/TermsOfService";
 import type {FooterConfig, NavItem} from "./types/navigation";
 
 // Navigation configuration
@@ -29,13 +28,13 @@ const footerConfig: FooterConfig = {
   tagline: "Professional translation services powered by AI",
   madeWithText: "Made with",
   links: [
+    {
+      label: "Terms of Service",
+      href: "/terms"
+    }
     // {
     //   label: "Privacy Policy",
     //   href: "#privacy"
-    // },
-    // {
-    //   label: "Terms of Service",
-    //   href: "#terms"
     // },
     // {
     //   label: "Support",
@@ -45,37 +44,21 @@ const footerConfig: FooterConfig = {
 };
 
 function App() {
-  const conversationIdRef = useRef<string | null>(null);
-
   return (
-    <div className="min-h-screen flex flex-col bg-base-100">
-      <Header navItems={topNavItems} />
+    <Router>
+      <div className="min-h-screen flex flex-col bg-base-100">
+        <Header navItems={topNavItems} />
 
-      {/* Main Content */}
-      <main className="flex-1 py-6 lg:py-12 px-4 lg:px-8 max-w-7xl w-full mx-auto">
-        {/* Hero Section */}
-        <div className="text-center mb-8 lg:mb-16">
-          <h1 className="text-3xl lg:text-5xl font-bold text-base-content mb-4">
-            Translate Prompt
-          </h1>
-          <p className="text-lg lg:text-xl text-base-content/70 max-w-2xl mx-auto leading-relaxed px-4">
-            AI-powered translation with automatic glossary
-          </p>
-        </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/terms" element={<TermsOfService />} />
+        </Routes>
 
-        {/* Translation Interface */}
-        <div className="">
-          <TranslateGraph conversationIdRef={conversationIdRef} />
-        </div>
-      </main>
-      {/* System Explanation */}
-      <div className="mb-16 lg:mb-32">
-        <SystemExplanation />
+        <Footer {...footerConfig} />
+
+        <Toaster richColors position="bottom-center" />
       </div>
-      <Footer {...footerConfig} />
-
-      <Toaster richColors position="bottom-center" />
-    </div>
+    </Router>
   );
 }
 
