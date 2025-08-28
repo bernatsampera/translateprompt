@@ -6,7 +6,7 @@ from contextvars import ContextVar
 from datetime import datetime
 
 from dotenv import load_dotenv
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 
@@ -32,9 +32,77 @@ current_request_ip: ContextVar[str] = ContextVar(
 )
 
 
+def get_real_ip(request: Request) -> str:
+    """Extract the real user IP address from the request.
+
+    This function checks multiple headers to find the real user IP,
+    handling cases where the application is behind reverse proxies,
+    load balancers, or CDNs like Cloudflare.
+
+    Args:
+        request: FastAPI Request object
+
+    Returns:
+        str: The real user IP address
+    """
+    # Headers to check in order of preference
+    # X-Forwarded-For is the most common, but others are used by different proxies
+    headers_to_check = [
+        "x-forwarded-for",  # Standard proxy header
+        "x-real-ip",  # Nginx and other proxies
+        "cf-connecting-ip",  # Cloudflare
+        "x-client-ip",  # Some proxies
+        "x-forwarded",  # Some proxies
+        "forwarded-for",  # RFC 7239
+        "forwarded",  # RFC 7239
+    ]
+
+    # Check each header for IP address
+    for header in headers_to_check:
+        ip = request.headers.get(header)
+        if ip:
+            # X-Forwarded-For can contain multiple IPs (client, proxy1, proxy2, ...)
+            # The first one is usually the original client IP
+            if header == "x-forwarded-for":
+                ip = ip.split(",")[0].strip()
+
+            # Basic validation to ensure it's a valid IP-like string
+            if (
+                ip
+                and ip != "unknown"
+                and not ip.startswith("127.")
+                and not ip.startswith("::1")
+            ):
+                return ip
+
+    # Fallback to request.client.host if no headers found
+    # This will be the Docker container IP in containerized environments
+    fallback_ip = request.client.host if request.client else "unknown"
+
+    # Log for debugging purposes
+    logger.info(f"No real IP found in headers, using fallback: {fallback_ip}")
+    logger.debug(f"Available headers: {dict(request.headers)}")
+
+    return fallback_ip
+
+
 def set_request_ip(ip: str) -> None:
     """Set the current request's IP address in context."""
     current_request_ip.set(ip)
+
+
+def set_request_ip_from_request(request: Request) -> str:
+    """Extract and set the real user IP from the request.
+
+    Args:
+        request: FastAPI Request object
+
+    Returns:
+        str: The extracted IP address
+    """
+    real_ip = get_real_ip(request)
+    set_request_ip(real_ip)
+    return real_ip
 
 
 def get_request_ip() -> str:
