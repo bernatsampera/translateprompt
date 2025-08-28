@@ -29,14 +29,10 @@ CREATE TABLE IF NOT EXISTS user_ips (
 )
 """
 
-# Add more table schemas here as needed
-# Example:
-# ANALYTICS_TABLE_SCHEMA = """
-# CREATE TABLE IF NOT EXISTS analytics (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     event_type TEXT NOT NULL,
-#     user_ip TEXT,
-#     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#     data JSON
-# )
-# """
+WAITLIST_TABLE_SCHEMA = """
+CREATE TABLE IF NOT EXISTS waitlist (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+"""

@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import config
-from routes import glossary_endpoints, graph_endpoints
+from routes import glossary_endpoints, graph_endpoints, waitlist_endpoints
 
 app = FastAPI(
     title="DocTranscriber",
@@ -32,7 +32,7 @@ def read_root():
 # Include routers
 app.include_router(graph_endpoints.router)
 app.include_router(glossary_endpoints.router)
-
+app.include_router(waitlist_endpoints.router)
 
 if __name__ == "__main__":
     uvicorn.run(

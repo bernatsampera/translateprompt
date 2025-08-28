@@ -1,5 +1,6 @@
-import {Github, Globe, Menu} from "lucide-react";
+import {Globe, Menu} from "lucide-react";
 import type {NavItem} from "../types/navigation";
+import Waitlist from "./Waitlist";
 
 interface HeaderProps {
   navItems: NavItem[];
@@ -41,14 +42,13 @@ function Header({navItems}: HeaderProps) {
         </ul>
       </div>
       <div className="navbar-end">
+        <Waitlist />
         <a
           href="https://github.com"
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-ghost btn-circle"
-        >
-          <Github className="h-5 w-5" />
-        </a>
+        ></a>
       </div>
     </header>
   );

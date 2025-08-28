@@ -1,6 +1,6 @@
 import axiosInstance from "./axiosConfig";
 
-const BASE_URL = "http://localhost:8008";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const GLOSSARY_BASE_URL = `${BASE_URL}/glossary`;
 
 export interface GlossaryEntry {
