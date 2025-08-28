@@ -3,6 +3,7 @@
 from typing import Dict
 
 from config import config
+from database.connection import create_database_connection
 from database.glossary_operations import GlossaryOperations
 from database.models import GlossaryEntry
 
@@ -14,9 +15,10 @@ class GlossaryManager:
         """Initialize the glossary manager.
 
         Args:
-            db_path: Path to the glossary SQLite database. If None, uses default path.
+            db_path: Path to the glossary SQLite database. If None, uses config DATABASE_PATH.
         """
-        self.db = GlossaryOperations()
+        db_connection = create_database_connection(db_path)
+        self.db = GlossaryOperations(db_connection=db_connection)
 
     def add_source(
         self,

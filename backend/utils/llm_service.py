@@ -10,6 +10,7 @@ from fastapi import HTTPException
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 
+from database.connection import create_database_connection
 from database.user_ip_operations import UserIPOperations
 from utils.logger import logger
 
@@ -21,7 +22,9 @@ MAX_TOKENS_PER_MINUTE = 50000
 # 10k tokens in total
 MAX_TOKENS_PER_IP = 4000
 
-UserIPOperations = UserIPOperations()
+# Create UserIPOperations with config database path
+_db_connection = create_database_connection()
+UserIPOperations = UserIPOperations(db_connection=_db_connection)
 
 # Context variable to store current request's IP address
 current_request_ip: ContextVar[str] = ContextVar(

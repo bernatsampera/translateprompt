@@ -13,6 +13,23 @@ from .schemas import (
 )
 
 
+def create_database_connection(db_path: str = None) -> "DatabaseConnection":
+    """Create a DatabaseConnection with proper path handling.
+
+    Args:
+        db_path: Path to the SQLite database. If None, uses default path.
+
+    Returns:
+        DatabaseConnection instance configured with the appropriate path.
+    """
+    from config import config
+
+    if db_path is None:
+        db_path = config.DATABASE_PATH
+
+    return DatabaseConnection(db_path=db_path) if db_path else DatabaseConnection()
+
+
 class DatabaseConnection:
     """Manages database connections and initialization."""
 
