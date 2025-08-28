@@ -72,6 +72,8 @@ def refine_translation(request: TranslateRequest, background_tasks: BackgroundTa
     user_refinement_message = request.message
     result = run_graph(Command(resume=user_refinement_message), thread_id)
 
-    check_glossary_updates(thread_id)  # Just checking, hopefully not waiting
+    check_glossary_updates(
+        thread_id
+    )  # Triggers the search for glossary improvements on the background
 
     return {"response": extractInterruption(result), "conversation_id": thread_id}

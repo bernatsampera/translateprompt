@@ -10,10 +10,10 @@ from models import (
     GlossaryEntry,
     GlossaryResponse,
 )
-from translate_graph.index import graph
 from translate_graph.prompts import lead_update_glossary_prompt
 from translate_graph.state import ConductUpdate, NoUpdate
-from utils.graph_utils import create_graph_config, get_graph_state
+from utils.graph_utils import get_graph_state
+from utils.improvement_cache import improvement_cache
 from utils.llm_service import LLM_Service
 
 # --- Setup --------------------------------------------------------------------
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/glossary", tags=["glossary"])
 
 
 def check_glossary_updates(conversation_id: str):
-    config = create_graph_config(conversation_id)
+    """Check for glossary improvement suggestions and store them in cache."""
     state = get_graph_state(conversation_id)
 
     if not state.get("messages") or len(state["messages"]) < 3:
@@ -48,18 +48,16 @@ def check_glossary_updates(conversation_id: str):
     response = llm.bind_tools([ConductUpdate, NoUpdate]).invoke(prompt)
 
     if response.tool_calls:
-        graph.update_state(config, {"improvement_tool_calls": response.tool_calls})
+        improvement_cache.add_calls(conversation_id, response.tool_calls)
 
 
 @router.get("/glossary-improvements/{conversation_id}")
 def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
     """Get glossary improvement suggestions for a conversation."""
-    config = create_graph_config(conversation_id)
-
     graph_values = get_graph_state(conversation_id)
 
-    # Reload updated state
-    improvement_tool_calls = graph_values.get("improvement_tool_calls", [])
+    # Get improvement tool calls from cache
+    improvement_tool_calls = improvement_cache.get_calls(conversation_id)
 
     source_language = graph_values.get("source_language")
     target_language = graph_values.get("target_language")
@@ -85,23 +83,16 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
     )
 
     if conversation_id:
-        config = create_graph_config(conversation_id)
-
         graph_values = get_graph_state(conversation_id)
         glossary_entry.source_language = graph_values.get("source_language")
         glossary_entry.target_language = graph_values.get("target_language")
 
-        # Remove the applied glossary entry
-        graph.update_state(
-            config,
+        # Remove the applied glossary entry from cache
+        improvement_cache.remove_calls(
+            conversation_id,
             {
-                "improvement_tool_calls": {
-                    "action": "remove",
-                    "filter": {
-                        "source": glossary_entry.source,
-                        "target": glossary_entry.target,
-                    },
-                }
+                "source": glossary_entry.source,
+                "target": glossary_entry.target,
             },
         )
 
