@@ -8,8 +8,8 @@ from config import config
 from routes import glossary_endpoints, graph_endpoints, waitlist_endpoints
 
 app = FastAPI(
-    title="DocTranscriber",
-    description="DocTranscriber is a tool that transcribes documents into a structured format.",
+    title="TranslatePrompt",
+    description="Translateprompt is a site that allows users to translate with a glossary",
     version="1.0.0",
 )
 
@@ -23,10 +23,10 @@ app.add_middleware(
 )
 
 
-@app.get("/api/v1/hello")
-def read_root():
+@app.get("/health")
+def health_check():
     """Health check endpoint."""
-    return {"message": "This comes from the backend"}
+    return {"status": "ok"}
 
 
 # Include routers

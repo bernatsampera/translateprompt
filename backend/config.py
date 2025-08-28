@@ -42,11 +42,6 @@ class Config:
         return os.getenv("CORS_ORIGINS", "*").split(",")
 
     @property
-    def LLM_API_KEY(self) -> str | None:
-        """Get LLM API key."""
-        return os.getenv("LLM_API_KEY")
-
-    @property
     def LLM_MODEL(self) -> str:
         """Get LLM model."""
         return os.getenv("LLM_MODEL", "gpt-4o-mini")
