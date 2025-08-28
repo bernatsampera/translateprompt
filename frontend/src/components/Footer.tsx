@@ -4,7 +4,7 @@ import type {FooterConfig} from "../types/navigation";
 
 interface FooterProps extends FooterConfig {}
 
-function Footer({companyName, tagline, madeWithText, links}: FooterProps) {
+function Footer({companyName, tagline, links}: FooterProps) {
   return (
     <footer className="footer footer-center p-10 bg-base-200 text-base-content">
       <div>

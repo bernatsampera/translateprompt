@@ -5,7 +5,6 @@ import uuid
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 from langgraph.types import Command
 
-from basic_translate.index import graph as basic_translate_graph
 from models import TranslateRequest
 from routes.glossary_endpoints import check_glossary_updates
 from translate_graph.index import graph
@@ -26,26 +25,6 @@ def run_graph(input_data, thread_id: str):
     config = create_graph_config(thread_id)
     result: TranslateState = graph.invoke(input_data, config)
     return result
-
-
-@router.post("/translate-basic")
-def translate_basic(translate_request: TranslateRequest, request: Request):
-    """Chat endpoint to start the graph with a user message."""
-    # Set IP context for rate limiting
-    set_request_ip(request.client.host)
-
-    # Create initial state with user message
-    initial_state = {
-        "messages": [{"role": "user", "content": translate_request.message}]
-    }
-
-    # Run the graph
-    result = basic_translate_graph.invoke(initial_state)
-
-    # Extract the assistant's response
-    assistant_message = result["messages"][-1].content
-
-    return {"response": assistant_message}
 
 
 @router.post("/translate")

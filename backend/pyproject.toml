@@ -22,8 +22,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["translate_graph", "basic_translate"]
-
+packages = ["translate_graph"]
 
 [tool.ruff]
 # Enable auto-fixing
