@@ -8,28 +8,6 @@ import {
 import {ChevronDown, ChevronLeft, ChevronRight, ChevronUp} from "lucide-react";
 import {useEffect, useState} from "react";
 
-// Custom hook to detect if screen is mobile
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 1024); // lg breakpoint
-    };
-
-    // Check on mount
-    checkIsMobile();
-
-    // Add event listener for resize
-    window.addEventListener("resize", checkIsMobile);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkIsMobile);
-  }, []);
-
-  return isMobile;
-};
-
 interface GlossaryImprovementsProps {
   improvements: GlossaryEntry[];
   conversationId: string;
@@ -52,7 +30,6 @@ function GlossaryImprovements({
 }: GlossaryImprovementsProps) {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<EditingEntry | null>(null);
-  const isMobile = useIsMobile();
 
   // Initialize collapsed state based on screen size
   const [isCollapsed, setIsCollapsed] = useState(() => {
