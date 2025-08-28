@@ -14,60 +14,83 @@ const Home = () => {
   const conversationIdRef = useRef<string | null>(null);
 
   return (
-    <>
-      {/* Main Content */}
-      <main className="flex-1 py-6 lg:py-12 px-4 lg:px-8 max-w-7xl w-full mx-auto">
-        {/* Hero Section */}
-        <div className="text-center mb-8 lg:mb-16">
-          <h1 className="text-3xl lg:text-5xl font-bold text-base-content mb-4">
+    <div className="min-h-screen bg-base-100">
+      {/* Hero Section */}
+      <section className="py-16 lg:py-24 px-4 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl lg:text-6xl font-bold text-base-content mb-6">
             Translate Prompt
           </h1>
-          <p className="text-lg lg:text-xl text-base-content/70 max-w-2xl mx-auto leading-relaxed px-4">
+          <p className="text-xl lg:text-2xl text-base-content/70 max-w-3xl mx-auto leading-relaxed">
             AI-powered translation with automatic glossary
           </p>
         </div>
+      </section>
 
-        {/* Translation Interface */}
-        <div className="">
+      {/* Translation Interface Section */}
+      <section className="py-8 lg:py-10 px-4 lg:px-8 ">
+        <div className="max-w-7xl mx-auto">
           <TranslateGraph conversationIdRef={conversationIdRef} />
         </div>
-      </main>
+      </section>
 
-      {/* System Explanation */}
-      <div className="mb-16 lg:mb-32">
-        <SystemExplanation />
-      </div>
+      {/* How It Works Section */}
+      <section className="py-16 lg:py-24 px-4 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-base-content mb-6">
+              How It Works
+            </h2>
+            <p className="text-lg text-base-content/70 max-w-3xl mx-auto leading-relaxed">
+              Our intelligent translation system learns from your corrections to
+              build a personalized glossary
+            </p>
+          </div>
 
-      <div className="mb-16 lg:mb-32 flex flex-col items-center justify-center">
-        <div className="text-center text-lg font-semibold mb-4">
-          Join the waitlist
-          <p className="text-base-content/70 text-sm">
-            The release will be around September/October 2025.
-            <br />
-            <ul className="py-3">
+          <SystemExplanation />
+        </div>
+      </section>
+
+      {/* Coming Soon Section */}
+      <section className="py-16 lg:py-24 px-4 lg:px-8 bg-base-200/30">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-base-content mb-8">
+            Coming Soon
+          </h2>
+
+          <div className="mb-12">
+            <p className="text-lg text-base-content/70 mb-8">
+              The full release will be available around September/October 2025
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-12">
               {features.map((feature, index) => (
-                <li
+                <div
                   key={index}
-                  className="group border-b border-base-300 last:border-b-0"
+                  className="bg-base-100 rounded-lg p-6 shadow-sm border border-base-300/50 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 transition-all duration-300 cursor-pointer">
-                    <div className="text-xl font-extralight text-primary/20 group-hover:text-primary/40 tabular-nums transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="text-2xl font-light text-primary/40 tabular-nums">
                       {String(index + 1).padStart(2, "0")}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-base font-semibold group-hover:text-primary transition-colors duration-300">
-                        {feature}
-                      </h3>
-                    </div>
+                    <h3 className="text-base font-semibold text-base-content">
+                      {feature}
+                    </h3>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
-          </p>
+            </div>
+          </div>
+
+          <div className="bg-base-100 rounded-lg p-8 shadow-sm border border-base-300/50 max-w-md mx-auto">
+            <h3 className="text-xl font-semibold text-base-content mb-6">
+              Join the Waitlist
+            </h3>
+            <Waitlist />
+          </div>
         </div>
-        <Waitlist />
-      </div>
-    </>
+      </section>
+    </div>
   );
 };
 

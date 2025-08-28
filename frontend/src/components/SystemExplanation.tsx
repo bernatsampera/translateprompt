@@ -1,26 +1,24 @@
 const SystemExplanation = () => {
   return (
-    <div className="card">
-      <h2 className="text-2xl font-bold mx-auto text-center">Steps</h2>
-
-      <div className="steps steps-vertical lg:steps-horizontal w-full mt-6">
+    <div className="w-full">
+      <div className="steps steps-vertical lg:steps-horizontal w-full">
         <Step
-          title="1. Correct translation"
+          title="Correct translation"
           description="Use 'pint' instead of 'beer'"
           index={"🗣️"}
         />
         <Step
-          title="2a. Apply correction"
+          title="Apply correction"
           description="Makes the correction based on your input"
           index={"📝"}
         />
         <Step
-          title="2b. Suggest improvements"
+          title="Suggest improvements"
           description="How to avoid making the same mistake"
           index={"💡"}
         />
         <Step
-          title="3. Add new entries to glossary"
+          title="Update glossary"
           description="Accept or reject suggestions"
           index={"📖"}
         />
@@ -41,8 +39,10 @@ const Step = ({
   return (
     <div className="step" data-content={index}>
       <div className="text-left">
-        <div className="font-semibold pt-4 text-sm lg:text-base">{title}</div>
-        <div className="text-xs pt-2 text-base-content/70">{description}</div>
+        <div className="font-semibold pt-6 text-base lg:text-lg">{title}</div>
+        <div className="text-sm pt-3 text-base-content/70 leading-relaxed max-w-xs">
+          {description}
+        </div>
       </div>
     </div>
   );
