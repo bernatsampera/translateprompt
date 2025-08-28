@@ -20,7 +20,7 @@ function RefinePanel({
         <div className="form-control">
           <textarea
             className="textarea textarea-bordered w-full h-16 resize-none text-sm lg:text-base"
-            placeholder="Suggest improvements..."
+            placeholder="Suggest improvements... ( Use 'x word' instead of 'y word')"
             value={textToRefine}
             onChange={(e) => onTextToRefineChange(e.target.value)}
           />
