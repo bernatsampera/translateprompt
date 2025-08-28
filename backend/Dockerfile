@@ -15,7 +15,7 @@ COPY . .
 RUN pip install --no-cache-dir -e .
 
 # Create directory for database if it doesn't exist
-RUN mkdir -p database
+RUN mkdir -p /app/data && chown -R app:app /app/data VOLUME ["/app/data"]
 
 # Expose the port
 EXPOSE 8010
