@@ -24,7 +24,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log("axiosconfig error", error);
+    // console.log("axiosconfig error", error);
     // Handle different types of errors
     let errorMessage = "An unexpected error occurred";
 
@@ -32,7 +32,7 @@ axiosInstance.interceptors.response.use(
       // Server responded with error status
       const status = error.response.status;
       const data = error.response.data;
-      console.log("error.response", error.response);
+      // console.log("error.response", error.response);
 
       // Handle different error response formats
       if (typeof data === "string") {
@@ -49,7 +49,7 @@ axiosInstance.interceptors.response.use(
       errorMessage = JSON.stringify(data); // kind of hacky to be able to render when the errorMessage is an object
     } else if (error.request) {
       // Request was made but no response received
-      console.log("error.request", error.request);
+      // console.log("error.request", error.request);
 
       errorMessage = "Network error - please check your connection";
     } else {

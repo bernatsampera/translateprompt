@@ -32,7 +32,6 @@ function GlossaryImprovements({
   const [editingEntry, setEditingEntry] = useState<EditingEntry | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  console.log("glossaryEntries", glossaryEntries);
   // Load glossary entries
   const loadGlossaryEntries = () => {
     if (!sourceLanguage || !targetLanguage) return;

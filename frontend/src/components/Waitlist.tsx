@@ -8,7 +8,6 @@ const Waitlist = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(email);
 
     const response = await addToWaitlist(email);
 
