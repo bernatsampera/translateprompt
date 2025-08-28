@@ -33,7 +33,7 @@ export function useTranslation(options: UseTranslationOptions = {}) {
         options.onTranslationComplete?.(response);
       } catch (error) {
         console.error("Translation error:", error);
-        const errorMessage = "Error: Translation failed. Please try again.";
+        const errorMessage = "Error: Translation failed.";
         setTranslation(errorMessage);
         options.onError?.(
           error instanceof Error ? error : new Error("Translation failed")

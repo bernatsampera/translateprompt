@@ -18,7 +18,7 @@ class UserIPOperations:
         """
         self.db = db_connection or DatabaseConnection()
 
-    def add_user_ip(self, ip_address: str) -> bool:
+    def add_user_ip(self, ip_address: str) -> UserIP:
         """Add a new user IP address.
 
         Args:
@@ -35,10 +35,10 @@ class UserIPOperations:
             params = (ip_address,)
 
             self.db.execute_update(query, params)
-            return True
+            return UserIP(ip_address=ip_address, token_count=0)
         except Exception as e:
             print(f"Error adding user IP: {e}")
-            return False
+            return None
 
     def get_user_ip(self, ip_address: str) -> UserIP | None:
         """Get a specific user IP record.

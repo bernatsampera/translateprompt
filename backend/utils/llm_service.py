@@ -6,6 +6,7 @@ from contextvars import ContextVar
 from datetime import datetime
 
 from dotenv import load_dotenv
+from fastapi import HTTPException
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 
@@ -16,6 +17,9 @@ load_dotenv()
 
 # Teoretically are like 250000 on the free google api rate but let's keep it to 50k to be safe
 MAX_TOKENS_PER_MINUTE = 50000
+
+# 10k tokens in total
+MAX_TOKENS_PER_IP = 4000
 
 UserIPOperations = UserIPOperations()
 
@@ -60,9 +64,16 @@ class LLM_Service:
         """Invoke the LLM with the given prompt."""
         now = time.time()
         request_ip = current_request_ip.get()
+        user = UserIPOperations.get_user_ip(request_ip)
 
-        # Print the IP
-        print(f"llm service Request IP: {request_ip}")
+        if not user:
+            user = UserIPOperations.add_user_ip(request_ip)
+
+        if user and user.token_count > MAX_TOKENS_PER_IP:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Usage Limit of {MAX_TOKENS_PER_IP} tokens reached. We are still in our beta, join the waitlist to get access when it's released.",
+            )
 
         # Clean history (older than 60s)
         while self.history and now - self.history[0][0] > 60:
@@ -113,8 +124,9 @@ class LLM_Service:
         logger.info(
             f"Model={llm.get_name()} | TokensThisCall={used} | TokensLastMin={tokens_last_min + used}"
         )
-        user = UserIPOperations.get_user_ip(request_ip)
+
         UserIPOperations.update_token_count(request_ip, user.token_count + used)
+
         return response
 
     def __call__(self, *args, **kwargs):
