@@ -14,8 +14,12 @@ COPY . .
 # Install Python dependencies
 RUN pip install --no-cache-dir -e .
 
-# Create directory for database if it doesn't exist
-RUN mkdir -p /app/data && chown -R app:app /app/data VOLUME ["/app/data"]
+# Create database directory with proper permissions
+RUN mkdir -p /app/data && chown -R app:app /app/data
+
+# Create volume mount point for database persistence
+VOLUME ["/app/data"]
+
 
 # Expose the port
 EXPOSE 8010
