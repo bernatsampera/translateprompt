@@ -36,28 +36,34 @@ function SourcePanel({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-base lg:text-lg font-semibold">Original</h2>
+        <h2 className="text-lg md:text-xl font-bold text-base-content">
+          Original
+        </h2>
         <LanguageSelector
           value={sourceLanguage}
           onChange={onSourceLanguageChange}
         />
       </div>
-      <div className="form-control">
-        <textarea
-          className="textarea textarea-bordered w-full min-h-32 lg:min-h-48 resize-none focus:textarea-primary text-sm lg:text-base"
-          placeholder="Enter text to translate..."
-          value={textToTranslate}
-          onChange={(e) => onTextToTranslateChange(e.target.value)}
-        />
-      </div>
+
+      <textarea
+        className="textarea textarea-bordered w-full min-h-40 lg:min-h-56 resize-none text-lg leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+        placeholder="Enter text to translate..."
+        value={textToTranslate}
+        onChange={(e) => onTextToTranslateChange(e.target.value)}
+      />
+
       <button
-        className="btn btn-primary w-full text-sm lg:text-base"
+        className="btn btn-primary w-full text-sm md:text-lg font-semibold h-14"
         onClick={() => onTranslate(textToTranslate)}
         disabled={!textToTranslate.trim() || isTranslating}
       >
-        <ArrowRightLeft className="h-4 w-4" />
+        {isTranslating ? (
+          <span className="loading loading-spinner loading-sm"></span>
+        ) : (
+          <ArrowRightLeft className="h-5 w-5" />
+        )}
         {isTranslating ? "Translating..." : getTranslationButtonText()}
       </button>
     </div>

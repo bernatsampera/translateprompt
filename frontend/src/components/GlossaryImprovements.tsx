@@ -8,6 +8,28 @@ import {
 import {ChevronDown, ChevronLeft, ChevronRight, ChevronUp} from "lucide-react";
 import {useEffect, useState} from "react";
 
+// Custom hook to detect if screen is mobile
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+
+    // Check on mount
+    checkIsMobile();
+
+    // Add event listener for resize
+    window.addEventListener("resize", checkIsMobile);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
+
+  return isMobile;
+};
+
 interface GlossaryImprovementsProps {
   improvements: GlossaryEntry[];
   conversationId: string;
@@ -30,7 +52,16 @@ function GlossaryImprovements({
 }: GlossaryImprovementsProps) {
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<EditingEntry | null>(null);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Initialize collapsed state based on screen size
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Default to collapsed on mobile, expanded on desktop
+    return typeof window !== "undefined" ? window.innerWidth < 1024 : false;
+  });
+
+  // Note: We only set the initial state based on screen size
+  // Users can manually toggle the glossary on any screen size
 
   // Load glossary entries
   const loadGlossaryEntries = () => {
@@ -158,7 +189,6 @@ function GlossaryImprovements({
     <>
       {/* Mobile Bottom Drawer */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-base-100 border-t border-base-300 max-h-[70vh] flex flex-col">
-        {/* Header */}
         <div className="p-4 border-b border-base-300 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-base-content">Glossary</h2>
           <button
@@ -171,9 +201,7 @@ function GlossaryImprovements({
           </button>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {/* Suggested Improvements Section */}
           {improvements.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-base-content">
@@ -217,7 +245,6 @@ function GlossaryImprovements({
             </div>
           )}
 
-          {/* Current Glossary Entries Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-base-content">
               Current Entries ({sourceLanguage} → {targetLanguage})

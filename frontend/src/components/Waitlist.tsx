@@ -1,5 +1,5 @@
 import {addToWaitlist} from "@/api/waitlistApi";
-import {MailIcon} from "lucide-react";
+import {ArrowRight, MailIcon} from "lucide-react";
 import {useState} from "react";
 import {toast} from "sonner";
 
@@ -29,7 +29,8 @@ const Waitlist = () => {
         <div className="validator-hint hidden">Enter valid email address</div>
       </div>
       <button className="btn btn-neutral join-item" type="submit">
-        Join the waitlist
+        Join <span className="hidden sm:inline">the waitlist</span>{" "}
+        <ArrowRight className="h-4 w-4 ml-2" />
       </button>
     </form>
   );

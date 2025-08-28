@@ -55,6 +55,8 @@ export function useTranslation(options: UseTranslationOptions = {}) {
         throw new Error("Please start a new conversation first");
       }
 
+      setIsTranslating(true);
+
       const response = await translationService.refine(
         refinementText,
         conversationId,
@@ -64,6 +66,7 @@ export function useTranslation(options: UseTranslationOptions = {}) {
 
       setTranslation(response.response);
       options.onTranslationComplete?.(response);
+      setIsTranslating(false);
     },
     [conversationId, options]
   );

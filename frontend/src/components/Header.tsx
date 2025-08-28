@@ -1,4 +1,3 @@
-import {Menu} from "lucide-react";
 import Bleaksvg from "../assets/bleak_transparent.svg";
 import type {NavItem} from "../types/navigation";
 import Waitlist from "./Waitlist";
@@ -11,7 +10,7 @@ function Header({navItems}: HeaderProps) {
   return (
     <header className="navbar bg-base-200 shadow-lg">
       <div className="navbar-start">
-        <div className="dropdown">
+        {/* <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
             <Menu className="w-5 h-5" />
           </div>
@@ -25,7 +24,7 @@ function Header({navItems}: HeaderProps) {
               </li>
             ))}
           </ul>
-        </div>
+        </div> */}
         <div className="flex items-center gap-1">
           <img src={Bleaksvg} alt="Bleak" className="h-8 w-8" />
           <a className="btn btn-ghost text-xl font-bold">TranslatePrompt</a>
@@ -42,7 +41,7 @@ function Header({navItems}: HeaderProps) {
           ))}
         </ul>
       </div>
-      <div className="navbar-end">
+      <div className="hidden lg:flex navbar-end">
         <Waitlist />
         <a
           href="https://github.com"

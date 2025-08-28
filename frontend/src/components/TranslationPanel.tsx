@@ -57,6 +57,7 @@ function TranslationPanel({
           targetLanguage={targetLanguage}
           onTargetLanguageChange={onTargetLanguageChange}
           translation={translation}
+          isTranslating={isTranslating}
           onCopyToClipboard={onCopyToClipboard}
           isCopying={isCopying}
         />

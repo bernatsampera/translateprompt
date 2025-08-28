@@ -42,7 +42,7 @@ interface LanguageSelectorProps {
 function LanguageSelector({
   value,
   onChange,
-  className = "w-40"
+  className = "w-32"
 }: LanguageSelectorProps) {
   return (
     <Select
