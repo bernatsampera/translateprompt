@@ -1,6 +1,6 @@
 """Glossary-related endpoints for the translation API."""
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from glossary import GlossaryManager
 from models import (
@@ -14,7 +14,7 @@ from translate_graph.prompts import lead_update_glossary_prompt
 from translate_graph.state import ConductUpdate, NoUpdate
 from utils.graph_utils import get_graph_state
 from utils.improvement_cache import improvement_cache
-from utils.llm_service import LLM_Service
+from utils.llm_service import LLM_Service, set_request_ip
 
 # --- Setup --------------------------------------------------------------------
 
@@ -25,6 +25,37 @@ router = APIRouter(prefix="/glossary", tags=["glossary"])
 
 
 # --- Routes -------------------------------------------------------------------
+
+
+@router.get("/glossary-entries")
+def get_glossary_entries(
+    request: Request,
+    source_language: str = Query(..., description="Source language code"),
+    target_language: str = Query(..., description="Target language code"),
+) -> GlossaryResponse:
+    """Get all current glossary entries for a specific language pair."""
+    request_ip = request.client.host
+    set_request_ip(request_ip)
+    glossary_manager = GlossaryManager()
+    glossary_data = glossary_manager.get_all_sources(source_language, target_language)
+
+    entries = [
+        GlossaryEntry(
+            source=src,
+            target=data["target"],
+            note=data.get("note", ""),
+            source_language=source_language,
+            target_language=target_language,
+        )
+        for src, data in glossary_data.items()
+    ]
+
+    sorted_entries = sorted(entries, key=lambda x: x.source)
+    return GlossaryResponse(
+        entries=sorted_entries,
+        source_language=source_language,
+        target_language=target_language,
+    )
 
 
 def check_glossary_updates(conversation_id: str):
@@ -144,31 +175,3 @@ def delete_glossary_entry(request: DeleteGlossaryRequest):
         return {"message": "success"}
 
     raise HTTPException(status_code=404, detail="Source not found in glossary")
-
-
-@router.get("/glossary-entries")
-def get_glossary_entries(
-    source_language: str = Query(..., description="Source language code"),
-    target_language: str = Query(..., description="Target language code"),
-) -> GlossaryResponse:
-    """Get all current glossary entries for a specific language pair."""
-    glossary_manager = GlossaryManager()
-    glossary_data = glossary_manager.get_all_sources(source_language, target_language)
-
-    entries = [
-        GlossaryEntry(
-            source=src,
-            target=data["target"],
-            note=data.get("note", ""),
-            source_language=source_language,
-            target_language=target_language,
-        )
-        for src, data in glossary_data.items()
-    ]
-
-    sorted_entries = sorted(entries, key=lambda x: x.source)
-    return GlossaryResponse(
-        entries=sorted_entries,
-        source_language=source_language,
-        target_language=target_language,
-    )

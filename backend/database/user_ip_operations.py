@@ -88,7 +88,6 @@ class UserIPOperations:
                 WHERE ip_address = ?
             """
             params = (token_count, ip_address)
-
             affected_rows = self.db.execute_update(query, params)
             return affected_rows > 0
         except Exception as e:

@@ -2,7 +2,7 @@
 
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 from langgraph.types import Command
 
 from basic_translate.index import graph as basic_translate_graph
@@ -11,6 +11,7 @@ from routes.glossary_endpoints import check_glossary_updates
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
 from utils.graph_utils import create_graph_config
+from utils.llm_service import set_request_ip
 
 router = APIRouter(prefix="/graphs", tags=["graph"])
 
@@ -28,10 +29,15 @@ def run_graph(input_data, thread_id: str):
 
 
 @router.post("/translate-basic")
-def translate_basic(request: TranslateRequest):
+def translate_basic(translate_request: TranslateRequest, request: Request):
     """Chat endpoint to start the graph with a user message."""
+    # Set IP context for rate limiting
+    set_request_ip(request.client.host)
+
     # Create initial state with user message
-    initial_state = {"messages": [{"role": "user", "content": request.message}]}
+    initial_state = {
+        "messages": [{"role": "user", "content": translate_request.message}]
+    }
 
     # Run the graph
     result = basic_translate_graph.invoke(initial_state)
@@ -43,16 +49,19 @@ def translate_basic(request: TranslateRequest):
 
 
 @router.post("/translate")
-def translate(request: TranslateRequest):
+def translate(translate_request: TranslateRequest, request: Request):
     """Chat endpoint to start the graph with a user message."""
-    thread_id = request.conversation_id
+    # Set IP context for rate limiting
+    set_request_ip(request.client.host)
+
+    thread_id = translate_request.conversation_id
     if not thread_id:
         thread_id = str(uuid.uuid4())
 
     input_data = {
-        "messages": request.message,
-        "source_language": request.source_language or "en",
-        "target_language": request.target_language or "es",
+        "messages": translate_request.message,
+        "source_language": translate_request.source_language or "en",
+        "target_language": translate_request.target_language or "es",
     }
 
     result = run_graph(input_data, thread_id)
@@ -61,15 +70,22 @@ def translate(request: TranslateRequest):
 
 
 @router.post("/refine-translation")
-def refine_translation(request: TranslateRequest, background_tasks: BackgroundTasks):
+def refine_translation(
+    translate_request: TranslateRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
+):
     """Chat endpoint to refine the translation."""
-    thread_id = request.conversation_id
+    # Set IP context for rate limiting
+    set_request_ip(request.client.host)
+
+    thread_id = translate_request.conversation_id
     if not thread_id:
         raise HTTPException(
             status_code=400, detail="Conversation ID is required to refine translation"
         )
 
-    user_refinement_message = request.message
+    user_refinement_message = translate_request.message
     result = run_graph(Command(resume=user_refinement_message), thread_id)
 
     check_glossary_updates(

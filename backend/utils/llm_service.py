@@ -2,18 +2,37 @@
 
 import time
 from collections import deque
+from contextvars import ContextVar
 from datetime import datetime
 
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 
+from database.user_ip_operations import UserIPOperations
 from utils.logger import logger
 
 load_dotenv()
 
 # Teoretically are like 250000 on the free google api rate but let's keep it to 50k to be safe
 MAX_TOKENS_PER_MINUTE = 50000
+
+UserIPOperations = UserIPOperations()
+
+# Context variable to store current request's IP address
+current_request_ip: ContextVar[str] = ContextVar(
+    "current_request_ip", default="unknown"
+)
+
+
+def set_request_ip(ip: str) -> None:
+    """Set the current request's IP address in context."""
+    current_request_ip.set(ip)
+
+
+def get_request_ip() -> str:
+    """Get the current request's IP address from context."""
+    return current_request_ip.get()
 
 
 class LLM_Service:
@@ -40,6 +59,10 @@ class LLM_Service:
     def invoke(self, prompt: str) -> BaseMessage:
         """Invoke the LLM with the given prompt."""
         now = time.time()
+        request_ip = current_request_ip.get()
+
+        # Print the IP
+        print(f"llm service Request IP: {request_ip}")
 
         # Clean history (older than 60s)
         while self.history and now - self.history[0][0] > 60:
@@ -90,6 +113,8 @@ class LLM_Service:
         logger.info(
             f"Model={llm.get_name()} | TokensThisCall={used} | TokensLastMin={tokens_last_min + used}"
         )
+        user = UserIPOperations.get_user_ip(request_ip)
+        UserIPOperations.update_token_count(request_ip, user.token_count + used)
         return response
 
     def __call__(self, *args, **kwargs):
