@@ -11,14 +11,23 @@ RUN apt-get update && apt-get install -y \
 # Copy the entire backend application first
 COPY . .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -e .
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
 
 # Create database directory with proper permissions
 RUN mkdir -p /app/data && chown -R app:app /app/data
 
 # Create volume mount point for database persistence
 VOLUME ["/app/data"]
+
+USER app
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -e .
+
+# Set PATH to include virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+
 
 
 # Expose the port
