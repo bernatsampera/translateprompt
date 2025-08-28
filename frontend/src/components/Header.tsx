@@ -1,4 +1,5 @@
-import {Globe, Menu} from "lucide-react";
+import {Menu} from "lucide-react";
+import Bleaksvg from "../assets/bleak_transparent.svg";
 import type {NavItem} from "../types/navigation";
 import Waitlist from "./Waitlist";
 
@@ -25,8 +26,8 @@ function Header({navItems}: HeaderProps) {
             ))}
           </ul>
         </div>
-        <div className="flex items-center gap-2">
-          <Globe className="h-8 w-8 text-primary" />
+        <div className="flex items-center gap-1">
+          <img src={Bleaksvg} alt="Bleak" className="h-8 w-8" />
           <a className="btn btn-ghost text-xl font-bold">TranslatePrompt</a>
         </div>
       </div>

@@ -1,5 +1,5 @@
-import {Globe} from "lucide-react";
 import {Link} from "react-router-dom";
+import Bleaksvg from "../assets/bleak_transparent.svg";
 import type {FooterConfig} from "../types/navigation";
 
 interface FooterProps extends FooterConfig {}
@@ -9,7 +9,7 @@ function Footer({companyName, tagline, madeWithText, links}: FooterProps) {
     <footer className="footer footer-center p-10 bg-base-200 text-base-content">
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <Globe className="h-6 w-6 text-primary" />
+          <img src={Bleaksvg} alt="Bleak" className="h-6 w-6" />
           <p className="font-bold text-lg">{companyName}</p>
         </div>
         <p className="text-sm opacity-70">{tagline}</p>
