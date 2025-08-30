@@ -8,13 +8,11 @@ import {
   useTextInput,
   useTranslation
 } from "@/hooks";
-import React, {useCallback, useState} from "react";
+import {useCallback, useRef, useState} from "react";
 
-function TranslateGraph({
-  conversationIdRef
-}: {
-  conversationIdRef: React.RefObject<string | null>;
-}) {
+function TranslateGraph({}: {}) {
+  const conversationIdRef = useRef<string | null>(null);
+
   const [improvements, setImprovements] = useState<GlossaryEntry[]>([]);
 
   // Use custom hooks for state management

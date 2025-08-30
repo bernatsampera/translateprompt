@@ -1,3 +1,4 @@
+export {useAuth} from "./useAuth";
 export {useClipboard} from "./useClipboard";
 export {useLanguageDetection} from "./useLanguageDetection";
 export {useLanguageSelection} from "./useLanguageSelection";

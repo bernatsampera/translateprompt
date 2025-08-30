@@ -1,12 +1,15 @@
+import {Link} from "react-router-dom";
 import Bleaksvg from "../assets/bleak_transparent.svg";
 import type {NavItem} from "../types/navigation";
 import Waitlist from "./Waitlist";
 
 interface HeaderProps {
   navItems: NavItem[];
+  loggedIn?: boolean;
+  onLogout?: () => void;
 }
 
-function Header({navItems}: HeaderProps) {
+function Header({navItems, loggedIn = false, onLogout}: HeaderProps) {
   return (
     <header className="navbar bg-base-200 shadow-lg">
       <div className="navbar-start">
@@ -43,8 +46,17 @@ function Header({navItems}: HeaderProps) {
           ))}
         </ul>
       </div>
-      <div className="hidden lg:flex navbar-end">
+      <div className="hidden lg:flex navbar-end gap-2">
         <Waitlist />
+        {loggedIn ? (
+          <button onClick={onLogout} className="btn btn-outline btn-sm">
+            Logout
+          </button>
+        ) : (
+          <Link to="/auth" className="btn btn-primary btn-sm">
+            Login
+          </Link>
+        )}
         <a
           href="https://github.com"
           target="_blank"

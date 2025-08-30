@@ -1,4 +1,3 @@
-import {useRef} from "react";
 import TranslateGraph from "../features/TranslateGraph";
 import SystemExplanation from "./SystemExplanation";
 import Waitlist from "./Waitlist";
@@ -11,8 +10,6 @@ const features = [
 ];
 
 const Home = () => {
-  const conversationIdRef = useRef<string | null>(null);
-
   return (
     <div className="min-h-screen bg-base-100">
       {/* Hero Section */}
@@ -37,7 +34,7 @@ const Home = () => {
       {/* Translation Interface Section */}
       <section className="py-8 lg:py-10 px-4 lg:px-8 ">
         <div className="max-w-7xl mx-auto">
-          <TranslateGraph conversationIdRef={conversationIdRef} />
+          <TranslateGraph />
         </div>
       </section>
 
