@@ -26,7 +26,7 @@
   --color-secondary-content: oklch(0.35 0.015 240); /* Darker gray text */
 
   /* Accent - Subtle emphasis */
-  --color-accent: oklch(0.82 0.01 240); /* Light accent background */
+  --color-accent: oklch(0.88 0.01 240); /* Light accent background */
   --color-accent-content: oklch(0.3 0.015 240); /* Dark text on accent */
 
   /* Neutral - Balanced grays */
