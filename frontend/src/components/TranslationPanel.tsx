@@ -10,9 +10,9 @@ interface TranslationPanelProps {
   onTextToTranslateChange: (text: string) => void;
   onTranslate: (text: string) => void;
   isTranslating: boolean;
+  targetLanguage: string;
 
   // Target panel props
-  targetLanguage: string;
   onTargetLanguageChange: (language: string) => void;
   translation: string | null;
   onCopyToClipboard: () => void;
@@ -57,9 +57,9 @@ function TranslationPanel({
           targetLanguage={targetLanguage}
           onTargetLanguageChange={onTargetLanguageChange}
           translation={translation}
-          isTranslating={isTranslating}
           onCopyToClipboard={onCopyToClipboard}
           isCopying={isCopying}
+          isTranslating={isTranslating}
         />
 
         <RefinePanel

@@ -1,5 +1,5 @@
 import {ArrowRightLeft} from "lucide-react";
-import LanguageSelector, {LANGUAGE_OPTIONS} from "../LanguageSelector";
+import TranslationPanelBase from "./TranslationPanelBase";
 
 interface SourcePanelProps {
   sourceLanguage: string;
@@ -20,53 +20,41 @@ function SourcePanel({
   isTranslating,
   targetLanguage
 }: SourcePanelProps) {
-  const getLanguageLabel = (value: string) => {
-    return (
-      LANGUAGE_OPTIONS.find((option) => option.value === value)?.label || value
-    );
-  };
-
-  const getTranslationButtonText = () => {
-    if (sourceLanguage === "auto") {
-      return `Translate to ${getLanguageLabel(targetLanguage)}`;
-    }
-    return `Translate (${getLanguageLabel(sourceLanguage)} → ${getLanguageLabel(
-      targetLanguage
-    )})`;
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg md:text-xl font-bold text-base-content">
-          Original
-        </h2>
-        <LanguageSelector
-          value={sourceLanguage}
-          onChange={onSourceLanguageChange}
+    <TranslationPanelBase
+      title="Original"
+      languageLabel="From"
+      languageValue={sourceLanguage}
+      onLanguageChange={onSourceLanguageChange}
+    >
+      <div className="space-y-4">
+        <textarea
+          className="textarea w-full min-h-36 lg:min-h-52 resize-none text-base lg:text-lg leading-relaxed bg-base-100/80 border-base-300/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          placeholder="Enter text to translate..."
+          value={textToTranslate}
+          onChange={(e) => onTextToTranslateChange(e.target.value)}
         />
+
+        <button
+          className={`btn btn-sm transition-all ${
+            textToTranslate.trim()
+              ? "btn-primary hover:scale-105"
+              : "btn-ghost opacity-50 cursor-not-allowed"
+          }`}
+          onClick={() => onTranslate(textToTranslate)}
+          disabled={!textToTranslate.trim() || isTranslating}
+        >
+          {isTranslating ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            <ArrowRightLeft className="h-4 w-4" />
+          )}
+          <span className="hidden sm:inline ml-1">
+            {isTranslating ? "Translating..." : "Translate"}
+          </span>
+        </button>
       </div>
-
-      <textarea
-        className="textarea textarea-bordered w-full min-h-40 lg:min-h-56 resize-none text-lg leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-        placeholder="Enter text to translate..."
-        value={textToTranslate}
-        onChange={(e) => onTextToTranslateChange(e.target.value)}
-      />
-
-      <button
-        className="btn btn-primary w-full text-sm md:text-lg font-semibold h-14"
-        onClick={() => onTranslate(textToTranslate)}
-        disabled={!textToTranslate.trim() || isTranslating}
-      >
-        {isTranslating ? (
-          <span className="loading loading-spinner loading-sm"></span>
-        ) : (
-          <ArrowRightLeft className="h-5 w-5" />
-        )}
-        {isTranslating ? "Translating..." : getTranslationButtonText()}
-      </button>
-    </div>
+    </TranslationPanelBase>
   );
 }
 
