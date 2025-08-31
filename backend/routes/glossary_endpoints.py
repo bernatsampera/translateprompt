@@ -1,6 +1,8 @@
 """Glossary-related endpoints for the translation API."""
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from supertokens_python.recipe.session import SessionContainer
+from supertokens_python.recipe.session.framework.fastapi import verify_session
 
 from glossary import GlossaryManager
 from models import (
@@ -16,27 +18,32 @@ from utils.graph_utils import get_graph_state
 from utils.improvement_cache import improvement_cache
 from utils.llm_service import LLM_Service, set_request_ip_from_request
 
-# --- Setup --------------------------------------------------------------------
-
-
 llm = LLM_Service()
 
 router = APIRouter(prefix="/glossary", tags=["glossary"])
 
 
-# --- Routes -------------------------------------------------------------------
-
-
 @router.get("/glossary-entries")
-def get_glossary_entries(
+async def get_glossary_entries(
     request: Request,
     source_language: str = Query(..., description="Source language code"),
     target_language: str = Query(..., description="Target language code"),
+    session: SessionContainer | None = Depends(verify_session(session_required=False)),
 ) -> GlossaryResponse:
     """Get all current glossary entries for a specific language pair."""
-    real_ip = set_request_ip_from_request(request)
+    set_request_ip_from_request(request)
     glossary_manager = GlossaryManager()
-    glossary_data = glossary_manager.get_all_sources(source_language, target_language)
+    user_id = None
+    glossary_data = None
+    if session:
+        user_id = session.get_user_id()
+        glossary_data = glossary_manager.get_all_sources_for_user(
+            user_id, source_language, target_language
+        )
+    else:
+        glossary_data = glossary_manager.get_all_sources(
+            source_language, target_language
+        )
 
     entries = [
         GlossaryEntry(
@@ -45,6 +52,7 @@ def get_glossary_entries(
             note=data.get("note", ""),
             source_language=source_language,
             target_language=target_language,
+            user_id=user_id if user_id else 0,
         )
         for src, data in glossary_data.items()
     ]
@@ -105,8 +113,11 @@ def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
 
 
 @router.post("/apply-glossary-update")
-def apply_glossary_update(request: ApplyGlossaryRequest):
+def apply_glossary_update(
+    request: ApplyGlossaryRequest, session: SessionContainer = Depends(verify_session())
+):
     """Apply a selected glossary update and persist it to the glossary database."""
+    user_id = session.get_user_id()
     glossary_entry, conversation_id = (
         request.glossary_entry,
         request.conversation_id,
@@ -133,6 +144,7 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
         glossary_entry.source_language,
         glossary_entry.target_language,
         glossary_entry.note,
+        user_id=user_id,
     ):
         return {"message": "success"}
 
@@ -140,8 +152,11 @@ def apply_glossary_update(request: ApplyGlossaryRequest):
 
 
 @router.put("/edit-glossary-entry")
-def edit_glossary_entry(request: EditGlossaryRequest):
+def edit_glossary_entry(
+    request: EditGlossaryRequest, session: SessionContainer = Depends(verify_session())
+):
     """Edit an existing glossary entry."""
+    user_id = session.get_user_id()
     glossary_manager = GlossaryManager()
 
     # First remove the old entry
@@ -157,6 +172,7 @@ def edit_glossary_entry(request: EditGlossaryRequest):
         request.source_language,
         request.target_language,
         request.note,
+        user_id=user_id,
     ):
         return {"message": "success"}
 

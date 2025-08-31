@@ -27,6 +27,7 @@ class GlossaryManager:
         source_language: str = "en",
         target_language: str = "es",
         note: str = "",
+        user_id: str = "",
     ) -> bool:
         """Add or update a source in the glossary.
 
@@ -49,6 +50,7 @@ class GlossaryManager:
             source_text=source,
             target_text=target,
             note=note,
+            user_id=user_id,
         )
         return self.db.add_entry(entry)
 
@@ -101,6 +103,23 @@ class GlossaryManager:
             Dictionary mapping source text to target and note data.
         """
         return self.db.get_entries_dict(source_language, target_language)
+
+    def get_all_sources_for_user(
+        self, user_id: str, source_language: str = "en", target_language: str = "es"
+    ) -> Dict[str, Dict[str, str]]:
+        """Get all sources from the glossary for a specific user and language pair.
+
+        Args:
+            user_id: The user ID.
+            source_language: Source language code (default: "en").
+            target_language: Target language code (default: "es").
+
+        Returns:
+            Dictionary mapping source text to target and note data.
+        """
+        return self.db.get_entries_dict_for_user(
+            user_id, source_language, target_language
+        )
 
     def get_all_entries(self, source_language: str = "en", target_language: str = "es"):
         """Get all glossary entries as GlossaryEntry objects.

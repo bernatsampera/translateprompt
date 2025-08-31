@@ -30,8 +30,8 @@ class GlossaryOperations:
         try:
             query = """
                 INSERT OR REPLACE INTO glossary_entries 
-                (source_language, target_language, source_text, target_text, note, updated_at)
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                (source_language, target_language, source_text, target_text, note, user_id, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
             """
             params = (
                 entry.source_language,
@@ -39,6 +39,7 @@ class GlossaryOperations:
                 entry.source_text.lower(),
                 entry.target_text,
                 entry.note,
+                entry.user_id,
             )
 
             self.db.execute_update(query, params)
@@ -144,6 +145,7 @@ class GlossaryOperations:
                     target_language=row["target_language"],
                     source_text=row["source_text"],
                     target_text=row["target_text"],
+                    user_id=row["user_id"],
                     note=row["note"],
                     created_at=datetime.fromisoformat(row["created_at"])
                     if row["created_at"]
@@ -171,6 +173,26 @@ class GlossaryOperations:
             Dictionary mapping source text to target and note data.
         """
         entries = self.get_all_entries(source_language, target_language)
+        result = {}
+        for entry in entries:
+            result[entry.source_text] = {
+                "target": entry.target_text,
+                "note": entry.note,
+            }
+        return result
+
+    def get_entries_dict_for_user(
+        self, user_id: str, source_language: str = "en", target_language: str = "es"
+    ) -> Dict[str, Dict[str, str]]:
+        """Get all entries as a dictionary format for a specific user and language pair.
+
+        Args:
+            user_id: The user ID.
+            source_language: Source language code (default: "en").
+            target_language: Target language code (default: "es").
+        """
+        all_entries = self.get_all_entries(source_language, target_language)
+        entries = [entry for entry in all_entries if entry.user_id == user_id]
         result = {}
         for entry in entries:
             result[entry.source_text] = {

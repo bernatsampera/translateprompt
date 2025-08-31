@@ -9,6 +9,7 @@ class GlossaryEntry:
     """Data class representing a glossary entry."""
 
     id: int | None = None
+    user_id: str | None = None
     source_language: str = "en"
     target_language: str = "es"
     source_text: str = ""
@@ -21,6 +22,7 @@ class GlossaryEntry:
         """Convert the entry to a dictionary."""
         return {
             "id": self.id,
+            "user_id": self.user_id,
             "source_language": self.source_language,
             "target_language": self.target_language,
             "source_text": self.source_text,
@@ -35,6 +37,7 @@ class GlossaryEntry:
         """Create an entry from a dictionary."""
         return cls(
             id=data.get("id"),
+            user_id=data.get("user_id"),
             source_language=data.get("source_language", "en"),
             target_language=data.get("target_language", "es"),
             source_text=data.get("source_text", ""),

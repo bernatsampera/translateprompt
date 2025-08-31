@@ -4,6 +4,7 @@
 GLOSSARY_TABLE_SCHEMA = """
 CREATE TABLE IF NOT EXISTS glossary_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT DEFAULT NULL,
     source_language TEXT NOT NULL,
     target_language TEXT NOT NULL,
     source_text TEXT NOT NULL,
