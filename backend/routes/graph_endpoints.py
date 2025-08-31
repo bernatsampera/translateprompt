@@ -2,15 +2,17 @@
 
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from langgraph.types import Command
+from supertokens_python.recipe.session import SessionContainer
+from supertokens_python.recipe.session.framework.fastapi import verify_session
 
 from models import TranslateRequest
 from routes.glossary_endpoints import check_glossary_updates
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
 from utils.graph_utils import create_graph_config
-from utils.llm_service import set_request_ip_from_request
+from utils.llm_service import set_request_ip_from_request, set_user_id
 
 router = APIRouter(prefix="/graphs", tags=["graph"])
 
@@ -28,10 +30,15 @@ def run_graph(input_data, thread_id: str):
 
 
 @router.post("/translate")
-def translate(translate_request: TranslateRequest, request: Request):
+def translate(
+    translate_request: TranslateRequest,
+    request: Request,
+    session: SessionContainer | None = Depends(verify_session(session_required=False)),
+):
     """Chat endpoint to start the graph with a user message."""
     # Set IP context for rate limiting - extract real user IP
     real_ip = set_request_ip_from_request(request)
+    set_user_id(session.get_user_id() if session else None)
     # IP is now available in context for LLM service rate limiting
 
     thread_id = translate_request.conversation_id
@@ -53,11 +60,12 @@ def translate(translate_request: TranslateRequest, request: Request):
 def refine_translation(
     translate_request: TranslateRequest,
     request: Request,
-    background_tasks: BackgroundTasks,
+    session: SessionContainer | None = Depends(verify_session(session_required=False)),
 ):
     """Chat endpoint to refine the translation."""
     # Set IP context for rate limiting - extract real user IP
-    real_ip = set_request_ip_from_request(request)
+    set_request_ip_from_request(request)
+    set_user_id(session.get_user_id() if session else None)
     # IP is now available in context for LLM service rate limiting
 
     thread_id = translate_request.conversation_id

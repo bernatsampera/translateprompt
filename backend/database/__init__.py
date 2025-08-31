@@ -3,7 +3,12 @@
 from .connection import DatabaseConnection, create_database_connection
 from .glossary_operations import GlossaryOperations
 from .models import GlossaryEntry, UserIP
-from .schemas import GLOSSARY_INDEX_SCHEMA, GLOSSARY_TABLE_SCHEMA, USER_IP_TABLE_SCHEMA
+from .schemas import (
+    GLOSSARY_INDEX_SCHEMA,
+    GLOSSARY_TABLE_SCHEMA,
+    USER_IP_TABLE_SCHEMA,
+    USER_USAGE_SCHEMA,
+)
 from .user_ip_operations import UserIPOperations
 
 __all__ = [
@@ -14,6 +19,7 @@ __all__ = [
     "GLOSSARY_TABLE_SCHEMA",
     "GLOSSARY_INDEX_SCHEMA",
     "USER_IP_TABLE_SCHEMA",
+    "USER_USAGE_SCHEMA",
     "GlossaryOperations",
     "UserIPOperations",
 ]

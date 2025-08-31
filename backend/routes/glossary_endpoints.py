@@ -16,7 +16,7 @@ from translate_graph.prompts import lead_update_glossary_prompt
 from translate_graph.state import ConductUpdate, NoUpdate
 from utils.graph_utils import get_graph_state
 from utils.improvement_cache import improvement_cache
-from utils.llm_service import LLM_Service, set_request_ip_from_request
+from utils.llm_service import LLM_Service, set_request_ip_from_request, set_user_id
 
 llm = LLM_Service()
 
@@ -32,6 +32,7 @@ async def get_glossary_entries(
 ) -> GlossaryResponse:
     """Get all current glossary entries for a specific language pair."""
     set_request_ip_from_request(request)
+    set_user_id(session.get_user_id() if session else None)
     glossary_manager = GlossaryManager()
     user_id = None
     glossary_data = None

@@ -78,3 +78,18 @@ class UserIP:
             else None,
             token_count=data.get("token_count", 0),
         )
+
+
+@dataclass
+class UserUsage:
+    """Data class representing a user usage record."""
+
+    user_id: str
+    token_count: int = 0
+
+    def to_dict(self) -> dict:
+        """Convert the entry to a dictionary."""
+        return {
+            "user_id": self.user_id,
+            "token_count": self.token_count,
+        }

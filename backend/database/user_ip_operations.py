@@ -1,7 +1,6 @@
 """User IP tracking database operations."""
 
 from datetime import datetime
-from typing import List
 
 from .connection import DatabaseConnection
 from .models import UserIP
@@ -92,78 +91,4 @@ class UserIPOperations:
             return affected_rows > 0
         except Exception as e:
             print(f"Error updating token count: {e}")
-            return False
-
-    def increment_token_count(self, ip_address: str, increment: int = 1) -> bool:
-        """Increment the token count for a user IP.
-
-        Args:
-            ip_address: The IP address to update.
-            increment: Amount to increment by (default: 1).
-
-        Returns:
-            True if updated successfully, False otherwise.
-        """
-        try:
-            query = """
-                UPDATE user_ips 
-                SET token_count = token_count + ?
-                WHERE ip_address = ?
-            """
-            params = (increment, ip_address)
-
-            affected_rows = self.db.execute_update(query, params)
-            return affected_rows > 0
-        except Exception as e:
-            print(f"Error incrementing token count: {e}")
-            return False
-
-    def get_all_user_ips(self) -> List[UserIP]:
-        """Get all user IP records.
-
-        Returns:
-            List of UserIP objects.
-        """
-        try:
-            query = """
-                SELECT * FROM user_ips 
-                ORDER BY created_at DESC
-            """
-
-            rows = self.db.execute_query(query)
-            user_ips = []
-            for row in rows:
-                user_ip = UserIP(
-                    ip_address=row["ip_address"],
-                    created_at=datetime.fromisoformat(row["created_at"])
-                    if row["created_at"]
-                    else None,
-                    token_count=row["token_count"],
-                )
-                user_ips.append(user_ip)
-            return user_ips
-        except Exception as e:
-            print(f"Error getting all user IPs: {e}")
-            return []
-
-    def remove_user_ip(self, ip_address: str) -> bool:
-        """Remove a user IP record.
-
-        Args:
-            ip_address: The IP address to remove.
-
-        Returns:
-            True if removed successfully, False otherwise.
-        """
-        try:
-            query = """
-                DELETE FROM user_ips 
-                WHERE ip_address = ?
-            """
-            params = (ip_address,)
-
-            affected_rows = self.db.execute_update(query, params)
-            return affected_rows > 0
-        except Exception as e:
-            print(f"Error removing user IP: {e}")
             return False

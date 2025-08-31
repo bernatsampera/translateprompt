@@ -6,30 +6,23 @@ from contextvars import ContextVar
 from datetime import datetime
 
 from dotenv import load_dotenv
-from fastapi import HTTPException, Request
+from fastapi import Request
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 
-from database.connection import create_database_connection
-from database.user_ip_operations import UserIPOperations
 from utils.logger import logger
+from utils.user_tracking_service import UserTrackingService
 
 load_dotenv()
 
-# Teoretically are like 250000 on the free google api rate but let's keep it to 50k to be safe
+# Theoretically are like 250000 on the free google api rate but let's keep it to 50k to be safe
 MAX_TOKENS_PER_MINUTE = 50000
 
-# 10k tokens in total
-MAX_TOKENS_PER_IP = 4000
-
-# Create UserIPOperations with config database path
-_db_connection = create_database_connection()
-UserIPOperations = UserIPOperations(db_connection=_db_connection)
-
-# Context variable to store current request's IP address
+# Context variables to store current request context
 current_request_ip: ContextVar[str] = ContextVar(
     "current_request_ip", default="unknown"
 )
+current_user_id: ContextVar[str] = ContextVar("current_user_id", default="unknown")
 
 
 def get_real_ip(request: Request) -> str:
@@ -91,6 +84,16 @@ def set_request_ip(ip: str) -> None:
     current_request_ip.set(ip)
 
 
+def set_user_id(user_id: str) -> None:
+    """Set the current user ID in context."""
+    current_user_id.set(user_id)
+
+
+def get_user_id() -> str:
+    """Get the current user ID from context."""
+    return current_user_id.get()
+
+
 def set_request_ip_from_request(request: Request) -> str:
     """Extract and set the real user IP from the request.
 
@@ -114,12 +117,15 @@ class LLM_Service:
     """LLM service for the backend."""
 
     def __init__(self):
+        """Initialize the LLM service with primary and fallback models."""
         self.llm_primary = init_chat_model("google_genai:gemini-2.5-flash-lite")
         self.llm_fallback = init_chat_model("openai:gpt-4o-mini")
         self.history = deque()
         self.penalty_until = 0
+        self.user_tracking = UserTrackingService()
 
     def print_history(self):
+        """Print the token usage history for debugging purposes."""
         now = time.time()
         if not self.history:
             logger.info("History is empty.")
@@ -134,71 +140,72 @@ class LLM_Service:
     def invoke(self, prompt: str) -> BaseMessage:
         """Invoke the LLM with the given prompt."""
         now = time.time()
-        request_ip = current_request_ip.get()
-        user = UserIPOperations.get_user_ip(request_ip)
 
-        if not user:
-            user = UserIPOperations.add_user_ip(request_ip)
+        # Get current request context
+        user_id = get_user_id()
+        request_ip = get_request_ip()
 
-        if user and user.token_count > MAX_TOKENS_PER_IP:
-            raise HTTPException(
-                status_code=429,
-                detail=f"Usage Limit of {MAX_TOKENS_PER_IP} tokens reached. We are still in our beta, join the waitlist to get access when it's released.",
-            )
+        logger.debug(f"LLM invocation - User ID: {user_id}, IP: {request_ip}")
 
         # Clean history (older than 60s)
         while self.history and now - self.history[0][0] > 60:
             self.history.popleft()
 
-        ## Uncomment for debugging purposes
-        # self.print_history()
-
+        # Calculate tokens used in last minute for rate limiting
         tokens_last_min = sum(t for _, t in self.history)
 
-        # Check penalty mode
-        if now < self.penalty_until:
-            llm = self.llm_fallback
-            logger.warning("Penalty active: forcing fallback model.")
-        elif tokens_last_min > MAX_TOKENS_PER_MINUTE:
-            llm = self.llm_fallback
-            logger.warning(
-                f"Token usage in last minute = {tokens_last_min} (> {MAX_TOKENS_PER_MINUTE}). "
-                f"Switching to fallback model: {self.llm_fallback.get_name()}"
-            )
-        else:
-            llm = self.llm_primary
-            logger.info(
-                f"Token usage in last minute = {tokens_last_min}. "
-                f"Using primary model: {self.llm_primary.get_name()}"
-            )
+        # Select appropriate LLM based on rate limits and penalty mode
+        llm = self._select_llm(now, tokens_last_min)
 
-        # Try calling model
+        # Invoke the LLM
         try:
             response = llm.invoke(prompt)
-            used = response.usage_metadata["total_tokens"]
+            tokens_used = response.usage_metadata["total_tokens"]
         except Exception as e:
             logger.error(f"Error with {llm.get_name()}: {e}")
-            # If it was the primary, activate penalty + retry with fallback
+            # If primary failed, activate penalty and retry with fallback
             if llm is self.llm_primary:
                 self.penalty_until = now + 300  # 5 min penalty
-                used = 2500  # fake >2000 tokens
-                self.history.append((now, used))
+                tokens_used = 2500  # Fake high token count for penalty
+                self.history.append((now, tokens_used))
                 logger.warning(
                     "Primary failed. Forcing fallback + penalty mode for 5 minutes."
                 )
                 return self.llm_fallback.invoke(prompt)
             else:
                 raise
+
+        # Update history for primary model rate limiting
         if llm is self.llm_primary:
-            self.history.append((now, used))
+            self.history.append((now, tokens_used))
+
+        # Update user tracking (handles both user ID and IP logic)
+        self.user_tracking.check_and_update_usage(user_id, request_ip, tokens_used)
 
         logger.info(
-            f"Model={llm.get_name()} | TokensThisCall={used} | TokensLastMin={tokens_last_min + used}"
+            f"Model={llm.get_name()} | TokensThisCall={tokens_used} | TokensLastMin={tokens_last_min + tokens_used}"
         )
 
-        UserIPOperations.update_token_count(request_ip, user.token_count + used)
-
         return response
+
+    def _select_llm(self, now: float, tokens_last_min: int):
+        """Select the appropriate LLM based on current conditions."""
+        # Check penalty mode
+        if now < self.penalty_until:
+            logger.warning("Penalty active: forcing fallback model.")
+            return self.llm_fallback
+        elif tokens_last_min > MAX_TOKENS_PER_MINUTE:
+            logger.warning(
+                f"Token usage in last minute = {tokens_last_min} (> {MAX_TOKENS_PER_MINUTE}). "
+                f"Switching to fallback model: {self.llm_fallback.get_name()}"
+            )
+            return self.llm_fallback
+        else:
+            logger.info(
+                f"Token usage in last minute = {tokens_last_min}. "
+                f"Using primary model: {self.llm_primary.get_name()}"
+            )
+            return self.llm_primary
 
     def __call__(self, *args, **kwargs):
         """Allow LLM_Service() to be called directly like an LLM."""
