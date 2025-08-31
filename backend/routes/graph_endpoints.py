@@ -12,7 +12,9 @@ from routes.glossary_endpoints import check_glossary_updates
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
 from utils.graph_utils import create_graph_config
-from utils.llm_service import set_request_ip_from_request, set_user_id
+from utils.user_tracking_service import UserTrackingService
+
+user_tracking = UserTrackingService()
 
 router = APIRouter(prefix="/graphs", tags=["graph"])
 
@@ -37,9 +39,8 @@ def translate(
 ):
     """Chat endpoint to start the graph with a user message."""
     # Set IP context for rate limiting - extract real user IP
-    real_ip = set_request_ip_from_request(request)
-    set_user_id(session.get_user_id() if session else None)
-    # IP is now available in context for LLM service rate limiting
+    user_tracking.set_request_ip_from_request(request)
+    user_tracking.set_user_id(session.get_user_id() if session else None)
 
     thread_id = translate_request.conversation_id
     if not thread_id:
@@ -64,9 +65,8 @@ def refine_translation(
 ):
     """Chat endpoint to refine the translation."""
     # Set IP context for rate limiting - extract real user IP
-    set_request_ip_from_request(request)
-    set_user_id(session.get_user_id() if session else None)
-    # IP is now available in context for LLM service rate limiting
+    user_tracking.set_request_ip_from_request(request)
+    user_tracking.set_user_id(session.get_user_id() if session else None)
 
     thread_id = translate_request.conversation_id
     if not thread_id:

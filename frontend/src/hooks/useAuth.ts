@@ -47,7 +47,6 @@ export function useAuth() {
         }
       }
     };
-    console.log("fetchUserData", fetchUserData);
 
     fetchUserData();
 
