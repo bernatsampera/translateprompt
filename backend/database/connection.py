@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import List
 
+from .migrations import MigrationManager
 from .schemas import (
     GLOSSARY_INDEX_SCHEMA,
     GLOSSARY_TABLE_SCHEMA,
@@ -62,6 +63,21 @@ class DatabaseConnection:
             # cursor.execute(ANALYTICS_TABLE_SCHEMA)
 
             conn.commit()
+
+        # Run migrations after initial table creation
+        self._run_migrations()
+
+    def _run_migrations(self):
+        """Run database migrations."""
+        migration_manager = MigrationManager(str(self.db_path))
+        applied_migrations = migration_manager.run_migrations()
+
+        if applied_migrations:
+            print(f"Applied {len(applied_migrations)} migrations:")
+            for migration in applied_migrations:
+                print(f"  - {migration}")
+        else:
+            print("No pending migrations found.")
 
     @contextmanager
     def _get_connection(self):
