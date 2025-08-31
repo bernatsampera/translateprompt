@@ -134,11 +134,9 @@ class RulesOperations:
                 WHERE user_id = ? AND source_language = ? AND target_language = ?
                 ORDER BY text
             """
-            print(f"Getting entries for user {user_id}")
             params = (user_id, source_language, target_language)
 
             rows = self.db.execute_query(query, params)
-            print(f"Rows: {rows}")
             entries = []
             for row in rows:
                 entry = LangRuleEntry(

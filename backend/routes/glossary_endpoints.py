@@ -4,16 +4,20 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.recipe.session.framework.fastapi import verify_session
 
+from database.rules_operations import RulesOperations
 from glossary import GlossaryManager
 from models import (
     ApplyGlossaryRequest,
+    ApplyImprovementRequest,
     DeleteGlossaryRequest,
     EditGlossaryRequest,
     GlossaryEntry,
     GlossaryResponse,
+    ImprovementEntry,
+    ImprovementsResponse,
 )
 from translate_graph.prompts import lead_update_glossary_prompt
-from translate_graph.state import ConductUpdate, NoUpdate
+from translate_graph.state import NoUpdate, RulesUpdate
 from utils.graph_utils import get_graph_state
 from utils.improvement_cache import improvement_cache
 from utils.llm_service import LLM_Service
@@ -86,15 +90,17 @@ def check_glossary_updates(conversation_id: str):
         target_language=state["target_language"],
     )
 
-    response = llm.bind_tools([ConductUpdate, NoUpdate]).invoke(prompt)
+    response = llm.bind_tools([NoUpdate, RulesUpdate]).invoke(prompt)
+
+    print(response)
 
     if response.tool_calls:
         improvement_cache.add_calls(conversation_id, response.tool_calls)
 
 
 @router.get("/glossary-improvements/{conversation_id}")
-def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
-    """Get glossary improvement suggestions for a conversation."""
+def get_glossary_improvements(conversation_id: str) -> ImprovementsResponse:
+    """Get improvement suggestions for a conversation (both glossary and rules)."""
     graph_values = get_graph_state(conversation_id)
 
     # Get improvement tool calls from cache
@@ -103,16 +109,33 @@ def get_glossary_improvements(conversation_id: str) -> list[GlossaryEntry]:
     source_language = graph_values.get("source_language")
     target_language = graph_values.get("target_language")
 
-    return [
-        GlossaryEntry(
-            source=call["args"]["source"],
-            target=call["args"]["target"],
-            note=call["args"]["note"],
-            source_language=source_language,
-            target_language=target_language,
-        )
-        for call in improvement_tool_calls
-    ]
+    improvements = []
+
+    for call in improvement_tool_calls:
+        tool_name = call.get("name", "")
+
+        if tool_name == "GlossaryUpdate":
+            improvements.append(
+                ImprovementEntry(
+                    type="glossary",
+                    source=call["args"]["source"],
+                    target=call["args"]["target"],
+                    note=call["args"]["note"],
+                    source_language=source_language,
+                    target_language=target_language,
+                )
+            )
+        elif tool_name == "RulesUpdate":
+            improvements.append(
+                ImprovementEntry(
+                    type="rules",
+                    text=call["args"]["text"],
+                    source_language=source_language,
+                    target_language=target_language,
+                )
+            )
+
+    return ImprovementsResponse(improvements=improvements)
 
 
 @router.post("/apply-glossary-update")
@@ -196,3 +219,75 @@ def delete_glossary_entry(
         return {"message": "success"}
 
     raise HTTPException(status_code=404, detail="Source not found in glossary")
+
+
+@router.post("/apply-improvement")
+def apply_improvement(
+    request: ApplyImprovementRequest,
+    session: SessionContainer = Depends(verify_session()),
+):
+    """Apply a selected improvement (glossary or rules) and persist it to the database."""
+    user_id = session.get_user_id()
+    improvement = request.improvement
+    conversation_id = request.conversation_id
+
+    if conversation_id:
+        graph_values = get_graph_state(conversation_id)
+        improvement.source_language = graph_values.get("source_language")
+        improvement.target_language = graph_values.get("target_language")
+
+    if improvement.type == "glossary":
+        # Handle glossary improvement
+        glossary_manager = GlossaryManager()
+
+        # Remove the applied glossary entry from cache
+        if conversation_id:
+            improvement_cache.remove_calls(
+                conversation_id,
+                {
+                    "source": improvement.source,
+                    "target": improvement.target,
+                },
+            )
+
+        if glossary_manager.add_source(
+            improvement.source,
+            improvement.target,
+            improvement.source_language,
+            improvement.target_language,
+            improvement.note,
+            user_id=user_id,
+        ):
+            return {"message": "success"}
+
+        raise HTTPException(status_code=500, detail="Failed to add entry to glossary")
+
+    elif improvement.type == "rules":
+        # Handle rules improvement
+        rules_operations = RulesOperations()
+
+        # Remove the applied rules entry from cache
+        if conversation_id:
+            improvement_cache.remove_calls(
+                conversation_id,
+                {
+                    "text": improvement.text,
+                },
+            )
+
+        from database.models import LangRuleEntry
+
+        entry = LangRuleEntry(
+            text=improvement.text,
+            source_language=improvement.source_language,
+            target_language=improvement.target_language,
+            user_id=user_id,
+        )
+
+        if rules_operations.add_entry(entry):
+            return {"message": "success"}
+
+        raise HTTPException(status_code=500, detail="Failed to add rule")
+
+    else:
+        raise HTTPException(status_code=400, detail="Invalid improvement type")

@@ -5,11 +5,12 @@ import {
   getGlossaryEntries,
   type GlossaryEntry
 } from "@/api/glossaryApi";
+import type {ImprovementEntry} from "@/api/translateApi";
 import {ChevronDown, ChevronLeft, ChevronRight, ChevronUp} from "lucide-react";
 import {useEffect, useState} from "react";
 
 interface GlossaryImprovementsProps {
-  improvements: GlossaryEntry[];
+  improvements: ImprovementEntry[];
   conversationId: string;
   loadImprovements: () => void;
   sourceLanguage: string;
@@ -28,6 +29,7 @@ function GlossaryImprovements({
   sourceLanguage,
   targetLanguage
 }: GlossaryImprovementsProps) {
+  console.log("improvements", improvements);
   const [glossaryEntries, setGlossaryEntries] = useState<GlossaryEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<EditingEntry | null>(null);
 
@@ -191,31 +193,37 @@ function GlossaryImprovements({
                     key={index}
                     className="card bg-base-200 border border-base-300"
                   >
-                    <div className="card-body p-3">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-base-content text-sm">
-                            "{improvement.source}"
-                          </div>
-                          <div className="text-xs text-base-content/70 mt-1">
-                            {improvement.target
-                              ? `${improvement.source} → ${improvement.target}`
-                              : `→ ${improvement.target}`}
-                          </div>
-                          {improvement.note && (
-                            <div className="text-xs text-base-content/60 mt-1">
-                              {improvement.note}
+                    {"source" in improvement ? (
+                      <div className="card-body p-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-base-content text-sm">
+                              "{improvement.source}"
                             </div>
-                          )}
+                            <div className="text-xs text-base-content/70 mt-1">
+                              {improvement.target
+                                ? `${improvement.source} → ${improvement.target}`
+                                : `→ ${improvement.target}`}
+                            </div>
+                            {improvement.note && (
+                              <div className="text-xs text-base-content/60 mt-1">
+                                {improvement.note}
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleApplyUpdate(improvement)}
+                            className="btn btn-neutral btn-xs"
+                          >
+                            Apply
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleApplyUpdate(improvement)}
-                          className="btn btn-neutral btn-xs"
-                        >
-                          Apply
-                        </button>
                       </div>
-                    </div>
+                    ) : (
+                      <div>
+                        <p>Rules {improvement.text}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -384,31 +392,39 @@ function GlossaryImprovements({
                     key={index}
                     className="card bg-base-200 border border-base-300"
                   >
-                    <div className="card-body p-3">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-base-content text-sm">
-                            "{improvement.source}"
-                          </div>
-                          <div className="text-xs text-base-content/70 mt-1">
-                            {improvement.target
-                              ? `${improvement.source} → ${improvement.target}`
-                              : `→ ${improvement.target}`}
-                          </div>
-                          {improvement.note && (
-                            <div className="text-xs text-base-content/60 mt-1">
-                              {improvement.note}
+                    {"source" in improvement ? (
+                      <div className="card-body p-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-base-content text-sm">
+                              "{improvement.source}"
                             </div>
-                          )}
+                            <div className="text-xs text-base-content/70 mt-1">
+                              {improvement.target
+                                ? `${improvement.source} → ${improvement.target}`
+                                : `→ ${improvement.target}`}
+                            </div>
+                            {improvement.note && (
+                              <div className="text-xs text-base-content/60 mt-1">
+                                {improvement.note}
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleApplyUpdate(improvement)}
+                            className="btn btn-neutral btn-xs"
+                          >
+                            Apply
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleApplyUpdate(improvement)}
-                          className="btn btn-neutral btn-xs"
-                        >
-                          Apply
-                        </button>
                       </div>
-                    </div>
+                    ) : (
+                      <div>
+                        <p>Rules {improvement.text}</p>
+                      </div>
+                    )}
+                    {JSON.stringify(improvement, null, 2)}
+                    asdfasfda
                   </div>
                 ))}
               </div>

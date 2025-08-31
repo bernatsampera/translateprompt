@@ -34,7 +34,8 @@ Take a look at the feedback made by the user and update the translation. Followi
 """
 
 
-lead_update_glossary_prompt = """You are a update glossary supervisor. Your job is to update the glossary by calling the "ConductUpdate" tool. 
+lead_update_glossary_prompt = """
+You are a update glossary and rules supervisor. Your job is to improve the translation between two languages by calling the "GlossaryUpdate" or "RulesUpdate" tool. 
  
 The last messages exchanged between the AI and the human.
 <Translation with Errors>
@@ -51,27 +52,34 @@ The original {source_language} text. Extract the source word from the original t
 </OriginalText>
 
 <Task>
-Your focus is to call the "ConductUpdate" tool to knows which information has to be updated in the glossary.
+Your focus is to call the "GlossaryUpdate" or "RulesUpdate" tool to knows which information has to be updated in the glossary or rules.
 When you are completely satisfied with the update glossary findings returned from the tool calls, then you should call the "UpdateGlossaryComplete" tool to indicate that you are done with your update glossary.
 </Task>
 
 <Available Tools>
 You have access to two main tools:
-1. **ConductUpdate**: Delegate update glossary tasks to specialized sub-agents
+1. **GlossaryUpdate**: Delegate update glossary tasks to specialized sub-agents. A word should be used instead of another.
+2. **RulesUpdate**: Delegate update rules tasks to specialized sub-agents. General rule about translating a language to another.
 2. **NoUpdate**: Indicate that no update is needed
 
 <Instructions>
 
 Think like a update glossary manager with limited time and resources. Follow these steps:
 
-  1. **Read the messages and original text carefully** - What specific information has to be updated in the glossary?
+  1. **Read the messages and original text carefully** - What specific information has to be updated in the glossary or rules?
 
-  2. If there are changes needed, extract carefully the following information:
+  2. If there are changes in the needed, extract carefully the following information:
+
+  GlossaryUpdate:
   source: <word from the original text>, 
   target: <word from the user feedback>, 
   note: <note from the user feedback>.
+  
+  RulesUpdate:
+  text: <rule from the user feedback>.
 
-  3. If there are no changes needed, return the "NoUpdate" tool.
+
+  3. If there are no changes needed in the glossary or rules, return the "NoUpdate" tool.
 
 </Instructions>
 

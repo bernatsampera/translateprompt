@@ -92,3 +92,28 @@ class RulesResponse(BaseModel):
     """Response model for language rules."""
 
     entries: list[RulesEntry] = []
+
+
+class ImprovementEntry(BaseModel):
+    """Model for an improvement entry that can be either glossary or rules."""
+
+    type: str  # "glossary" or "rules"
+    source: str | None = None
+    target: str | None = None
+    note: str | None = None
+    text: str | None = None
+    source_language: str | None = None
+    target_language: str | None = None
+
+
+class ImprovementsResponse(BaseModel):
+    """Response model for improvement suggestions."""
+
+    improvements: list[ImprovementEntry] = []
+
+
+class ApplyImprovementRequest(BaseModel):
+    """Request model for applying an improvement (glossary or rules)."""
+
+    improvement: ImprovementEntry
+    conversation_id: str | None = None

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 ###################
 # Structured Outputs
 ###################
-class UpdateGlossary(BaseModel):
+class UpdateGlossaryClass(BaseModel):
     """Structured output from the update glossary subgraph."""
 
     source: str
@@ -18,7 +18,17 @@ class UpdateGlossary(BaseModel):
     note: str
 
 
-class ConductUpdate(UpdateGlossary):
+class UpdateRulesClass(BaseModel):
+    """Call this tool to conduct update on a specific adjustment from the user."""
+
+    text: str
+
+
+class GlossaryUpdate(UpdateGlossaryClass):
+    """Call this tool to conduct update on a specific adjustment from the user."""
+
+
+class RulesUpdate(UpdateRulesClass):
     """Call this tool to conduct update on a specific adjustment from the user."""
 
 

@@ -26,15 +26,6 @@ export interface DeleteGlossaryRequest {
   source: string;
 }
 
-export const getGlossaryImprovements = async (
-  conversationId: string
-): Promise<GlossaryEntry[]> => {
-  const response = await axiosInstance.get(
-    `${GLOSSARY_BASE_URL}/glossary-improvements/${conversationId}`
-  );
-  return response.data;
-};
-
 export const applyGlossaryUpdate = async (
   source: string,
   target: string,

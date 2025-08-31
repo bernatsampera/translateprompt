@@ -1,7 +1,10 @@
 import axiosInstance from "./axiosConfig";
+import type {GlossaryEntry} from "./glossaryApi";
+import type {RulesEntry} from "./rulesApi";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const GRAPH_BASE_URL = `${BASE_URL}/graphs`;
+const GLOSSARY_BASE_URL = `${BASE_URL}/glossary`;
 
 export interface TranslationResponse {
   response: string;
@@ -13,6 +16,8 @@ export interface TranslationRequest {
   source_language?: string;
   target_language?: string;
 }
+
+export type ImprovementEntry = GlossaryEntry | RulesEntry;
 
 export const startTranslation = async (
   message: string,
@@ -48,4 +53,13 @@ export const refineTranslation = async (
     }
   );
   return response.data;
+};
+
+export const getImprovements = async (
+  conversationId: string
+): Promise<ImprovementEntry[]> => {
+  const response = await axiosInstance.get(
+    `${GLOSSARY_BASE_URL}/glossary-improvements/${conversationId}`
+  );
+  return response.data.improvements;
 };

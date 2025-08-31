@@ -1,4 +1,4 @@
-import {getGlossaryImprovements, type GlossaryEntry} from "@/api/translateApi";
+import {getImprovements, type ImprovementEntry} from "@/api/translateApi";
 import LanguageRules from "@/components/dashboard/LanguageRules";
 import GlossaryImprovements from "@/components/GlossaryImprovements";
 import {LanguageInput} from "@/components/LanguageInput";
@@ -14,7 +14,7 @@ import {useCallback, useRef, useState} from "react";
 function TranslateGraph({}: {}) {
   const conversationIdRef = useRef<string | null>(null);
 
-  const [improvements, setImprovements] = useState<GlossaryEntry[]>([]);
+  const [improvements, setImprovements] = useState<ImprovementEntry[]>([]);
 
   // Use custom hooks for state management
   const {text: textToTranslate, handleTextChange: handleTextToTranslateChange} =
@@ -47,11 +47,9 @@ function TranslateGraph({}: {}) {
     if (!conversationIdRef.current) {
       return;
     }
-    getGlossaryImprovements(conversationIdRef.current ?? "").then(
-      (improvements) => {
-        setImprovements(improvements);
-      }
-    );
+    getImprovements(conversationIdRef.current ?? "").then((improvements) => {
+      setImprovements(improvements);
+    });
   }, [conversationIdRef]);
 
   const handleStartTranslation = async (text: string) => {
