@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS glossary_entries (
 )
 """
 
+LANG_RULE_TABLE_SCHEMA = """
+CREATE TABLE IF NOT EXISTS lang_rule_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    source_language TEXT NOT NULL,
+    target_language TEXT NOT NULL,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, source_language, target_language, text)
+)
+"""
+
 GLOSSARY_INDEX_SCHEMA = """
 CREATE INDEX IF NOT EXISTS idx_glossary_lookup 
 ON glossary_entries(source_language, target_language, source_text)

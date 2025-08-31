@@ -52,5 +52,43 @@ class GlossaryResponse(BaseModel):
     """Response model for glossary entries."""
 
     entries: list[GlossaryEntry] = []
-    source_language: str = "en"
-    target_language: str = "es"
+    source_language: str
+    target_language: str
+
+
+class RulesEntry(BaseModel):
+    """Model for a language rule entry."""
+
+    text: str
+    source_language: str
+    target_language: str
+    user_id: str | None = None
+
+
+class ApplyRulesRequest(BaseModel):
+    """Request model for applying a language rule."""
+
+    rules_entry: RulesEntry
+
+
+class EditRulesRequest(BaseModel):
+    """Request model for editing a language rule."""
+
+    old_text: str
+    new_text: str
+    source_language: str
+    target_language: str
+
+
+class DeleteRulesRequest(BaseModel):
+    """Request model for deleting a language rule."""
+
+    text: str
+    source_language: str
+    target_language: str
+
+
+class RulesResponse(BaseModel):
+    """Response model for language rules."""
+
+    entries: list[RulesEntry] = []

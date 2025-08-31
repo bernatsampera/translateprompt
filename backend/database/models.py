@@ -53,6 +53,48 @@ class GlossaryEntry:
 
 
 @dataclass
+class LangRuleEntry:
+    """Data class representing a language rule entry."""
+
+    source_language: str
+    target_language: str
+    id: int | None = None
+    user_id: str | None = None
+    text: str = ""
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+    def to_dict(self) -> dict:
+        """Convert the entry to a dictionary."""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "source_language": self.source_language,
+            "target_language": self.target_language,
+            "text": self.text,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "LangRuleEntry":
+        """Create an entry from a dictionary."""
+        return cls(
+            source_language=data.get("source_language", "en"),
+            target_language=data.get("target_language", "es"),
+            id=data.get("id"),
+            user_id=data.get("user_id"),
+            text=data.get("text", ""),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else None,
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else None,
+        )
+
+
+@dataclass
 class UserIP:
     """Data class representing a user IP record."""
 

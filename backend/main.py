@@ -10,6 +10,7 @@ from routes import (
     auth_endpoints,
     glossary_endpoints,
     graph_endpoints,
+    rules_endpoints,
     waitlist_endpoints,
 )
 
@@ -42,6 +43,7 @@ app.include_router(graph_endpoints.router)
 app.include_router(glossary_endpoints.router)
 app.include_router(waitlist_endpoints.router)
 app.include_router(auth_endpoints.router)
+app.include_router(rules_endpoints.router)
 
 if __name__ == "__main__":
     uvicorn.run(

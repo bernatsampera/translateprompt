@@ -1,4 +1,5 @@
 import {getGlossaryImprovements, type GlossaryEntry} from "@/api/translateApi";
+import LanguageRules from "@/components/dashboard/LanguageRules";
 import GlossaryImprovements from "@/components/GlossaryImprovements";
 import {LanguageInput} from "@/components/LanguageInput";
 import TranslationPanel from "@/components/TranslationPanel";
@@ -74,38 +75,46 @@ function TranslateGraph({}: {}) {
   };
 
   return (
-    <div className="flex h-full">
-      <div className="flex-1 mx-auto max-w-6xl p-2 lg:p-4">
-        <LanguageInput
-          text={textToTranslate}
-          onLanguageDetected={handleLanguageDetected}
-          isAutoDetectionEnabled={isAutoDetectionEnabled}
-          onAutoDetectionToggle={setIsAutoDetectionEnabled}
-        />
-        <TranslationPanel
+    <div>
+      {sourceLanguage && targetLanguage && (
+        <LanguageRules
           sourceLanguage={sourceLanguage}
-          onSourceLanguageChange={handleSourceLanguageChange}
-          textToTranslate={textToTranslate}
-          onTextToTranslateChange={handleTextToTranslateChange}
-          onTranslate={handleStartTranslation}
-          isTranslating={isTranslating}
           targetLanguage={targetLanguage}
-          onTargetLanguageChange={handleTargetLanguageChange}
-          translation={translation}
-          onCopyToClipboard={handleCopyToClipboard}
-          isCopying={isCopying}
-          textToRefine={textToRefine}
-          onTextToRefineChange={setTextToRefine}
-          onRefine={handleRefineTranslation}
+        />
+      )}
+      <div className="flex h-full">
+        <div className="flex-1 mx-auto max-w-6xl p-2 lg:p-4">
+          <LanguageInput
+            text={textToTranslate}
+            onLanguageDetected={handleLanguageDetected}
+            isAutoDetectionEnabled={isAutoDetectionEnabled}
+            onAutoDetectionToggle={setIsAutoDetectionEnabled}
+          />
+          <TranslationPanel
+            sourceLanguage={sourceLanguage}
+            onSourceLanguageChange={handleSourceLanguageChange}
+            textToTranslate={textToTranslate}
+            onTextToTranslateChange={handleTextToTranslateChange}
+            onTranslate={handleStartTranslation}
+            isTranslating={isTranslating}
+            targetLanguage={targetLanguage}
+            onTargetLanguageChange={handleTargetLanguageChange}
+            translation={translation}
+            onCopyToClipboard={handleCopyToClipboard}
+            isCopying={isCopying}
+            textToRefine={textToRefine}
+            onTextToRefineChange={setTextToRefine}
+            onRefine={handleRefineTranslation}
+          />
+        </div>
+        <GlossaryImprovements
+          improvements={improvements}
+          conversationId={conversationIdRef.current ?? ""}
+          loadImprovements={checkImprovements}
+          sourceLanguage={sourceLanguage}
+          targetLanguage={targetLanguage}
         />
       </div>
-      <GlossaryImprovements
-        improvements={improvements}
-        conversationId={conversationIdRef.current ?? ""}
-        loadImprovements={checkImprovements}
-        sourceLanguage={sourceLanguage}
-        targetLanguage={targetLanguage}
-      />
     </div>
   );
 }

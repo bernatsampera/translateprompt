@@ -2,13 +2,15 @@
 
 import sqlite3
 from contextlib import contextmanager
-from pathlib import Path
 from typing import List
+
+from config import config
 
 from .migrations import MigrationManager
 from .schemas import (
     GLOSSARY_INDEX_SCHEMA,
     GLOSSARY_TABLE_SCHEMA,
+    LANG_RULE_TABLE_SCHEMA,
     USER_IP_TABLE_SCHEMA,
     USER_USAGE_SCHEMA,
     WAITLIST_TABLE_SCHEMA,
@@ -24,8 +26,6 @@ def create_database_connection(db_path: str = None) -> "DatabaseConnection":
     Returns:
         DatabaseConnection instance configured with the appropriate path.
     """
-    from config import config
-
     if db_path is None:
         db_path = config.DATABASE_PATH
 
@@ -41,11 +41,7 @@ class DatabaseConnection:
         Args:
             db_path: Path to the SQLite database. If None, uses default path.
         """
-        if db_path is None:
-            # Default to glossary.db in the database directory
-            self.db_path = Path(__file__).parent / "glossary.db"
-        else:
-            self.db_path = Path(db_path)
+        self.db_path = db_path or config.DATABASE_PATH
 
         self._init_database()
 
@@ -60,6 +56,7 @@ class DatabaseConnection:
             cursor.execute(USER_IP_TABLE_SCHEMA)
             cursor.execute(WAITLIST_TABLE_SCHEMA)
             cursor.execute(USER_USAGE_SCHEMA)
+            cursor.execute(LANG_RULE_TABLE_SCHEMA)
 
             # Add more table creation statements here as needed
             # cursor.execute(ANALYTICS_TABLE_SCHEMA)

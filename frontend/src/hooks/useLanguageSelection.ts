@@ -1,8 +1,8 @@
 import {useCallback, useState} from "react";
 
 export function useLanguageSelection() {
-  const [sourceLanguage, setSourceLanguage] = useState("");
-  const [targetLanguage, setTargetLanguage] = useState("en");
+  const [sourceLanguage, setSourceLanguage] = useState("en");
+  const [targetLanguage, setTargetLanguage] = useState("es");
   const [isAutoDetectionEnabled, setIsAutoDetectionEnabled] = useState(true);
 
   const handleSourceLanguageChange = useCallback((language: string) => {
