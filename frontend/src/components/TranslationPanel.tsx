@@ -49,7 +49,6 @@ function TranslationPanel({
         onTextToTranslateChange={onTextToTranslateChange}
         onTranslate={onTranslate}
         isTranslating={isTranslating}
-        targetLanguage={targetLanguage}
       />
 
       <div className="space-y-3">

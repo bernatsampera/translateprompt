@@ -8,7 +8,6 @@ interface SourcePanelProps {
   onTextToTranslateChange: (text: string) => void;
   onTranslate: (text: string) => void;
   isTranslating: boolean;
-  targetLanguage: string;
 }
 
 function SourcePanel({
@@ -17,8 +16,7 @@ function SourcePanel({
   textToTranslate,
   onTextToTranslateChange,
   onTranslate,
-  isTranslating,
-  targetLanguage
+  isTranslating
 }: SourcePanelProps) {
   return (
     <TranslationPanelBase
@@ -35,24 +33,26 @@ function SourcePanel({
           onChange={(e) => onTextToTranslateChange(e.target.value)}
         />
 
-        <button
-          className={`btn btn-sm transition-all ${
-            textToTranslate.trim()
-              ? "btn-primary hover:scale-105"
-              : "btn-ghost opacity-50 cursor-not-allowed"
-          }`}
-          onClick={() => onTranslate(textToTranslate)}
-          disabled={!textToTranslate.trim() || isTranslating}
-        >
-          {isTranslating ? (
-            <span className="loading loading-spinner loading-sm"></span>
-          ) : (
-            <ArrowRightLeft className="h-4 w-4" />
-          )}
-          <span className="hidden sm:inline ml-1">
-            {isTranslating ? "Translating..." : "Translate"}
-          </span>
-        </button>
+        <div className="flex justify-end">
+          <button
+            className={`btn btn-sm w-full transition-all ${
+              textToTranslate.trim()
+                ? "btn-primary hover:scale-105"
+                : "btn-ghost opacity-50 cursor-not-allowed"
+            }`}
+            onClick={() => onTranslate(textToTranslate)}
+            disabled={!textToTranslate.trim() || isTranslating}
+          >
+            {isTranslating ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              <ArrowRightLeft className="h-4 w-4" />
+            )}
+            <span className="hidden sm:inline ml-1">
+              {isTranslating ? "Translating..." : "Translate"}
+            </span>
+          </button>
+        </div>
       </div>
     </TranslationPanelBase>
   );
