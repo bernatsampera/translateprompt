@@ -148,7 +148,7 @@ function GlossaryImprovements({
         </div>
 
         {/* Collapsed Header - Desktop */}
-        <div className="hidden lg:flex p-2 items-center justify-center absolute top-0 left-0 right-0">
+        <div className="hidden lg:flex p-2 items-center justify-center absolute top-0 left-10 right-0">
           <button
             onClick={() => setIsCollapsed(false)}
             className="btn btn-ghost btn-sm p-1"
