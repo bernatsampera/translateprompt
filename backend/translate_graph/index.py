@@ -10,6 +10,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, StateGraph
 from langgraph.types import Command, interrupt
 
+from database.rules_operations import RulesOperations
 from glossary import GlossaryManager
 from translate_graph.match_words import match_words_from_glossary
 from translate_graph.prompts import (
@@ -21,11 +22,12 @@ from translate_graph.state import (
     TranslateInputState,
     TranslateState,
 )
-from translate_graph.utils import format_glossary
+from translate_graph.utils import format_glossary, format_rules
 from utils.llm_service import LLM_Service
 
 # Initialize glossary manager
 glossary_manager = GlossaryManager()
+rules_manager = RulesOperations()
 
 # Get API key from environment
 google_api_key = os.getenv("GOOGLE_API_KEY")
@@ -42,9 +44,14 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     user_id = state["user_id"]
 
     glossary_data = {}
+    rules_data = {}
+
     # Load current glossary for the specified language pair
     if user_id:
         glossary_data = glossary_manager.get_all_sources_for_user(
+            user_id, source_language, target_language
+        )
+        rules_data = rules_manager.get_entries_for_user(
             user_id, source_language, target_language
         )
 
@@ -58,6 +65,7 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
             source_language=source_language,
             target_language=target_language,
             glossary=format_glossary(found_glossary_words),
+            rules=format_rules(rules_data),
         ),
     )
     response = llm.invoke(prompt)

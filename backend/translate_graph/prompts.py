@@ -9,6 +9,10 @@ Be very strict and analyze the context to just use the glossary when necessary.
 Respect the case of the original word, even if the case in the glossary is different. Example: (Tree) should be (Árbol)
 
 {glossary}
+
+Rules when translating from {source_language} to {target_language}:
+{rules}
+
 """
 
 first_translation_instructions = """
