@@ -34,6 +34,22 @@ axiosInstance.interceptors.response.use(
       const data = error.response.data;
       // console.log("error.response", error.response);
 
+      if (status === 401) {
+        // Show a more appealing toast with an action button for 401 errors
+        toast.error("Authentication Required", {
+          duration: 8000,
+          description:
+            "Create your personal glossary and unlock advanced features by signing up or logging in.",
+          action: {
+            label: "Sign In",
+            onClick: () => {
+              window.location.href = "/auth";
+            }
+          }
+        });
+        return Promise.reject(error); // Return early to avoid the generic toast below
+      }
+
       // Handle different error response formats
       if (typeof data === "string") {
         errorMessage = data;

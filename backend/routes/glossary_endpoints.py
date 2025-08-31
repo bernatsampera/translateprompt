@@ -180,7 +180,10 @@ def edit_glossary_entry(
 
 
 @router.delete("/delete-glossary-entry")
-def delete_glossary_entry(request: DeleteGlossaryRequest):
+def delete_glossary_entry(
+    request: DeleteGlossaryRequest,
+    session: SessionContainer = Depends(verify_session()),
+):
     """Delete a glossary entry."""
     glossary_manager = GlossaryManager()
 

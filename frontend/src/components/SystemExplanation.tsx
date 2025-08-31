@@ -116,7 +116,7 @@ export default function SystemExplanation() {
           <StepCard
             icon={<Bot className="w-8 h-8 text-white" />}
             iconBg="bg-gray-400"
-            title="Translates and suggest Glossary Entry"
+            title="Translates and suggests Glossary Entry"
             content={
               <div className="space-y-3">
                 <div className="bg-gray-50 rounded-lg p-4">
@@ -133,7 +133,7 @@ export default function SystemExplanation() {
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <BookOpen className="w-4 h-4 text-gray-600" />
                     <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                      Suggest Glossary Entry
+                      NEW Glossary Entry
                     </span>
                   </div>
                   <p className="text-gray-700 text-sm">cerveza → pint</p>
