@@ -15,7 +15,22 @@ SuperTokens.init({
     apiBasePath: "/auth",
     websiteBasePath: "/auth"
   },
-  recipeList: [EmailPasswordReact.init(), SessionReact.init()]
+  recipeList: [
+    EmailPasswordReact.init({
+      signInAndUpFeature: {
+        signUpForm: {
+          formFields: [
+            {
+              id: "username",
+              label: "Username",
+              placeholder: "username"
+            }
+          ]
+        }
+      }
+    }),
+    SessionReact.init()
+  ]
 });
 
 createRoot(document.getElementById("root")!).render(

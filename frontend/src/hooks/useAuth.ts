@@ -1,39 +1,80 @@
-// hooks/useAuth.js (or wherever you define it)
+// hooks/useAuth.js
 
+import {useEffect, useState} from "react";
 import {
   signOut,
   useSessionContext
 } from "supertokens-auth-react/recipe/session";
 
+import axiosInstance from "@/api/axiosConfig";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const AUTH_BASE_URL = `${BASE_URL}/auth`;
+
 export function useAuth() {
-  // useSessionContext provides real-time session information.
-  // It's provided by the <SuperTokensWrapper> in your App component.
-  const session = useSessionContext();
+  const session = useSessionContext() as any;
+
+  const [userData, setUserData] = useState({
+    username: null,
+    loading: false,
+    error: null as any
+  });
+
+  useEffect(() => {
+    // This flag prevents state updates if the component unmounts
+    // during the async API call.
+    let isMounted = true;
+
+    const fetchUserData = async () => {
+      // Only fetch if we have a confirmed session and user ID,
+      // and we aren't already fetching.
+      if (session.doesSessionExist && session.userId) {
+        setUserData({username: null, loading: true, error: null});
+        try {
+          const response = await axiosInstance.get(`${AUTH_BASE_URL}/user`);
+          if (isMounted) {
+            setUserData({
+              username: response.data.metadata.username,
+              loading: false,
+              error: null
+            });
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+          if (isMounted) {
+            setUserData({username: null, loading: false, error: error});
+          }
+        }
+      }
+    };
+    console.log("fetchUserData", fetchUserData);
+
+    fetchUserData();
+
+    return () => {
+      isMounted = false;
+    };
+    // This effect should ONLY re-run when the user's session status or ID changes.
+  }, [session.doesSessionExist, session.userId]);
 
   const handleLogout = async () => {
     try {
       await signOut();
-      // No need to call setLoggedIn(false) here.
-      // The session context will automatically update after signOut,
-      // triggering a re-render with loggedIn = false.
+      window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
-  console.log(session);
+  // The final loading state is true if the session is loading OR our user data is loading.
+  const isLoading = session.loading || userData.loading;
 
   return {
-    // session.loading is true during the initial session check.
-    loading: session.loading,
-    // session.doesSessionExist is the reactive boolean you need.
-    // @ts-ignore
+    loading: isLoading,
     loggedIn: session.doesSessionExist,
     logout: handleLogout,
-    // You can also expose other useful info if needed
-    // @ts-ignore
     userId: session.userId,
-    // @ts-ignore
-    userEmail: session.accessTokenPayload?.email
+    userName: userData.username,
+    error: userData.error // Expose error state for UI to optionally use
   };
 }
