@@ -9,6 +9,9 @@ import "./index.css";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
 
+console.log("BACKEND_URL", BACKEND_URL);
+console.log("FRONTEND_URL", FRONTEND_URL);
+
 SuperTokens.init({
   appInfo: {
     // learn more about this on https://supertokens.com/docs/references/frontend-sdks/reference#sdk-configuration
