@@ -46,6 +46,24 @@ class Config:
         """Get LLM model."""
         return os.getenv("LLM_MODEL", "gpt-4o-mini")
 
+    @property
+    def SUPER_TOKENS_CONNECTION_URI(self) -> str:
+        """Get SuperTokens connection URI."""
+        return os.getenv(
+            "SUPER_TOKENS_CONNECTION_URI",
+            "https://supertokens-vssocosgc4ckcw4goks4wg4c.samperalabs.com",
+        )
+
+    @property
+    def BACKEND_URL(self) -> str:
+        """Get SuperTokens API domain."""
+        return os.getenv("BACKEND_URL", "http://localhost:8008")
+
+    @property
+    def FRONTEND_URL(self) -> str:
+        """Get SuperTokens website domain."""
+        return os.getenv("FRONTEND_URL", "http://localhost:5178")
+
     def is_production(self) -> bool:
         """Check if the application is running in production mode."""
         return self.PROD

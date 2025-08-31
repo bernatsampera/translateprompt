@@ -6,12 +6,15 @@ import SessionReact from "supertokens-auth-react/recipe/session";
 import App from "./App.tsx";
 import "./index.css";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
+
 SuperTokens.init({
   appInfo: {
     // learn more about this on https://supertokens.com/docs/references/frontend-sdks/reference#sdk-configuration
     appName: "TranslatePrompt",
-    apiDomain: "localhost:8008",
-    websiteDomain: "localhost:5178",
+    apiDomain: BACKEND_URL,
+    websiteDomain: FRONTEND_URL,
     apiBasePath: "/auth",
     websiteBasePath: "/auth"
   },

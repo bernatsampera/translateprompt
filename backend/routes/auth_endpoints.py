@@ -13,6 +13,8 @@ from supertokens_python.recipe.usermetadata.asyncio import (
     update_user_metadata,
 )
 
+from config import config
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -56,11 +58,11 @@ def apis_override(original_implementation: emailpassword.interfaces.APIInterface
 init(
     app_info=InputAppInfo(
         app_name="TranslatePrompt",
-        api_domain="http://localhost:8008",  # FastAPI domain
-        website_domain="http://localhost:5178",  # React domain
+        api_domain=config.BACKEND_URL,  # FastAPI domain
+        website_domain=config.FRONTEND_URL,  # React domain
     ),
     supertokens_config=SupertokensConfig(
-        connection_uri="https://supertokens-vssocosgc4ckcw4goks4wg4c.samperalabs.com"  # your core instance URL
+        connection_uri=config.SUPER_TOKENS_CONNECTION_URI  # your core instance URL
     ),
     recipe_list=[
         emailpassword.init(
