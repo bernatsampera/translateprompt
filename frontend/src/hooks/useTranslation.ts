@@ -8,9 +8,7 @@ interface UseTranslationOptions {
 }
 
 export function useTranslation(options: UseTranslationOptions = {}) {
-  const [translation, setTranslation] = useState<string | null>(
-    "Two pints, please"
-  );
+  const [translation, setTranslation] = useState<string | null>("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
 

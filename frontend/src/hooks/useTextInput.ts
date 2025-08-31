@@ -1,6 +1,6 @@
 import {useCallback, useState} from "react";
 
-export function useTextInput(initialValue: string = "Dos cervezas, por favor") {
+export function useTextInput(initialValue: string = "") {
   const [text, setText] = useState(initialValue);
 
   const handleTextChange = useCallback((newText: string) => {
