@@ -36,6 +36,7 @@ class TranslateInputState(MessagesState):
 
     source_language: str
     target_language: str
+    user_id: str | None
 
 
 class TranslateState(TranslateInputState):

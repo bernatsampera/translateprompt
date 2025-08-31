@@ -39,9 +39,15 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     text_to_translate = state["messages"][-1].content
     source_language = state["source_language"]
     target_language = state["target_language"]
+    user_id = state["user_id"]
 
+    glossary_data = {}
     # Load current glossary for the specified language pair
-    glossary_data = glossary_manager.get_all_sources(source_language, target_language)
+    if user_id:
+        glossary_data = glossary_manager.get_all_sources_for_user(
+            user_id, source_language, target_language
+        )
+
     found_glossary_words = match_words_from_glossary(glossary_data, text_to_translate)
 
     prompt = first_translation_instructions.format(

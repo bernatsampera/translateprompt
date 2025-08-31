@@ -48,8 +48,9 @@ def translate(
 
     input_data = {
         "messages": translate_request.message,
-        "source_language": translate_request.source_language or "en",
-        "target_language": translate_request.target_language or "es",
+        "source_language": translate_request.source_language,
+        "target_language": translate_request.target_language,
+        "user_id": session.get_user_id() if session else None,
     }
 
     result = run_graph(input_data, thread_id)
