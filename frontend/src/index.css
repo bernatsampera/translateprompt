@@ -22,7 +22,7 @@
   --color-primary-content: oklch(0.97 0.005 240); /* Soft white text on dark */
 
   /* Secondary - Medium grays for supporting elements */
-  --color-secondary: oklch(0.75 0.008 240); /* Light gray */
+  --color-secondary: oklch(0.87 0.022 240); /* Light gray */
   --color-secondary-content: oklch(0.35 0.015 240); /* Darker gray text */
 
   /* Accent - Subtle emphasis */

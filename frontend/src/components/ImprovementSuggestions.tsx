@@ -51,15 +51,23 @@ export function ImprovementSuggestions({
   }
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-base-content">
-        Suggested Updates
-      </h3>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <h3 className="text-sm font-medium text-base-content">
+          Suggested Updates
+        </h3>
+        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+          {improvements.length}
+        </span>
+      </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {improvements.map((improvement, index) => (
-          <div key={index} className="card bg-base-200 border border-base-300">
-            <div className="card-body p-3">
+          <div
+            key={index}
+            className="bg-base-200 border border-base-300 rounded-lg overflow-hidden"
+          >
+            <div className="p-4">
               {improvement.type === "glossary" ? (
                 // Glossary Entry Improvement
                 <div className="flex justify-between items-start gap-2">
@@ -83,7 +91,7 @@ export function ImprovementSuggestions({
                     onClick={() =>
                       handleApplyGlossaryUpdate(improvement as GlossaryEntry)
                     }
-                    className="btn btn-neutral btn-xs"
+                    className="btn btn-primary btn-xs"
                   >
                     Apply
                   </button>
@@ -103,7 +111,7 @@ export function ImprovementSuggestions({
                     onClick={() =>
                       handleApplyRuleUpdate(improvement as RulesEntry)
                     }
-                    className="btn btn-neutral btn-xs"
+                    className="btn btn-primary btn-xs"
                   >
                     Apply
                   </button>

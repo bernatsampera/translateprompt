@@ -1,7 +1,7 @@
 import {getImprovements, type ImprovementEntry} from "@/api/translateApi";
-import LanguageRules from "@/components/dashboard/LanguageRules";
-import {GlossaryPanel} from "@/components/GlossaryPanel";
 import {LanguageInput} from "@/components/LanguageInput";
+import {ManagementHub} from "@/components/ManagementHub";
+import {SuggestionsPanel} from "@/components/SuggestionsPanel";
 import TranslationPanel from "@/components/TranslationPanel";
 import {
   useClipboard,
@@ -9,12 +9,14 @@ import {
   useTextInput,
   useTranslation
 } from "@/hooks";
+import {Settings} from "lucide-react";
 import {useCallback, useRef, useState} from "react";
 
-function TranslateGraph({}: {}) {
+function TranslateGraph() {
   const conversationIdRef = useRef<string | null>(null);
 
   const [improvements, setImprovements] = useState<ImprovementEntry[]>([]);
+  const [isManagementHubOpen, setIsManagementHubOpen] = useState(false);
 
   // Use custom hooks for state management
   const {text: textToTranslate, handleTextChange: handleTextToTranslateChange} =
@@ -73,39 +75,63 @@ function TranslateGraph({}: {}) {
   };
 
   return (
-    <div>
-      {sourceLanguage && targetLanguage && (
-        <LanguageRules
-          sourceLanguage={sourceLanguage}
-          targetLanguage={targetLanguage}
-        />
-      )}
-      <div className="flex h-full">
-        <div className="flex-1 mx-auto max-w-6xl p-2 lg:p-4">
-          <LanguageInput
-            text={textToTranslate}
-            onLanguageDetected={handleLanguageDetected}
-            isAutoDetectionEnabled={isAutoDetectionEnabled}
-            onAutoDetectionToggle={setIsAutoDetectionEnabled}
-          />
-          <TranslationPanel
-            sourceLanguage={sourceLanguage}
-            onSourceLanguageChange={handleSourceLanguageChange}
-            textToTranslate={textToTranslate}
-            onTextToTranslateChange={handleTextToTranslateChange}
-            onTranslate={handleStartTranslation}
-            isTranslating={isTranslating}
-            targetLanguage={targetLanguage}
-            onTargetLanguageChange={handleTargetLanguageChange}
-            translation={translation}
-            onCopyToClipboard={handleCopyToClipboard}
-            isCopying={isCopying}
-            textToRefine={textToRefine}
-            onTextToRefineChange={setTextToRefine}
-            onRefine={handleRefineTranslation}
-          />
+    <div className="h-full flex flex-col">
+      {/* Header with Management Button */}
+      <div className="bg-base-100 border-b border-base-300 px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold text-base-content">
+              Translation Workspace
+            </h1>
+            {sourceLanguage && targetLanguage && (
+              <span className="text-sm text-base-content/70 bg-base-200 px-3 py-1 rounded-full">
+                {sourceLanguage} → {targetLanguage}
+              </span>
+            )}
+          </div>
+          {sourceLanguage && targetLanguage && (
+            <button
+              onClick={() => setIsManagementHubOpen(true)}
+              className="btn btn-secondary btn-sm gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Manage
+            </button>
+          )}
         </div>
-        <GlossaryPanel
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-6xl mx-auto p-4">
+            <LanguageInput
+              text={textToTranslate}
+              onLanguageDetected={handleLanguageDetected}
+              isAutoDetectionEnabled={isAutoDetectionEnabled}
+              onAutoDetectionToggle={setIsAutoDetectionEnabled}
+            />
+            <TranslationPanel
+              sourceLanguage={sourceLanguage}
+              onSourceLanguageChange={handleSourceLanguageChange}
+              textToTranslate={textToTranslate}
+              onTextToTranslateChange={handleTextToTranslateChange}
+              onTranslate={handleStartTranslation}
+              isTranslating={isTranslating}
+              targetLanguage={targetLanguage}
+              onTargetLanguageChange={handleTargetLanguageChange}
+              translation={translation}
+              onCopyToClipboard={handleCopyToClipboard}
+              isCopying={isCopying}
+              textToRefine={textToRefine}
+              onTextToRefineChange={setTextToRefine}
+              onRefine={handleRefineTranslation}
+            />
+          </div>
+        </div>
+
+        {/* Suggestions Panel */}
+        <SuggestionsPanel
           improvements={improvements}
           conversationId={conversationIdRef.current ?? ""}
           loadImprovements={checkImprovements}
@@ -113,6 +139,16 @@ function TranslateGraph({}: {}) {
           targetLanguage={targetLanguage}
         />
       </div>
+
+      {/* Management Hub Modal */}
+      {sourceLanguage && targetLanguage && (
+        <ManagementHub
+          sourceLanguage={sourceLanguage}
+          targetLanguage={targetLanguage}
+          isOpen={isManagementHubOpen}
+          onClose={() => setIsManagementHubOpen(false)}
+        />
+      )}
     </div>
   );
 }
