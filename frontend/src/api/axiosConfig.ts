@@ -3,7 +3,8 @@ import {toast} from "sonner";
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  timeout: 30000 // 30 seconds timeout
+  timeout: 30000, // 30 seconds timeout,
+  withCredentials: true // Include cookies in requests for SuperTokens authentication
 });
 
 // Request interceptor (optional - for logging requests)
