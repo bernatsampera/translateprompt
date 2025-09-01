@@ -22,6 +22,16 @@ class GlossaryEntry(BaseModel):
     target_language: str | None = None
 
 
+class AddGlossaryRequest(BaseModel):
+    """Request model for adding a glossary entry."""
+
+    source: str
+    target: str
+    note: str
+    source_language: str
+    target_language: str
+
+
 class ApplyGlossaryRequest(BaseModel):
     """Request model for applying a glossary improvement."""
 

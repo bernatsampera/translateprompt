@@ -7,6 +7,7 @@ from supertokens_python.recipe.session.framework.fastapi import verify_session
 from database.rules_operations import RulesOperations
 from glossary import GlossaryManager
 from models import (
+    AddGlossaryRequest,
     ApplyGlossaryRequest,
     ApplyImprovementRequest,
     DeleteGlossaryRequest,
@@ -131,6 +132,27 @@ def apply_glossary_update(
         glossary_entry.source_language,
         glossary_entry.target_language,
         glossary_entry.note,
+        user_id=user_id,
+    ):
+        return {"message": "success"}
+
+    raise HTTPException(status_code=500, detail="Failed to add entry to glossary")
+
+
+@router.post("/add-glossary-entry")
+def add_glossary_entry(
+    request: AddGlossaryRequest, session: SessionContainer = Depends(verify_session())
+):
+    """Add a new glossary entry."""
+    user_id = session.get_user_id()
+    glossary_manager = GlossaryManager()
+
+    if glossary_manager.add_source(
+        request.source,
+        request.target,
+        request.source_language,
+        request.target_language,
+        request.note,
         user_id=user_id,
     ):
         return {"message": "success"}

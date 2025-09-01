@@ -1,5 +1,5 @@
 import {
-  applyGlossaryUpdate,
+  addGlossaryEntry,
   deleteGlossaryEntry,
   editGlossaryEntry,
   getGlossaryEntries,
@@ -48,11 +48,12 @@ export function CompactGlossaryManager({
 
     try {
       // Use applyGlossaryUpdate for adding new entries
-      await applyGlossaryUpdate(
+      await addGlossaryEntry(
         newEntry.source,
         newEntry.target,
         newEntry.note,
-        "" // no conversation_id for manual entries
+        sourceLanguage,
+        targetLanguage
       );
 
       setNewEntry({source: "", target: "", note: ""});

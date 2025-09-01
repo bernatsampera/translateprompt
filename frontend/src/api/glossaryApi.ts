@@ -46,6 +46,26 @@ export const applyGlossaryUpdate = async (
   return response.data;
 };
 
+export const addGlossaryEntry = async (
+  source: string,
+  target: string,
+  note: string = "",
+  source_language: string,
+  target_language: string
+): Promise<{status: string; message: string}> => {
+  const response = await axiosInstance.post(
+    `${GLOSSARY_BASE_URL}/add-glossary-entry`,
+    {
+      source,
+      target,
+      note,
+      source_language,
+      target_language
+    }
+  );
+  return response.data;
+};
+
 export const editGlossaryEntry = async (
   oldSource: string,
   newSource: string,
