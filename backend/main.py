@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from supertokens_python.framework.fastapi import get_middleware
 
 from config import config
+from database.connection import initialize_database
 from routes import (
     auth_endpoints,
     glossary_endpoints,
@@ -30,6 +31,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Initialize database at startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database and other services on startup."""
+    initialize_database()
 
 
 @app.get("/health")

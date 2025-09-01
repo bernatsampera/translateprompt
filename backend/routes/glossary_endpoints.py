@@ -21,9 +21,6 @@ from utils.improvement_cache import improvement_cache
 from utils.llm_service import LLM_Service
 from utils.user_tracking_service import UserTrackingService
 
-llm = LLM_Service()
-user_tracking = UserTrackingService()
-
 router = APIRouter(prefix="/glossary", tags=["glossary"])
 
 
@@ -35,9 +32,13 @@ async def get_glossary_entries(
     session: SessionContainer | None = Depends(verify_session(session_required=False)),
 ) -> GlossaryResponse:
     """Get all current glossary entries for a specific language pair."""
+    # Create services when needed
+    user_tracking = UserTrackingService()
+    glossary_manager = GlossaryManager()
+
     user_tracking.set_request_ip_from_request(request)
     user_tracking.set_user_id(session.get_user_id() if session else None)
-    glossary_manager = GlossaryManager()
+
     user_id = None
     glossary_data = None
     if session:
@@ -88,7 +89,9 @@ def check_glossary_updates(conversation_id: str):
         target_language=state["target_language"],
     )
 
-    response = llm.bind_tools([GlossaryUpdate, RulesUpdate, NoUpdate]).invoke(prompt)
+    response = (
+        LLM_Service().bind_tools([GlossaryUpdate, RulesUpdate, NoUpdate]).invoke(prompt)
+    )
 
     print(response)
 

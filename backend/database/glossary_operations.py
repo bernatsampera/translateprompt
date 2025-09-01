@@ -1,22 +1,22 @@
-"""Glossary-specific database operations."""
+"""Glossary database operations."""
 
 from datetime import datetime
 from typing import Dict, List
 
-from .connection import DatabaseConnection
+from .connection import DatabaseConnection, get_database_connection
 from .models import GlossaryEntry
 
 
 class GlossaryOperations:
-    """Handles all glossary-specific database operations."""
+    """Handles all glossary database operations."""
 
     def __init__(self, db_connection: DatabaseConnection = None):
         """Initialize with a database connection.
 
         Args:
-            db_connection: Database connection instance. If None, creates a new one.
+            db_connection: Database connection instance. If None, uses the global connection.
         """
-        self.db = db_connection or DatabaseConnection()
+        self.db = db_connection or get_database_connection()
 
     def add_entry(self, entry: GlossaryEntry) -> bool:
         """Add or update a glossary entry.

@@ -1,22 +1,22 @@
-"""Language rules-specific database operations."""
+"""Language rules database operations."""
 
 from datetime import datetime
 from typing import List
 
-from .connection import DatabaseConnection
+from .connection import DatabaseConnection, get_database_connection
 from .models import LangRuleEntry
 
 
 class RulesOperations:
-    """Handles all language rules-specific database operations."""
+    """Handles all language rules database operations."""
 
     def __init__(self, db_connection: DatabaseConnection = None):
         """Initialize with a database connection.
 
         Args:
-            db_connection: Database connection instance. If None, creates a new one.
+            db_connection: Database connection instance. If None, uses the global connection.
         """
-        self.db = db_connection or DatabaseConnection()
+        self.db = db_connection or get_database_connection()
 
     def add_entry(self, entry: LangRuleEntry) -> bool:
         """Add or update a language rule entry.

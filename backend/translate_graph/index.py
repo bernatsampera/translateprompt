@@ -10,8 +10,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, StateGraph
 from langgraph.types import Command, interrupt
 
-from database.rules_operations import RulesOperations
-from glossary import GlossaryManager
 from translate_graph.match_words import match_words_from_glossary
 from translate_graph.prompts import (
     first_translation_instructions,
@@ -23,18 +21,11 @@ from translate_graph.state import (
     TranslateState,
 )
 from translate_graph.utils import format_glossary, format_rules
-from utils.llm_service import LLM_Service
-
-# Initialize glossary manager
-glossary_manager = GlossaryManager()
-rules_manager = RulesOperations()
 
 # Get API key from environment
 google_api_key = os.getenv("GOOGLE_API_KEY")
 if not google_api_key:
     raise ValueError("GOOGLE_API_KEY environment variable is required")
-
-llm = LLM_Service()
 
 
 def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
@@ -42,6 +33,15 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     source_language = state["source_language"]
     target_language = state["target_language"]
     user_id = state["user_id"]
+
+    # Create services when needed
+    from database.rules_operations import RulesOperations
+    from glossary import GlossaryManager
+    from utils.llm_service import LLM_Service
+
+    glossary_manager = GlossaryManager()
+    rules_manager = RulesOperations()
+    llm = LLM_Service()
 
     glossary_data = {}
     rules_data = {}
@@ -99,6 +99,11 @@ def refine_translation(
     last_two_messages = state["messages"][-2:]
     source_language = state["source_language"]
     target_language = state["target_language"]
+
+    # Create services when needed
+    from utils.llm_service import LLM_Service
+
+    llm = LLM_Service()
 
     prompt = update_translation_instructions.format(
         messages=get_buffer_string(last_two_messages),

@@ -14,8 +14,6 @@ from models import (
 )
 from utils.user_tracking_service import UserTrackingService
 
-user_tracking = UserTrackingService()
-
 router = APIRouter(prefix="/rules", tags=["rules"])
 
 
@@ -27,6 +25,9 @@ async def get_rules_entries(
     session: SessionContainer = Depends(verify_session()),
 ) -> RulesResponse:
     """Get all current language rule entries for the authenticated user."""
+    # Create user tracking service when needed
+    user_tracking = UserTrackingService()
+
     user_tracking.set_user_id(session.get_user_id())
 
     rules_operations = RulesOperations()
@@ -130,6 +131,7 @@ async def get_rules_list(
     session: SessionContainer = Depends(verify_session()),
 ) -> list[str]:
     """Get all language rules as a simple list of strings for the authenticated user."""
+    user_tracking = UserTrackingService()
     user_tracking.set_request_ip_from_request(request)
     user_tracking.set_user_id(session.get_user_id())
 

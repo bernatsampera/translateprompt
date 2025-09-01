@@ -26,7 +26,15 @@ class LLM_Service:
         self.llm_fallback = init_chat_model("openai:gpt-4o-mini")
         self.history = deque()
         self.penalty_until = 0
-        self.user_tracking = UserTrackingService()
+        # Don't initialize user_tracking here - do it lazily when needed
+        self._user_tracking = None
+
+    @property
+    def user_tracking(self):
+        """Lazy initialization of user tracking service."""
+        if self._user_tracking is None:
+            self._user_tracking = UserTrackingService()
+        return self._user_tracking
 
     def print_history(self):
         """Print the token usage history for debugging purposes."""

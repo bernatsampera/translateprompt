@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from .connection import DatabaseConnection
+from .connection import DatabaseConnection, get_database_connection
 from .models import UserIP
 
 
@@ -13,9 +13,9 @@ class UserIPOperations:
         """Initialize with a database connection.
 
         Args:
-            db_connection: Database connection instance. If None, creates a new one.
+            db_connection: Database connection instance. If None, uses the global connection.
         """
-        self.db = db_connection or DatabaseConnection()
+        self.db = db_connection or get_database_connection()
 
     def add_user_ip(self, ip_address: str) -> UserIP:
         """Add a new user IP address.

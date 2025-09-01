@@ -15,8 +15,6 @@ from utils.graph_utils import create_graph_config, get_graph_state
 from utils.improvement_cache import improvement_cache
 from utils.user_tracking_service import UserTrackingService
 
-user_tracking = UserTrackingService()
-
 router = APIRouter(prefix="/graphs", tags=["graph"])
 
 
@@ -39,6 +37,9 @@ def translate(
     session: SessionContainer | None = Depends(verify_session(session_required=False)),
 ):
     """Chat endpoint to start the graph with a user message."""
+    # Create user tracking service when needed
+    user_tracking = UserTrackingService()
+
     # Set IP context for rate limiting - extract real user IP
     user_tracking.set_request_ip_from_request(request)
     user_tracking.set_user_id(session.get_user_id() if session else None)
@@ -66,6 +67,9 @@ def refine_translation(
     session: SessionContainer | None = Depends(verify_session(session_required=False)),
 ):
     """Chat endpoint to refine the translation."""
+    # Create user tracking service when needed
+    user_tracking = UserTrackingService()
+
     # Set IP context for rate limiting - extract real user IP
     user_tracking.set_request_ip_from_request(request)
     user_tracking.set_user_id(session.get_user_id() if session else None)

@@ -16,6 +16,39 @@ from .schemas import (
     WAITLIST_TABLE_SCHEMA,
 )
 
+# Global database connection instance
+_global_db_connection = None
+
+
+def get_database_connection() -> "DatabaseConnection":
+    """Get the global database connection instance.
+
+    Returns:
+        The global DatabaseConnection instance
+    """
+    global _global_db_connection
+    if _global_db_connection is None:
+        raise RuntimeError(
+            "Database not initialized. Call initialize_database() first."
+        )
+    return _global_db_connection
+
+
+def initialize_database(db_path: str = None):
+    """Initialize the global database connection.
+
+    This should be called once at application startup.
+
+    Args:
+        db_path: Path to the SQLite database. If None, uses default path.
+    """
+    global _global_db_connection
+    if _global_db_connection is not None:
+        return  # Already initialized
+
+    _global_db_connection = DatabaseConnection(db_path=db_path)
+    _global_db_connection._init_database()
+
 
 def create_database_connection(db_path: str = None) -> "DatabaseConnection":
     """Create a DatabaseConnection with proper path handling.
@@ -42,8 +75,7 @@ class DatabaseConnection:
             db_path: Path to the SQLite database. If None, uses default path.
         """
         self.db_path = db_path or config.DATABASE_PATH
-
-        self._init_database()
+        # Don't initialize database here - it will be done separately
 
     def _init_database(self):
         """Initialize the SQLite database with all required tables."""

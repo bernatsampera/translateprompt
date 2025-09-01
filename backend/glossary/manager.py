@@ -3,7 +3,7 @@
 from typing import Dict
 
 from config import config
-from database.connection import create_database_connection
+from database.connection import get_database_connection
 from database.glossary_operations import GlossaryOperations
 from database.models import GlossaryEntry
 
@@ -17,8 +17,22 @@ class GlossaryManager:
         Args:
             db_path: Path to the glossary SQLite database. If None, uses config DATABASE_PATH.
         """
-        db_connection = create_database_connection(db_path)
-        self.db = GlossaryOperations(db_connection=db_connection)
+        self._db_path = db_path
+        # Don't initialize database connection here - do it lazily when needed
+        self._db = None
+
+    @property
+    def db(self):
+        """Lazy initialization of database operations."""
+        if self._db is None:
+            if self._db_path:
+                from database.connection import create_database_connection
+
+                db_connection = create_database_connection(self._db_path)
+            else:
+                db_connection = get_database_connection()
+            self._db = GlossaryOperations(db_connection=db_connection)
+        return self._db
 
     def add_source(
         self,

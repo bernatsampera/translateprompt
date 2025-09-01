@@ -1,6 +1,6 @@
 """User IP tracking database operations."""
 
-from .connection import DatabaseConnection
+from .connection import DatabaseConnection, get_database_connection
 from .models import UserUsage
 
 
@@ -11,9 +11,9 @@ class UserUsageOperations:
         """Initialize with a database connection.
 
         Args:
-            db_connection: Database connection instance. If None, creates a new one.
+            db_connection: Database connection instance. If None, uses the global connection.
         """
-        self.db = db_connection or DatabaseConnection()
+        self.db = db_connection or get_database_connection()
 
     def get_user(self, user_id: str) -> UserUsage:
         """Get a user by user ID."""

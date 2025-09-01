@@ -1,6 +1,11 @@
 """Database package for managing all database operations."""
 
-from .connection import DatabaseConnection, create_database_connection
+from .connection import (
+    DatabaseConnection,
+    create_database_connection,
+    get_database_connection,
+    initialize_database,
+)
 from .glossary_operations import GlossaryOperations
 from .models import GlossaryEntry, UserIP
 from .schemas import (
@@ -14,6 +19,8 @@ from .user_ip_operations import UserIPOperations
 __all__ = [
     "DatabaseConnection",
     "create_database_connection",
+    "get_database_connection",
+    "initialize_database",
     "GlossaryEntry",
     "UserIP",
     "GLOSSARY_TABLE_SCHEMA",

@@ -1,6 +1,6 @@
 """User IP tracking database operations."""
 
-from .connection import DatabaseConnection
+from .connection import DatabaseConnection, get_database_connection
 
 
 class WaitlistOperations:
@@ -10,9 +10,9 @@ class WaitlistOperations:
         """Initialize with a database connection.
 
         Args:
-            db_connection: Database connection instance. If None, creates a new one.
+            db_connection: Database connection instance. If None, uses the global connection.
         """
-        self.db = db_connection or DatabaseConnection()
+        self.db = db_connection or get_database_connection()
 
     def add_to_waitlist(self, email: str):
         """Add an email to the waitlist."""

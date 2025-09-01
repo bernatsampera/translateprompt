@@ -16,7 +16,7 @@ from contextvars import ContextVar
 
 from fastapi import HTTPException, Request
 
-from database.connection import create_database_connection
+from database.connection import get_database_connection
 from database.user_ip_operations import UserIPOperations
 from database.user_usage_operations import UserUsageOperations
 from utils.logger import logger
@@ -36,10 +36,32 @@ class UserTrackingService:
     MAX_TOKENS_PER_USER = 10000  # Higher limit for authenticated users
 
     def __init__(self):
-        """Initialize the user tracking service with database connections."""
-        self._db_connection = create_database_connection()
-        self.user_ip_ops = UserIPOperations(db_connection=self._db_connection)
-        self.user_usage_ops = UserUsageOperations(db_connection=self._db_connection)
+        """Initialize the user tracking service."""
+        # Don't initialize database connections here - do it lazily when needed
+        self._db_connection = None
+        self._user_ip_ops = None
+        self._user_usage_ops = None
+
+    @property
+    def db_connection(self):
+        """Lazy initialization of database connection."""
+        if self._db_connection is None:
+            self._db_connection = get_database_connection()
+        return self._db_connection
+
+    @property
+    def user_ip_ops(self):
+        """Lazy initialization of user IP operations."""
+        if self._user_ip_ops is None:
+            self._user_ip_ops = UserIPOperations(db_connection=self.db_connection)
+        return self._user_ip_ops
+
+    @property
+    def user_usage_ops(self):
+        """Lazy initialization of user usage operations."""
+        if self._user_usage_ops is None:
+            self._user_usage_ops = UserUsageOperations(db_connection=self.db_connection)
+        return self._user_usage_ops
 
     # IP and Request Context Methods
     def get_real_ip(self, request: Request) -> str:
