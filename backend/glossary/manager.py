@@ -2,7 +2,6 @@
 
 from typing import Dict
 
-from config import config
 from database.connection import get_database_connection
 from database.glossary_operations import GlossaryOperations
 from database.models import GlossaryEntry
@@ -45,9 +44,6 @@ class GlossaryManager:
         Returns:
             True if added successfully, False otherwise.
         """
-        # Check production mode before making changes
-        config.validate_production_operation("add glossary entry")
-
         entry = GlossaryEntry(
             source_language=source_language,
             target_language=target_language,
@@ -71,9 +67,6 @@ class GlossaryManager:
         Returns:
             True if removed successfully, False if source not found or error occurred.
         """
-        # Check production mode before making changes
-        config.validate_production_operation("remove glossary entry")
-
         return self.db.remove_entry(source, source_language, target_language)
 
     def get_source(

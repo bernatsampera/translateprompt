@@ -3,7 +3,6 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import HTTPException
 
 load_dotenv()
 
@@ -67,21 +66,6 @@ class Config:
     def is_production(self) -> bool:
         """Check if the application is running in production mode."""
         return self.PROD
-
-    def validate_production_operation(self, operation: str) -> None:
-        """Validate if an operation is allowed in production mode.
-
-        Args:
-            operation: Description of the operation being performed.
-
-        Raises:
-            HTTPException: If the operation is not allowed in production mode.
-        """
-        if self.is_production():
-            raise HTTPException(
-                status_code=403,
-                detail="This feature will be available soon! Join our waitlist now to get exclusive early access when it launches!",
-            )
 
 
 # Global config instance
