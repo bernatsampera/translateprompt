@@ -60,18 +60,20 @@ init(
         app_name="TranslatePrompt",
         api_domain=config.BACKEND_URL,  # FastAPI domain
         website_domain=config.FRONTEND_URL,  # React domain
+        api_base_path="/auth",
+        website_base_path="/auth",
     ),
     supertokens_config=SupertokensConfig(
         connection_uri=config.SUPER_TOKENS_CONNECTION_URI  # your core instance URL
     ),
     recipe_list=[
+        session.init(),
         emailpassword.init(
             sign_up_feature=emailpassword.InputSignUpFeature(
                 form_fields=[emailpassword.InputFormField(id="username")]
             ),
             override=emailpassword.InputOverrideConfig(apis=apis_override),
         ),
-        session.init(),  # session management
     ],
     framework="fastapi",
 )

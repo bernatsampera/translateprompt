@@ -2,7 +2,7 @@ import {StrictMode} from "react";
 import {createRoot} from "react-dom/client";
 import SuperTokens, {SuperTokensWrapper} from "supertokens-auth-react";
 import EmailPasswordReact from "supertokens-auth-react/recipe/emailpassword";
-import SessionReact from "supertokens-auth-react/recipe/session";
+import Session from "supertokens-auth-react/recipe/session";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -19,6 +19,8 @@ SuperTokens.init({
     websiteBasePath: "/auth"
   },
   recipeList: [
+    Session.init(),
+
     EmailPasswordReact.init({
       signInAndUpFeature: {
         signUpForm: {
@@ -31,8 +33,7 @@ SuperTokens.init({
           ]
         }
       }
-    }),
-    SessionReact.init()
+    })
   ]
 });
 
