@@ -4,6 +4,7 @@ import {ManagementHub} from "@/components/ManagementHub";
 import {SuggestionsPanel} from "@/components/SuggestionsPanel";
 import TranslationPanel from "@/components/TranslationPanel";
 import {
+  useAuth,
   useClipboard,
   useLanguageSelection,
   useTextInput,
@@ -11,12 +12,14 @@ import {
 } from "@/hooks";
 import {Settings} from "lucide-react";
 import {useCallback, useRef, useState} from "react";
+import {toast} from "sonner";
 
 function TranslateGraph() {
   const conversationIdRef = useRef<string | null>(null);
 
   const [improvements, setImprovements] = useState<ImprovementEntry[]>([]);
   const [isManagementHubOpen, setIsManagementHubOpen] = useState(false);
+  const session = useAuth();
 
   // Use custom hooks for state management
   const {text: textToTranslate, handleTextChange: handleTextToTranslateChange} =
@@ -44,6 +47,14 @@ function TranslateGraph() {
       }
     }
   });
+
+  const handleOpenManagementHub = () => {
+    if (session && session.loggedIn) {
+      setIsManagementHubOpen(true);
+    } else {
+      toast.error("Sign in to have your own glossary and rules!");
+    }
+  };
 
   const checkImprovements = useCallback(() => {
     if (!conversationIdRef.current) {
@@ -91,7 +102,7 @@ function TranslateGraph() {
           </div>
           {sourceLanguage && targetLanguage && (
             <button
-              onClick={() => setIsManagementHubOpen(true)}
+              onClick={handleOpenManagementHub}
               className="btn btn-secondary btn-sm gap-2"
             >
               <Settings className="h-4 w-4" />
