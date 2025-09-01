@@ -67,7 +67,7 @@ init(
         connection_uri=config.SUPER_TOKENS_CONNECTION_URI  # your core instance URL
     ),
     recipe_list=[
-        session.init(),
+        session.init(cookie_same_site="none"),
         emailpassword.init(
             sign_up_feature=emailpassword.InputSignUpFeature(
                 form_fields=[emailpassword.InputFormField(id="username")]

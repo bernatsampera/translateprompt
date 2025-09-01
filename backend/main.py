@@ -27,7 +27,7 @@ app.add_middleware(get_middleware())
 # Add CORS middleware before defining routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config.CORS_ORIGINS,
+    allow_origins=config.FRONTEND_URL,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["Content-Type"] + get_all_cors_headers(),
