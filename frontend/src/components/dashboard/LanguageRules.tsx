@@ -6,7 +6,7 @@ import {
   type RulesEntry
 } from "@/api/rulesApi";
 import {Edit, Plus, Trash2} from "lucide-react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 interface EditingEntry extends RulesEntry {
   index: number;
@@ -27,14 +27,22 @@ const LanguageRules = ({
   const [newRuleText, setNewRuleText] = useState("");
   const [isAdding, setIsAdding] = useState(false);
 
-  // Load rules entries
-  const loadRulesEntries = () => {
+  const loadRulesEntries = useCallback(() => {
     getRulesEntries(sourceLanguage, targetLanguage)
       .then((response) => {
         setRulesEntries(response.entries);
       })
       .catch(console.error);
-  };
+  }, [sourceLanguage, targetLanguage]);
+
+  useEffect(() => {
+    console.log("sourceLanguage", sourceLanguage);
+    console.log("targetLanguage", targetLanguage);
+
+    loadRulesEntries();
+  }, [sourceLanguage, targetLanguage, loadRulesEntries]);
+
+  // Load rules entries
 
   // Add a new rule
   const handleAddRule = async () => {

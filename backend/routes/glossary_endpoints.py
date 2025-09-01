@@ -13,8 +13,6 @@ from models import (
     EditGlossaryRequest,
     GlossaryEntry,
     GlossaryResponse,
-    ImprovementEntry,
-    ImprovementsResponse,
 )
 from translate_graph.prompts import lead_update_glossary_prompt
 from translate_graph.state import NoUpdate, RulesUpdate
@@ -96,46 +94,6 @@ def check_glossary_updates(conversation_id: str):
 
     if response.tool_calls:
         improvement_cache.add_calls(conversation_id, response.tool_calls)
-
-
-@router.get("/glossary-improvements/{conversation_id}")
-def get_glossary_improvements(conversation_id: str) -> ImprovementsResponse:
-    """Get improvement suggestions for a conversation (both glossary and rules)."""
-    graph_values = get_graph_state(conversation_id)
-
-    # Get improvement tool calls from cache
-    improvement_tool_calls = improvement_cache.get_calls(conversation_id)
-
-    source_language = graph_values.get("source_language")
-    target_language = graph_values.get("target_language")
-
-    improvements = []
-
-    for call in improvement_tool_calls:
-        tool_name = call.get("name", "")
-
-        if tool_name == "GlossaryUpdate":
-            improvements.append(
-                ImprovementEntry(
-                    type="glossary",
-                    source=call["args"]["source"],
-                    target=call["args"]["target"],
-                    note=call["args"]["note"],
-                    source_language=source_language,
-                    target_language=target_language,
-                )
-            )
-        elif tool_name == "RulesUpdate":
-            improvements.append(
-                ImprovementEntry(
-                    type="rules",
-                    text=call["args"]["text"],
-                    source_language=source_language,
-                    target_language=target_language,
-                )
-            )
-
-    return ImprovementsResponse(improvements=improvements)
 
 
 @router.post("/apply-glossary-update")

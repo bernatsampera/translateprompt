@@ -1,6 +1,6 @@
 import {getImprovements, type ImprovementEntry} from "@/api/translateApi";
 import LanguageRules from "@/components/dashboard/LanguageRules";
-import GlossaryImprovements from "@/components/GlossaryImprovements";
+import {GlossaryPanel} from "@/components/GlossaryPanel";
 import {LanguageInput} from "@/components/LanguageInput";
 import TranslationPanel from "@/components/TranslationPanel";
 import {
@@ -105,7 +105,7 @@ function TranslateGraph({}: {}) {
             onRefine={handleRefineTranslation}
           />
         </div>
-        <GlossaryImprovements
+        <GlossaryPanel
           improvements={improvements}
           conversationId={conversationIdRef.current ?? ""}
           loadImprovements={checkImprovements}
