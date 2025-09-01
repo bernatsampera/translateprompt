@@ -1,9 +1,28 @@
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 export function useLanguageSelection() {
-  const [sourceLanguage, setSourceLanguage] = useState("en");
-  const [targetLanguage, setTargetLanguage] = useState("es");
+  // Initialize state from localStorage or defaults
+  const [sourceLanguage, setSourceLanguage] = useState(() => {
+    const saved = localStorage.getItem("sourceLanguage");
+    return saved || "en";
+  });
+
+  const [targetLanguage, setTargetLanguage] = useState(() => {
+    const saved = localStorage.getItem("targetLanguage");
+    return saved || "es";
+  });
+
   const [isAutoDetectionEnabled, setIsAutoDetectionEnabled] = useState(true);
+
+  // Save source language to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("sourceLanguage", sourceLanguage);
+  }, [sourceLanguage]);
+
+  // Save target language to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("targetLanguage", targetLanguage);
+  }, [targetLanguage]);
 
   const handleSourceLanguageChange = useCallback((language: string) => {
     setIsAutoDetectionEnabled(false);
