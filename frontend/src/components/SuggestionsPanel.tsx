@@ -94,7 +94,7 @@ export function SuggestionsPanel({
           <div className="text-center py-8">
             <Lightbulb className="h-8 w-8 mx-auto mb-3 text-base-content/30" />
             <p className="text-sm text-base-content/60">
-              Suggestions will appear here after translation
+              Suggestions will appear here after refining a translation
             </p>
           </div>
         ) : (

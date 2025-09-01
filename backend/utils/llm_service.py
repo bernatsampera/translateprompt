@@ -74,7 +74,7 @@ class LLM_Service:
             # If primary failed, activate penalty and retry with fallback
             if llm is self.llm_primary:
                 self.penalty_until = now + 300  # 5 min penalty
-                tokens_used = 2500  # Fake high token count for penalty
+                tokens_used = 0  # Fake high token count for penalty
                 self.history.append((now, tokens_used))
                 logger.warning(
                     "Primary failed. Forcing fallback + penalty mode for 5 minutes."
