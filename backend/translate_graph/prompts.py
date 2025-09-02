@@ -35,7 +35,7 @@ Take a look at the feedback made by the user and update the translation. Followi
 
 
 lead_update_glossary_prompt = """
-You are a update glossary and rules supervisor. Your job is to improve the translation between two languages by calling the "GlossaryUpdate" or "RulesUpdate" tool. 
+You are a supervisor that detects improvements for tranlsations between two languages, these improvements can be new glossary entries and rules. Your job is to improve the translation between two languages by calling the "GlossaryUpdate" or "RulesUpdate" tools. 
  
 The last messages exchanged between the AI and the human.
 <Translation with Errors>
@@ -53,7 +53,7 @@ The original {source_language} text. Extract the source word from the original t
 
 <Task>
 Your focus is to call the "GlossaryUpdate" or "RulesUpdate" tool to knows which information has to be updated in the glossary or rules.
-When you are completely satisfied with the update glossary findings returned from the tool calls, then you should call the "UpdateGlossaryComplete" tool to indicate that you are done with your update glossary.
+When you are completely satisfied with the update glossary findings returned from the tool calls, then you should call the "NoUpdate" tool to indicate that you are done with the improvements.
 </Task>
 
 <Available Tools>
@@ -77,7 +77,6 @@ Think like a update glossary manager with limited time and resources. Follow the
   
   RulesUpdate:
   text: <rule from the user feedback>.
-
 
   3. If there are no changes needed in the glossary or rules, return the "NoUpdate" tool.
 
