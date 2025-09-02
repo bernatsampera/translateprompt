@@ -81,8 +81,6 @@ export function GlossaryPanel({
             improvements={improvements}
             conversationId={conversationId}
             onImprovementApplied={handleImprovementApplied}
-            sourceLanguage={sourceLanguage}
-            targetLanguage={targetLanguage}
           />
 
           <GlossaryManager
@@ -113,8 +111,6 @@ export function GlossaryPanel({
             improvements={improvements}
             conversationId={conversationId}
             onImprovementApplied={handleImprovementApplied}
-            sourceLanguage={sourceLanguage}
-            targetLanguage={targetLanguage}
           />
 
           <GlossaryManager

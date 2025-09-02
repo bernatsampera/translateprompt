@@ -7,16 +7,12 @@ interface SuggestionsPanelProps {
   improvements: ImprovementEntry[];
   conversationId: string;
   loadImprovements: () => void;
-  sourceLanguage: string;
-  targetLanguage: string;
 }
 
 export function SuggestionsPanel({
   improvements,
   conversationId,
-  loadImprovements,
-  sourceLanguage,
-  targetLanguage
+  loadImprovements
 }: SuggestionsPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     // Default to collapsed on mobile, expanded on desktop when there are suggestions

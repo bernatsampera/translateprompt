@@ -146,8 +146,6 @@ function TranslateGraph() {
           improvements={improvements}
           conversationId={conversationIdRef.current ?? ""}
           loadImprovements={checkImprovements}
-          sourceLanguage={sourceLanguage}
-          targetLanguage={targetLanguage}
         />
       </div>
 
