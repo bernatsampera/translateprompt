@@ -54,6 +54,11 @@ class Config:
         )
 
     @property
+    def AXIOM_API_TOKEN(self) -> str:
+        """Get Axiom API key."""
+        return os.getenv("AXIOM_API_TOKEN")
+
+    @property
     def BACKEND_URL(self) -> str:
         """Get SuperTokens API domain."""
         return os.getenv("BACKEND_URL", "http://localhost:8008")

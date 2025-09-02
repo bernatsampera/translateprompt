@@ -4,14 +4,11 @@ import time
 from collections import deque
 from datetime import datetime
 
-from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 
 from utils.logger import logger
 from utils.user_tracking_service import UserTrackingService
-
-load_dotenv()
 
 # Theoretically are like 250000 on the free google api rate but let's keep it to 50k to be safe
 MAX_TOKENS_PER_MINUTE = 50000
@@ -26,7 +23,6 @@ class LLM_Service:
         self.llm_fallback = init_chat_model("openai:gpt-4o-mini")
         self.history = deque()
         self.penalty_until = 0
-        # Don't initialize user_tracking here - do it lazily when needed
         self._user_tracking = None
 
     @property
@@ -52,8 +48,6 @@ class LLM_Service:
     def invoke(self, prompt: str) -> BaseMessage:
         """Invoke the LLM with the given prompt."""
         now = time.time()
-
-        logger.debug("LLM invocation started")
 
         # Clean history (older than 60s)
         while self.history and now - self.history[0][0] > 60:
@@ -90,9 +84,9 @@ class LLM_Service:
         # Update user tracking (handles both user ID and IP logic)
         self.user_tracking.check_and_update_usage(tokens_used)
 
-        logger.info(
-            f"Model={llm.get_name()} | TokensThisCall={tokens_used} | TokensLastMin={tokens_last_min + tokens_used}"
-        )
+        # logger.info(
+        #     f"Model={llm.get_name()} | TokensThisCall={tokens_used} | TokensLastMin={tokens_last_min + tokens_used}"
+        # )
 
         return response
 
@@ -100,7 +94,6 @@ class LLM_Service:
         """Select the appropriate LLM based on current conditions."""
         # Check penalty mode
         if now < self.penalty_until:
-            logger.warning("Penalty active: forcing fallback model.")
             return self.llm_fallback
         elif tokens_last_min > MAX_TOKENS_PER_MINUTE:
             logger.warning(
@@ -109,10 +102,6 @@ class LLM_Service:
             )
             return self.llm_fallback
         else:
-            logger.info(
-                f"Token usage in last minute = {tokens_last_min}. "
-                f"Using primary model: {self.llm_primary.get_name()}"
-            )
             return self.llm_primary
 
     def __call__(self, *args, **kwargs):

@@ -111,10 +111,6 @@ class UserTrackingService:
         # This will be the Docker container IP in containerized environments
         fallback_ip = request.client.host if request.client else "unknown"
 
-        # Log for debugging purposes
-        logger.info(f"No real IP found in headers, using fallback: {fallback_ip}")
-        logger.debug(f"Available headers: {dict(request.headers)}")
-
         return fallback_ip
 
     def set_request_ip(self, ip: str) -> None:
@@ -162,8 +158,6 @@ class UserTrackingService:
         user_id = self.get_user_id()
         ip_address = self.get_request_ip()
 
-        logger.debug(f"Checking usage - User ID: {user_id}, IP: {ip_address}")
-
         if user_id and user_id != "unknown":
             self._handle_user_tracking(user_id, tokens_used)
         else:
@@ -171,17 +165,17 @@ class UserTrackingService:
 
     def _handle_user_tracking(self, user_id: str, tokens_used: int) -> None:
         """Handle tracking for authenticated users."""
-        logger.debug(f"Tracking usage for user: {user_id}")
-
         # Get or create user usage record
         user_usage = self.user_usage_ops.get_user(user_id)
         if not user_usage:
-            logger.info(f"Creating new user usage record for: {user_id}")
             self.user_usage_ops.add_user(user_id)
             user_usage = self.user_usage_ops.get_user(user_id)
 
         # Check if user has exceeded limits
         if user_usage.token_count > self.MAX_TOKENS_PER_USER:
+            logger.warning(
+                f"User {user_id} has exceeded the limit of {self.MAX_TOKENS_PER_USER} tokens"
+            )
             raise HTTPException(
                 status_code=429,
                 detail=f"Usage limit of {self.MAX_TOKENS_PER_USER} tokens reached. "
@@ -192,18 +186,11 @@ class UserTrackingService:
         new_token_count = user_usage.token_count + tokens_used
         self.user_usage_ops.update_token_count(user_id, new_token_count)
 
-        logger.info(
-            f"User {user_id} usage updated: {user_usage.token_count} -> {new_token_count} tokens"
-        )
-
     def _handle_ip_tracking(self, ip_address: str, tokens_used: int) -> None:
         """Handle tracking for anonymous users (by IP)."""
-        logger.debug(f"Tracking usage for IP: {ip_address}")
-
         # Get or create IP record
         user_ip = self.user_ip_ops.get_user_ip(ip_address)
         if not user_ip:
-            logger.info(f"Creating new IP record for: {ip_address}")
             user_ip = self.user_ip_ops.add_user_ip(ip_address)
 
         # Check if IP has exceeded limits
@@ -217,10 +204,6 @@ class UserTrackingService:
         # Update token count
         new_token_count = user_ip.token_count + tokens_used
         self.user_ip_ops.update_token_count(ip_address, new_token_count)
-
-        logger.info(
-            f"IP {ip_address} usage updated: {user_ip.token_count} -> {new_token_count} tokens"
-        )
 
     def get_current_usage(self) -> int:
         """Get current token usage for current user or IP.
@@ -237,30 +220,3 @@ class UserTrackingService:
         else:
             user_ip = self.user_ip_ops.get_user_ip(ip_address)
             return user_ip.token_count if user_ip else 0
-
-
-# Usage Example:
-"""
-# In your FastAPI endpoint:
-from fastapi import Request
-from utils.user_tracking_service import UserTrackingService
-
-user_tracking = UserTrackingService()
-
-@app.post("/translate")
-async def translate_text(request: Request):
-    # Set up request context
-    user_tracking.set_request_ip_from_request(request)
-    user_tracking.set_user_id("user123")  # or None for anonymous users
-    
-    # Use LLM service (it will automatically handle tracking)
-    llm_service = LLM_Service()
-    response = llm_service.invoke("Translate this text")
-    
-    return {"translation": response.content}
-
-# The LLM service will automatically:
-# 1. Check if user_id exists -> track by user_id (limit: 10,000 tokens)
-# 2. If no user_id -> track by IP (limit: 4,000 tokens)
-# 3. Raise HTTPException if limits exceeded
-"""

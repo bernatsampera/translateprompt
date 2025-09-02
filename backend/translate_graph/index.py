@@ -21,6 +21,7 @@ from translate_graph.state import (
     TranslateState,
 )
 from translate_graph.utils import format_glossary, format_rules
+from utils.logger import logger
 
 # Get API key from environment
 google_api_key = os.getenv("GOOGLE_API_KEY")
@@ -32,6 +33,9 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     text_to_translate = state["messages"][-1].content
     source_language = state["source_language"]
     target_language = state["target_language"]
+    logger.info(
+        f"Translation Graph started. User Id: {state['user_id']}. Lang: {source_language} --> {target_language}. Text to translate: {text_to_translate}"
+    )
     user_id = state["user_id"]
 
     # Create services when needed
@@ -99,6 +103,10 @@ def refine_translation(
     last_two_messages = state["messages"][-2:]
     source_language = state["source_language"]
     target_language = state["target_language"]
+
+    logger.info(
+        f"Refine Translation Graph started. User Id: {state['user_id']}. Lang: {source_language} --> {target_language}. Text to refine: {[message.content for message in last_two_messages]}"
+    )
 
     # Create services when needed
     from utils.llm_service import LLM_Service

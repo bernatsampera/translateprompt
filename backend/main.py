@@ -1,5 +1,7 @@
 """Translation API with background glossary improvement analysis."""
 
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,11 +17,24 @@ from routes import (
     rules_endpoints,
     waitlist_endpoints,
 )
+from utils.logger import logger
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events."""
+    # Startup
+    initialize_database()
+    logger.info("Server initialised")
+    yield
+    # Shutdown (if any cleanup is needed in the future)
+
 
 app = FastAPI(
     title="TranslatePrompt",
     description="Translateprompt is a site that allows users to translate with a glossary",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(get_middleware())
@@ -32,13 +47,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["Content-Type"] + get_all_cors_headers(),
 )
-
-
-# Initialize database at startup
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database and other services on startup."""
-    initialize_database()
 
 
 @app.get("/health")

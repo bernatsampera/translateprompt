@@ -8,7 +8,6 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
-    "httpx>=0.25.0",
     "langchain[google-genai]>=0.3.27",
     "langgraph>=0.5.4",
     "langgraph-api>=0.3.0",
@@ -20,6 +19,7 @@ dependencies = [
     "langchain-ollama>=0.3.7",
     "langchain-openai>=0.3.32",
     "supertokens-python>=0.30.2",
+    "axiom-py>=0.9.0",
 ]
 
 [tool.setuptools]

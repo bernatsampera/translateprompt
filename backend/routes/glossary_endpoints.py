@@ -16,7 +16,7 @@ from models import (
     GlossaryResponse,
 )
 from translate_graph.prompts import lead_update_glossary_prompt
-from translate_graph.state import GlossaryUpdate, NoUpdate, RulesUpdate
+from translate_graph.state import NoUpdate, RulesUpdate
 from utils.graph_utils import get_graph_state
 from utils.improvement_cache import improvement_cache
 from utils.llm_service import LLM_Service
@@ -90,9 +90,7 @@ def check_glossary_updates(conversation_id: str):
         target_language=state["target_language"],
     )
 
-    response = (
-        LLM_Service().bind_tools([GlossaryUpdate, RulesUpdate, NoUpdate]).invoke(prompt)
-    )
+    response = LLM_Service().bind_tools([RulesUpdate, NoUpdate]).invoke(prompt)
 
     print(response)
 
