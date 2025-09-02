@@ -3,6 +3,8 @@
 from datetime import datetime
 from typing import Dict, List
 
+from utils.logger import logger
+
 from .connection import DatabaseConnection, get_database_connection
 from .models import GlossaryEntry
 
@@ -45,7 +47,7 @@ class GlossaryOperations:
             self.db.execute_update(query, params)
             return True
         except Exception as e:
-            print(f"Error adding entry to glossary: {e}")
+            logger.error(f"Error adding entry to glossary: {e}")
             return False
 
     def remove_entry(
@@ -71,7 +73,7 @@ class GlossaryOperations:
             affected_rows = self.db.execute_update(query, params)
             return affected_rows > 0
         except Exception as e:
-            print(f"Error removing entry from glossary: {e}")
+            logger.error(f"Error removing entry from glossary: {e}")
             return False
 
     def get_entry(
@@ -113,7 +115,7 @@ class GlossaryOperations:
                 )
             return None
         except Exception as e:
-            print(f"Error getting entry from glossary: {e}")
+            logger.error(f"Error getting entry from glossary: {e}")
             return None
 
     def get_all_entries(
@@ -157,7 +159,7 @@ class GlossaryOperations:
                 entries.append(entry)
             return entries
         except Exception as e:
-            print(f"Error getting all entries from glossary: {e}")
+            logger.error(f"Error getting all entries from glossary: {e}")
             return []
 
     def get_entries_dict(

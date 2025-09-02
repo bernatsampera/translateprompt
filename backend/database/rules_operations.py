@@ -3,6 +3,8 @@
 from datetime import datetime
 from typing import List
 
+from utils.logger import logger
+
 from .connection import DatabaseConnection, get_database_connection
 from .models import LangRuleEntry
 
@@ -43,7 +45,7 @@ class RulesOperations:
             self.db.execute_update(query, params)
             return True
         except Exception as e:
-            print(f"Error adding entry to language rules: {e}")
+            logger.error(f"Error adding entry to language rules: {e}")
             return False
 
     def remove_entry(
@@ -70,7 +72,7 @@ class RulesOperations:
             affected_rows = self.db.execute_update(query, params)
             return affected_rows > 0
         except Exception as e:
-            print(f"Error removing entry from language rules: {e}")
+            logger.error(f"Error removing entry from language rules: {e}")
             return False
 
     def get_entry(
@@ -112,7 +114,7 @@ class RulesOperations:
                 )
             return None
         except Exception as e:
-            print(f"Error getting entry from language rules: {e}")
+            logger.error(f"Error getting entry from language rules: {e}")
             return None
 
     def get_entries_for_user(
@@ -155,7 +157,7 @@ class RulesOperations:
                 entries.append(entry)
             return entries
         except Exception as e:
-            print(f"Error getting entries for user from language rules: {e}")
+            logger.error(f"Error getting entries for user from language rules: {e}")
             return []
 
     def get_entries_list_for_user(

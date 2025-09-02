@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from utils.logger import logger
+
 from .connection import DatabaseConnection, get_database_connection
 from .models import UserIP
 
@@ -36,7 +38,7 @@ class UserIPOperations:
             self.db.execute_update(query, params)
             return UserIP(ip_address=ip_address, token_count=0)
         except Exception as e:
-            print(f"Error adding user IP: {e}")
+            logger.error(f"Error adding user IP: {e}")
             return None
 
     def get_user_ip(self, ip_address: str) -> UserIP | None:
@@ -67,7 +69,7 @@ class UserIPOperations:
                 )
             return None
         except Exception as e:
-            print(f"Error getting user IP: {e}")
+            logger.error(f"Error getting user IP: {e}")
             return None
 
     def update_token_count(self, ip_address: str, token_count: int) -> bool:
@@ -90,5 +92,5 @@ class UserIPOperations:
             affected_rows = self.db.execute_update(query, params)
             return affected_rows > 0
         except Exception as e:
-            print(f"Error updating token count: {e}")
+            logger.error(f"Error updating token count: {e}")
             return False

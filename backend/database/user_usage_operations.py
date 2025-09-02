@@ -1,5 +1,7 @@
 """User IP tracking database operations."""
 
+from utils.logger import logger
+
 from .connection import DatabaseConnection, get_database_connection
 from .models import UserUsage
 
@@ -28,7 +30,7 @@ class UserUsageOperations:
                 return UserUsage(user_id=row["user_id"], token_count=row["token_count"])
             return None
         except Exception as e:
-            print(f"Error getting user: {e}")
+            logger.error(f"Error getting user: {e}")
             return None
 
     def add_user(self, user_id: str) -> bool:
@@ -42,7 +44,7 @@ class UserUsageOperations:
             self.db.execute_update(query, params)
             return True
         except Exception as e:
-            print(f"Error adding user: {e}")
+            logger.error(f"Error adding user: {e}")
             return False
 
     def update_token_count(self, user_id: str, token_count: int) -> bool:
@@ -64,5 +66,5 @@ class UserUsageOperations:
             affected_rows = self.db.execute_update(query, params)
             return affected_rows > 0
         except Exception as e:
-            print(f"Error updating/inserting token count: {e}")
+            logger.error(f"Error updating/inserting token count: {e}")
             return False

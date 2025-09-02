@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from typing import List
 
 from config import config
+from utils.logger import logger
 
 from .migrations import MigrationManager
 from .schemas import (
@@ -104,11 +105,11 @@ class DatabaseConnection:
         applied_migrations = migration_manager.run_migrations()
 
         if applied_migrations:
-            print(f"Applied {len(applied_migrations)} migrations:")
+            logger.info(f"Applied {len(applied_migrations)} migrations:")
             for migration in applied_migrations:
-                print(f"  - {migration}")
+                logger.info(f"  - {migration}")
         else:
-            print("No pending migrations found.")
+            logger.info("No pending migrations found.")
 
     @contextmanager
     def _get_connection(self):

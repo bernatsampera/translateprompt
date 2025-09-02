@@ -91,8 +91,6 @@ def check_glossary_updates(conversation_id: str):
 
     response = LLM_Service().bind_tools([RulesUpdate, NoUpdate]).invoke(prompt)
 
-    print(response)
-
     if response.tool_calls:
         improvement_cache.add_calls(conversation_id, response.tool_calls)
 
