@@ -8,7 +8,6 @@ from database.rules_operations import RulesOperations
 from glossary import GlossaryManager
 from models import (
     AddGlossaryRequest,
-    ApplyGlossaryRequest,
     ApplyImprovementRequest,
     DeleteGlossaryRequest,
     EditGlossaryRequest,
@@ -96,45 +95,6 @@ def check_glossary_updates(conversation_id: str):
 
     if response.tool_calls:
         improvement_cache.add_calls(conversation_id, response.tool_calls)
-
-
-@router.post("/apply-glossary-update")
-def apply_glossary_update(
-    request: ApplyGlossaryRequest, session: SessionContainer = Depends(verify_session())
-):
-    """Apply a selected glossary update and persist it to the glossary database."""
-    user_id = session.get_user_id()
-    glossary_entry, conversation_id = (
-        request.glossary_entry,
-        request.conversation_id,
-    )
-
-    if conversation_id:
-        graph_values = get_graph_state(conversation_id)
-        glossary_entry.source_language = graph_values.get("source_language")
-        glossary_entry.target_language = graph_values.get("target_language")
-
-        # Remove the applied glossary entry from cache
-        improvement_cache.remove_calls(
-            conversation_id,
-            {
-                "source": glossary_entry.source,
-                "target": glossary_entry.target,
-            },
-        )
-
-    glossary_manager = GlossaryManager()
-    if glossary_manager.add_source(
-        glossary_entry.source,
-        glossary_entry.target,
-        glossary_entry.source_language,
-        glossary_entry.target_language,
-        glossary_entry.note,
-        user_id=user_id,
-    ):
-        return {"message": "success"}
-
-    raise HTTPException(status_code=500, detail="Failed to add entry to glossary")
 
 
 @router.post("/add-glossary-entry")

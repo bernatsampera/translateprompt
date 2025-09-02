@@ -24,4 +24,10 @@ def setup_logger():
     return root_logger
 
 
-logger = setup_logger()
+logger = None
+
+if config.PROD:
+    logger = setup_logger()
+else:
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)

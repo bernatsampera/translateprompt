@@ -68,3 +68,17 @@ export const getImprovements = async (
   );
   return response.data.improvements;
 };
+
+export const applyImprovement = async (
+  improvement: ImprovementEntry,
+  conversationId: string
+): Promise<{status: string; message: string}> => {
+  const response = await axiosInstance.post(
+    `${GRAPH_BASE_URL}/apply-improvement`,
+    {
+      improvement,
+      conversation_id: conversationId
+    }
+  );
+  return response.data;
+};

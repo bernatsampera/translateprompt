@@ -47,7 +47,7 @@ export function SuggestionsPanel({
 
   if (isCollapsed) {
     return (
-      <div className="hidden lg:flex h-full items-center">
+      <div className="flex h-full items-center">
         <button
           onClick={() => setIsCollapsed(false)}
           className="btn btn-ghost btn-sm p-2 h-auto border-l border-base-300 rounded-none"
@@ -102,8 +102,6 @@ export function SuggestionsPanel({
             improvements={improvements}
             conversationId={conversationId}
             onImprovementApplied={handleImprovementApplied}
-            sourceLanguage={sourceLanguage}
-            targetLanguage={targetLanguage}
           />
         )}
       </div>

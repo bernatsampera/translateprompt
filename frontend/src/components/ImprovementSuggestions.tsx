@@ -1,48 +1,27 @@
-import {applyGlossaryUpdate, type GlossaryEntry} from "@/api/glossaryApi";
 import type {ImprovementEntry} from "@/api/graphApi";
-import {addRule, type RulesEntry} from "@/api/rulesApi";
+import {applyImprovement} from "@/api/graphApi";
 
 interface ImprovementSuggestionsProps {
   improvements: ImprovementEntry[];
   conversationId: string;
   onImprovementApplied: () => void;
-  sourceLanguage: string;
-  targetLanguage: string;
 }
 
 export function ImprovementSuggestions({
   improvements,
   conversationId,
-  onImprovementApplied,
-  sourceLanguage,
-  targetLanguage
+  onImprovementApplied
 }: ImprovementSuggestionsProps) {
   // Apply a glossary update
-  const handleApplyGlossaryUpdate = async (improvement: GlossaryEntry) => {
+  const handleApplyImprovement = async (improvement: ImprovementEntry) => {
+    console.log("Applying improvement:", improvement);
     try {
-      await applyGlossaryUpdate(
-        improvement.source,
-        improvement.target,
-        improvement.note,
-        conversationId
-      );
+      await applyImprovement(improvement, conversationId);
 
       // Notify parent component that an improvement was applied
       onImprovementApplied();
     } catch (error) {
       console.error("Failed to apply glossary update:", error);
-    }
-  };
-
-  // Apply a rule update
-  const handleApplyRuleUpdate = async (improvement: RulesEntry) => {
-    try {
-      await addRule(improvement.text, sourceLanguage, targetLanguage);
-
-      // Notify parent component that an improvement was applied
-      onImprovementApplied();
-    } catch (error) {
-      console.error("Failed to apply rule update:", error);
     }
   };
 
@@ -89,7 +68,7 @@ export function ImprovementSuggestions({
                   </div>
                   <button
                     onClick={() =>
-                      handleApplyGlossaryUpdate(improvement as GlossaryEntry)
+                      handleApplyImprovement(improvement as ImprovementEntry)
                     }
                     className="btn btn-primary btn-xs"
                   >
@@ -109,7 +88,7 @@ export function ImprovementSuggestions({
                   </div>
                   <button
                     onClick={() =>
-                      handleApplyRuleUpdate(improvement as RulesEntry)
+                      handleApplyImprovement(improvement as ImprovementEntry)
                     }
                     className="btn btn-primary btn-xs"
                   >

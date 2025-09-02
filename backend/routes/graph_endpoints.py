@@ -7,12 +7,22 @@ from langgraph.types import Command
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.recipe.session.framework.fastapi import verify_session
 
-from models import ImprovementEntry, ImprovementsResponse, TranslateRequest
+from database.models import LangRuleEntry
+from database.rules_operations import RulesOperations
+from glossary.manager import GlossaryManager
+from models import (
+    ApplyImprovementRequest,
+    GlossaryEntry,
+    ImprovementEntry,
+    ImprovementsResponse,
+    TranslateRequest,
+)
 from routes.glossary_endpoints import check_glossary_updates
 from translate_graph.index import graph
 from translate_graph.state import TranslateState
 from utils.graph_utils import create_graph_config, get_graph_state
 from utils.improvement_cache import improvement_cache
+from utils.logger import logger
 from utils.user_tracking_service import UserTrackingService
 
 router = APIRouter(prefix="/graphs", tags=["graph"])
@@ -128,3 +138,65 @@ def get_glossary_improvements(conversation_id: str) -> ImprovementsResponse:
             )
 
     return ImprovementsResponse(improvements=improvements)
+
+
+@router.post("/apply-improvement")
+def apply_improvement(
+    request: ApplyImprovementRequest,
+    session: SessionContainer = Depends(verify_session()),
+):
+    """Apply a selected glossary update and persist it to the glossary database."""
+    user_id = session.get_user_id()
+    improvement, conversation_id = (
+        request.improvement,
+        request.conversation_id,
+    )
+
+    if conversation_id:
+        graph_values = get_graph_state(conversation_id)
+        improvement.source_language = graph_values.get("source_language")
+        improvement.target_language = graph_values.get("target_language")
+
+        # Remove the applied glossary entry from cache
+        improvement_cache.remove_calls(
+            conversation_id,
+            {
+                "source": improvement.source,
+                "target": improvement.target,
+            },
+        )
+
+    if improvement.type == "glossary":
+        logger.info(
+            f"Adding new glossary entry. Lang: {improvement.source_language} --> {improvement.target_language}. Text: {improvement.source} --> {improvement.target}. Note: {improvement.note}"
+        )
+
+        glossary_manager = GlossaryManager()
+        if glossary_manager.add_source(
+            GlossaryEntry(
+                source=improvement.source,
+                target=improvement.target,
+                source_language=improvement.source_language,
+                target_language=improvement.target_language,
+                note=improvement.note,
+                user_id=user_id,
+            )
+        ):
+            return {"message": "success"}
+    elif improvement.type == "rules":
+        logger.info(
+            f"Adding new rule entry. Lang: {improvement.source_language} --> {improvement.target_language}. Text: {improvement.text}"
+        )
+
+        rules_manager = RulesOperations()
+        if rules_manager.add_entry(
+            LangRuleEntry(
+                text=improvement.text,
+                user_id=user_id,
+                source_language=improvement.source_language,
+                target_language=improvement.target_language,
+            )
+        ):
+            return {"message": "success"}
+
+    raise HTTPException(status_code=500, detail="Failed to add entry to glossary")
