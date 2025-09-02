@@ -48,14 +48,14 @@ dev-backend:
 
 # Run frontend development server
 dev-frontend:
-	@echo "Starting frontend server on http://localhost:5177"
+	@echo "Starting frontend server on http://localhost:5178"
 	cd frontend && npm run dev
 
 # Run both servers simultaneously
 dev:
 	@echo "Starting both backend and frontend servers..."
 	@echo "Backend: http://localhost:8008"
-	@echo "Frontend: http://localhost:5177"
+	@echo "Frontend: http://localhost:5178"
 	@make -j2 dev-backend dev-frontend
 
 # Clean up generated files

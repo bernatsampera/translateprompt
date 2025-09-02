@@ -1,8 +1,7 @@
 {
   "dockerfile_lines": [],
   "graphs": {
-    "translate": "./translate_graph/index.py:graph",
-    "basic_translate": "./basic_translate/index.py:graph"
+    "translate": "./translate_graph/index.py:graph"
   },
   "python_version": "3.12",
   "env": ".env",

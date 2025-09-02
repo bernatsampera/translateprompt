@@ -1,4 +1,3 @@
-import os
 from typing import Literal
 
 from langchain_core.messages import (
@@ -10,6 +9,8 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, StateGraph
 from langgraph.types import Command, interrupt
 
+from database.rules_operations import RulesOperations
+from glossary import GlossaryManager
 from translate_graph.match_words import match_words_from_glossary
 from translate_graph.prompts import (
     first_translation_instructions,
@@ -21,15 +22,14 @@ from translate_graph.state import (
     TranslateState,
 )
 from translate_graph.utils import format_glossary, format_rules
+from utils.llm_service import LLM_Service
 from utils.logger import logger
 
-# Get API key from environment
-google_api_key = os.getenv("GOOGLE_API_KEY")
-if not google_api_key:
-    raise ValueError("GOOGLE_API_KEY environment variable is required")
+llm = LLM_Service()
 
 
 def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
+    """Perform the initial translation using the glossary and rules to translate the text sent by the user."""
     text_to_translate = state["messages"][-1].content
     source_language = state["source_language"]
     target_language = state["target_language"]
@@ -38,14 +38,8 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     )
     user_id = state["user_id"]
 
-    # Create services when needed
-    from database.rules_operations import RulesOperations
-    from glossary import GlossaryManager
-    from utils.llm_service import LLM_Service
-
     glossary_manager = GlossaryManager()
     rules_manager = RulesOperations()
-    llm = LLM_Service()
 
     glossary_data = {}
     rules_data = {}
@@ -87,6 +81,7 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
 def supervisor(
     state: TranslateState,
 ) -> Command[Literal["refine_translation"]]:
+    """Supervisor node that will wait for the user feedback and update the translation."""
     last_message = state["messages"][-1].content
     value = interrupt(last_message)
     return Command(
@@ -100,6 +95,7 @@ def supervisor(
 def refine_translation(
     state: TranslateState,
 ) -> Command[Literal["supervisor"]]:
+    """Refine the translation using the user feedback."""
     last_two_messages = state["messages"][-2:]
     source_language = state["source_language"]
     target_language = state["target_language"]
@@ -107,11 +103,6 @@ def refine_translation(
     logger.info(
         f"Refine Translation Graph started. User Id: {state['user_id']}. Lang: {source_language} --> {target_language}. Text to refine: {[message.content for message in last_two_messages]}"
     )
-
-    # Create services when needed
-    from utils.llm_service import LLM_Service
-
-    llm = LLM_Service()
 
     prompt = update_translation_instructions.format(
         messages=get_buffer_string(last_two_messages),
@@ -139,11 +130,9 @@ graph = StateGraph(TranslateState, input_schema=TranslateInputState)
 graph.add_node("supervisor", supervisor)
 graph.add_node("initial_translation", initial_translation)
 graph.add_node("refine_translation", refine_translation)
-# graph.add_node("check_glossary_updates", check_glossary_updates)
 
 graph.add_edge(START, "initial_translation")
-# graph.add_edge("refine_translation", "check_glossary_updates")
 
 checkpointer = MemorySaver()
-graph = graph.compile(checkpointer=checkpointer)  ## use without langgraph stdio
-# graph = graph.compile()  ##  use with langgraph studio
+# graph = graph.compile(checkpointer=checkpointer)  ## use without langgraph stdio
+graph = graph.compile()  ##  use with langgraph studio
