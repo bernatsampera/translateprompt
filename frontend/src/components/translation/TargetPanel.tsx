@@ -20,7 +20,7 @@ function TargetPanel({
 }: TargetPanelProps) {
   return (
     <TranslationPanelBase
-      title="Translation"
+      title=""
       languageLabel="To"
       languageValue={targetLanguage}
       onLanguageChange={onTargetLanguageChange}
@@ -31,11 +31,6 @@ function TargetPanel({
           placeholder="Translation will appear here..."
           value={isTranslating ? "..." : translation || ""}
           readOnly
-          style={{
-            backgroundColor: translation
-              ? "oklch(var(--color-base-100))"
-              : "oklch(var(--color-base-200) / 0.5)"
-          }}
         />
 
         <div className="flex items-center justify-between">

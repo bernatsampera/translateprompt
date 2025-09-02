@@ -29,7 +29,7 @@ function RefinePanel({
           </label>
           <textarea
             className="textarea textarea-bordered w-full h-20 lg:h-24 resize-none text-sm lg:text-base bg-base-100/90 border-accent/30 focus:border-accent focus:bg-base-100 transition-colors"
-            placeholder="Example: Use 'elegant' instead of 'beautiful' for a more formal tone..."
+            placeholder="Example: Use 'word X' instead of 'word Y'..."
             value={textToRefine}
             onChange={(e) => onTextToRefineChange(e.target.value)}
           />

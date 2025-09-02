@@ -20,7 +20,7 @@ function SourcePanel({
 }: SourcePanelProps) {
   return (
     <TranslationPanelBase
-      title="Original"
+      title=""
       languageLabel="From"
       languageValue={sourceLanguage}
       onLanguageChange={onSourceLanguageChange}
