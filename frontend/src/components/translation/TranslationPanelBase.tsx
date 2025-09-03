@@ -17,7 +17,7 @@ function TranslationPanelBase({
   children
 }: TranslationPanelBaseProps) {
   return (
-    <div className="bg-base-200 rounded-lg border border-base-300/30 p-2 lg:p-6 space-y-4 shadow-sm h-fit">
+    <div className="bg-base-200 rounded-lg border border-base-300/30 p-2 space-y-4 shadow-sm h-fit">
       <div className="flex items-center justify-between">
         <h2 className="text-lg lg:text-xl font-bold text-base-content">
           {title}

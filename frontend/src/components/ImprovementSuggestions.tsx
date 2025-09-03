@@ -31,15 +31,6 @@ export function ImprovementSuggestions({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <h3 className="text-sm font-medium text-base-content">
-          Suggested Updates
-        </h3>
-        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-          {improvements.length}
-        </span>
-      </div>
-
       <div className="space-y-3">
         {improvements.map((improvement, index) => (
           <div

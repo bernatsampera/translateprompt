@@ -27,10 +27,17 @@ function SourcePanel({
     >
       <div className="space-y-4">
         <textarea
-          className="textarea w-full min-h-36 lg:min-h-52 resize-none text-base lg:text-lg leading-relaxed bg-base-100/80 border-base-300/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          className="textarea w-full h-48 sm:h-56 md:h-64 lg:h-80 xl:h-96 resize-none text-base lg:text-lg leading-relaxed bg-base-100/80 border-base-300/50 focus:outline-none"
           placeholder="Enter text to translate..."
           value={textToTranslate}
           onChange={(e) => onTextToTranslateChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onTranslate(textToTranslate);
+            }
+          }}
+          autoFocus
         />
 
         <div className="flex justify-end">

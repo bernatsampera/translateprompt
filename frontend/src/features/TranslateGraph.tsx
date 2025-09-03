@@ -86,7 +86,7 @@ function TranslateGraph() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="w-full h-full flex flex-col">
       {/* Header with Management Button */}
       <div className="bg-base-100 border-b border-base-300 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -115,7 +115,7 @@ function TranslateGraph() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-auto">
-          <div className="max-w-6xl mx-auto p-4">
+          <div className="mx-auto p-4">
             <LanguageInput
               text={textToTranslate}
               onLanguageDetected={handleLanguageDetected}

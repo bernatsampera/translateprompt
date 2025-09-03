@@ -27,7 +27,7 @@ function TargetPanel({
     >
       <div className="space-y-4">
         <textarea
-          className="textarea w-full min-h-36 lg:min-h-52 resize-none text-base lg:text-lg leading-relaxed bg-base-100/80 border-base-300/50 focus:outline-none"
+          className="textarea w-full h-48 sm:h-56 md:h-64 lg:h-80 xl:h-96 resize-none text-base lg:text-lg leading-relaxed bg-base-100/80 border-base-300/50 focus:outline-none"
           placeholder="Translation will appear here..."
           value={isTranslating ? "..." : translation || ""}
           readOnly

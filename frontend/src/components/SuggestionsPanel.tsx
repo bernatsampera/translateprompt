@@ -1,6 +1,6 @@
 import type {ImprovementEntry} from "@/api/graphApi";
 import {ChevronRight, Lightbulb} from "lucide-react";
-import {useState} from "react";
+import React, {useState} from "react";
 import {ImprovementSuggestions} from "./ImprovementSuggestions";
 
 interface SuggestionsPanelProps {
@@ -22,15 +22,16 @@ export function SuggestionsPanel({
     return improvements.length === 0;
   });
 
-  // Auto-expand when suggestions arrive
-  if (
-    improvements.length > 0 &&
-    isCollapsed &&
-    typeof window !== "undefined" &&
-    window.innerWidth >= 1024
-  ) {
-    setIsCollapsed(false);
-  }
+  React.useEffect(() => {
+    // Auto-expand when suggestions arrive
+    if (
+      improvements.length > 0 &&
+      typeof window !== "undefined" &&
+      window.innerWidth >= 1024
+    ) {
+      setIsCollapsed(false);
+    }
+  }, [improvements.length]);
 
   const handleImprovementApplied = () => {
     loadImprovements();
@@ -68,7 +69,9 @@ export function SuggestionsPanel({
       <div className="p-3 border-b border-base-300 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Lightbulb className="h-4 w-4 text-base-content/70" />
-          <h2 className="text-sm font-medium text-base-content">Suggestions</h2>
+          <h2 className="text-sm font-medium text-base-content">
+            Improvements
+          </h2>
           {improvements.length > 0 && (
             <span className="text-xs bg-base-200 text-base-content/70 rounded-full px-2 py-0.5">
               {improvements.length}
