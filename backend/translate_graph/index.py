@@ -134,5 +134,5 @@ graph.add_node("refine_translation", refine_translation)
 graph.add_edge(START, "initial_translation")
 
 checkpointer = MemorySaver()
-# graph = graph.compile(checkpointer=checkpointer)  ## use without langgraph stdio
-graph = graph.compile()  ##  use with langgraph studio
+graph = graph.compile(checkpointer=checkpointer)  ## use without langgraph stdio
+# graph = graph.compile()  ##  use with langgraph studio
