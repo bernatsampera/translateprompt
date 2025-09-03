@@ -7,6 +7,7 @@ from datetime import datetime
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import BaseMessage
 
+from config import config
 from utils.logger import logger
 from utils.user_tracking_service import UserTrackingService
 
@@ -19,8 +20,9 @@ class LLM_Service:
 
     def __init__(self):
         """Initialize the LLM service with primary and fallback models."""
-        self.llm_primary = init_chat_model("google_genai:gemini-2.5-flash-lite")
-        self.llm_fallback = init_chat_model("openai:gpt-4o-mini")
+        print("GOOGLE_LLM_MODEL", config.GOOGLE_LLM_MODEL)
+        self.llm_primary = init_chat_model(config.GOOGLE_LLM_MODEL)
+        self.llm_fallback = init_chat_model(config.OPENAI_LLM_MODEL)
         self.history = deque()
         self.penalty_until = 0
         self._user_tracking = None
@@ -62,6 +64,7 @@ class LLM_Service:
         # Invoke the LLM
         try:
             response = llm.invoke(prompt)
+            logger.info(f"LLM MODEL USED: {llm.get_name()}")
             tokens_used = response.usage_metadata["total_tokens"]
         except Exception as e:
             logger.error(f"Error with {llm.get_name()}: {e}")

@@ -41,9 +41,14 @@ class Config:
         return os.getenv("CORS_ORIGINS", "*").split(",")
 
     @property
-    def LLM_MODEL(self) -> str:
+    def GOOGLE_LLM_MODEL(self) -> str:
         """Get LLM model."""
-        return os.getenv("LLM_MODEL", "gpt-4o-mini")
+        return os.getenv("GOOGLE_LLM_MODEL", "google_genai:gemini-2.5-flash-lite")
+
+    @property
+    def OPENAI_LLM_MODEL(self) -> str:
+        """Get LLM model."""
+        return os.getenv("OPENAI_LLM_MODEL", "openai:gpt-4o-mini")
 
     @property
     def SUPER_TOKENS_CONNECTION_URI(self) -> str:

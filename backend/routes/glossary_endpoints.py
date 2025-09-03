@@ -19,6 +19,7 @@ from translate_graph.state import GlossaryUpdate, NoUpdate, RulesUpdate
 from utils.graph_utils import get_graph_state
 from utils.improvement_cache import improvement_cache
 from utils.llm_service import LLM_Service
+from utils.logger import logger
 from utils.user_tracking_service import UserTrackingService
 
 router = APIRouter(prefix="/glossary", tags=["glossary"])
@@ -92,6 +93,8 @@ def check_glossary_updates(conversation_id: str):
     response = (
         LLM_Service().bind_tools([RulesUpdate, GlossaryUpdate, NoUpdate]).invoke(prompt)
     )
+
+    logger.info(f"Glossary updates: {response.tool_calls}")
 
     if response.tool_calls:
         improvement_cache.add_calls(conversation_id, response.tool_calls)
