@@ -77,7 +77,7 @@ const UserAccountDetails: React.FC<UserAccountDetailsProps> = ({user}) => {
         <div className="flex justify-between items-center py-2 border-b border-gray-100">
           <span className="font-medium text-gray-700">Customer ID</span>
           <span className="text-gray-600 font-mono text-sm">
-            {user.lemonsqueezy_customer_id || "Not set"}
+            {user.lemonsqueezy_customer_id || "Free Tier"}
           </span>
         </div>
 

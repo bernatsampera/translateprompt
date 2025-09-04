@@ -1,5 +1,7 @@
 """Database schema definitions for all tables."""
 
+from constants import DEFAULT_USER_QUOTA_LIMIT
+
 # Glossary table schema
 GLOSSARY_TABLE_SCHEMA = """
 CREATE TABLE IF NOT EXISTS glossary_entries (
@@ -43,13 +45,12 @@ CREATE TABLE IF NOT EXISTS user_ips (
 )
 """
 
-USER_SCHEMA = """
+USER_SCHEMA = f"""
 CREATE TABLE IF NOT EXISTS user (
     user_id TEXT PRIMARY KEY,
-    token_count INTEGER DEFAULT 0,
     lemonsqueezy_customer_id INTEGER DEFAULT NULL,
     subscription_status TEXT DEFAULT NULL,
-    quota_limit INTEGER DEFAULT 0,
+    quota_limit INTEGER DEFAULT {DEFAULT_USER_QUOTA_LIMIT},
     quota_used INTEGER DEFAULT 0,
     billing_portal_url TEXT DEFAULT NULL
 )

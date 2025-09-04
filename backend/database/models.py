@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from constants import DEFAULT_USER_QUOTA_LIMIT
+
 
 @dataclass
 class GlossaryEntry:
@@ -127,10 +129,9 @@ class User:
     """Data class representing a user usage record."""
 
     user_id: str
-    token_count: int = 0
     lemonsqueezy_customer_id: int | None = None
     subscription_status: str | None = None
-    quota_limit: int = 0
+    quota_limit: int = DEFAULT_USER_QUOTA_LIMIT
     quota_used: int = 0
     billing_portal_url: str | None = None
 
@@ -152,7 +153,7 @@ class User:
             user_id=data["user_id"],
             lemonsqueezy_customer_id=data.get("lemonsqueezy_customer_id"),
             subscription_status=data.get("subscription_status"),
-            quota_limit=data.get("quota_limit", 0),
+            quota_limit=data.get("quota_limit", DEFAULT_USER_QUOTA_LIMIT),
             quota_used=data.get("quota_used", 0),
             billing_portal_url=data.get("billing_portal_url"),
         )

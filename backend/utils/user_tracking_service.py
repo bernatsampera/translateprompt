@@ -2,7 +2,7 @@
 
 TOKEN LIMITS:
 - MAX_TOKENS_PER_IP = 4000: Limit for anonymous users (tracked by IP)
-- MAX_TOKENS_PER_USER = 10000: Limit for authenticated users (tracked by user ID)
+- MAX_TOKENS_PER_USER = DEFAULT_USER_QUOTA_LIMIT: Limit for authenticated users (tracked by user ID)
 - MAX_TOKENS_PER_MINUTE = 50000: Rate limiting for LLM API calls (defined in llm_service.py)
 
 TRACKING LOGIC:
@@ -16,6 +16,7 @@ from contextvars import ContextVar
 
 from fastapi import HTTPException, Request
 
+from constants import DEFAULT_IP_QUOTA_LIMIT, DEFAULT_USER_QUOTA_LIMIT
 from database.connection import get_database_connection
 from database.user_ip_operations import UserIPOperations
 from database.user_operations import UserOperations
@@ -32,8 +33,10 @@ class UserTrackingService:
     """Service to handle user tracking logic based on user ID or IP address."""
 
     # Token limits
-    MAX_TOKENS_PER_IP = 4000
-    MAX_TOKENS_PER_USER = 10000  # Higher limit for authenticated users
+    MAX_TOKENS_PER_IP = DEFAULT_IP_QUOTA_LIMIT
+    MAX_TOKENS_PER_USER = (
+        DEFAULT_USER_QUOTA_LIMIT  # Higher limit for authenticated users
+    )
 
     def __init__(self):
         """Initialize the user tracking service."""

@@ -6,7 +6,7 @@ import {type UserDetails} from "@/api/userApi";
 export const formatSubscriptionStatus = (
   status: UserDetails["subscription_status"]
 ): string => {
-  if (!status) return "Not set";
+  if (!status) return "Free Tier";
   return status.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
 };
 

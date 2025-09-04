@@ -1,5 +1,6 @@
 """User IP tracking database operations."""
 
+from constants import DEFAULT_USER_QUOTA_LIMIT
 from utils.logger import logger
 
 from .connection import DatabaseConnection, get_database_connection
@@ -34,7 +35,7 @@ class UserOperations:
                 INSERT INTO user (user_id, lemonsqueezy_customer_id, subscription_status, quota_limit, quota_used, billing_portal_url)
                 VALUES (?, ?, ?, ?, ?, ?)
             """
-            insert_params = (user_id, None, None, 0, 0, None)
+            insert_params = (user_id, None, None, DEFAULT_USER_QUOTA_LIMIT, 0, None)
             self.db.execute_update(insert_query, insert_params)
 
             # Return the newly created user
@@ -42,7 +43,7 @@ class UserOperations:
                 user_id=user_id,
                 lemonsqueezy_customer_id=None,
                 subscription_status=None,
-                quota_limit=0,
+                quota_limit=DEFAULT_USER_QUOTA_LIMIT,
                 quota_used=0,
                 billing_portal_url=None,
             )
