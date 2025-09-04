@@ -16,12 +16,18 @@ const UpgradeButtons: React.FC<UpgradeButtonsProps> = ({user}) => {
   const recommendedPlan = getRecommendedPlan(user.quota_limit, user.quota_used);
   const quotaLow = isQuotaRunningLow(user.quota_used, user.quota_limit);
 
+  const pricingDisabled = true;
+
+  if (pricingDisabled) {
+    return <div>Pricing not enabled yet, you can use until 10k tokens</div>;
+  }
+
   if (!showUpgradeOptions) {
     return null;
   }
 
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6 mt-6">
+    <div className="relative bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6 mt-6">
       <div className="text-center mb-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           {needsUpgrade(user) ? "Upgrade Your Plan" : "Increase Your Quota"}

@@ -124,7 +124,7 @@ const Settings: React.FC = () => {
       <WelcomeHeader userName={userName || undefined} />
 
       <div className="space-y-6">
-        <UserAccountDetails user={user} />
+        <UserAccountDetails user={user} username={userName || ""} />
         <UpgradeButtons user={user} />
       </div>
     </div>
