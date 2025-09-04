@@ -167,12 +167,13 @@ class UserTrackingService:
         """Handle tracking for authenticated users."""
         # Get or create user usage record
         user = self.user_ops.get_user(user_id)
+        logger.debug(f"Retrieved user: {user}")
         if not user:
             self.user_ops.add_user(user_id)
             user = self.user_ops.get_user(user_id)
 
         # Check if user has exceeded limits
-        if user.token_count > self.MAX_TOKENS_PER_USER:
+        if user.quota_used > self.MAX_TOKENS_PER_USER:
             logger.warning(
                 f"User {user_id} has exceeded the limit of {self.MAX_TOKENS_PER_USER} tokens"
             )
@@ -182,9 +183,9 @@ class UserTrackingService:
                 f"We are still in beta, join the waitlist to get access when it's released.",
             )
 
-        # Update token count
-        new_token_count = user.token_count + tokens_used
-        self.user_ops.update_token_count(user_id, new_token_count)
+        # Update quota usage
+        new_quota_used = user.quota_used + tokens_used
+        self.user_ops.update_quota_usage(user_id, new_quota_used)
 
     def _handle_ip_tracking(self, ip_address: str, tokens_used: int) -> None:
         """Handle tracking for anonymous users (by IP)."""
@@ -216,7 +217,7 @@ class UserTrackingService:
 
         if user_id and user_id != "unknown":
             user = self.user_ops.get_user(user_id)
-            return user.token_count if user else 0
+            return user.quota_used if user else 0
         else:
             user_ip = self.user_ip_ops.get_user_ip(ip_address)
             return user_ip.token_count if user_ip else 0

@@ -47,15 +47,22 @@ function Header({navItems, loggedIn = false, onLogout}: HeaderProps) {
         </ul>
       </div>
       <div className="hidden lg:flex navbar-end gap-2">
-        <Waitlist />
         {loggedIn ? (
-          <button onClick={onLogout} className="btn btn-outline btn-sm">
-            Logout
-          </button>
+          <>
+            <Link to="/settings" className="btn btn-primary btn-sm">
+              Settings
+            </Link>
+            <button onClick={onLogout} className="btn btn-outline btn-sm">
+              Logout
+            </button>
+          </>
         ) : (
-          <Link to="/auth" className="btn btn-primary btn-sm">
-            Login
-          </Link>
+          <>
+            <Waitlist />
+            <Link to="/auth" className="btn btn-primary btn-sm">
+              Login
+            </Link>
+          </>
         )}
         <a
           href="https://github.com"

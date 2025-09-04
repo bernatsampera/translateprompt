@@ -12,6 +12,7 @@ import AuthLayoutWrapper from "./components/auth/AuthLayoutWrapper";
 import Dashboard from "./components/dashboard/Dashboard";
 import {useAuth} from "./hooks";
 import {DashboardLayout, MainLayout} from "./layouts";
+import Settings from "./pages/Settings";
 
 // Navigation configuration
 const topNavItems: NavItem[] = [
@@ -122,6 +123,20 @@ function App() {
                   <Home />
                 </MainLayout>
               )
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <DashboardLayout
+                navItems={topNavItems}
+                footerConfig={footerConfig}
+                loggedIn={loggedIn}
+                onLogout={logout}
+              >
+                <Settings />
+              </DashboardLayout>
             }
           />
 

@@ -47,27 +47,52 @@ class UserUsageOperations:
             logger.error(f"Error adding user: {e}")
             return False
 
-    def update_token_count(self, user_id: str, token_count: int) -> bool:
-        """Update the token count for a user. If user doesn't exist, create a new record.
+    def update_quota_usage(self, user_id: str, quota_used: int) -> bool:
+        """Update the quota usage for a user. If user doesn't exist, create a new record.
 
         Args:
             user_id: The user ID to update or create.
-            token_count: The new token count.
+            quota_used: The new quota usage amount.
 
         Returns:
             True if operation was successful, False otherwise.
         """
         try:
-            query = """
-                INSERT OR REPLACE INTO user (user_id, token_count)
-                VALUES (?, ?)
+            # First try to update existing user
+            update_query = """
+                UPDATE user SET quota_used = ? WHERE user_id = ?
             """
-            params = (user_id, token_count)
-            affected_rows = self.db.execute_update(query, params)
+            update_params = (quota_used, user_id)
+            affected_rows = self.db.execute_update(update_query, update_params)
+
+            # If no rows were affected, user doesn't exist, so create them
+            if affected_rows == 0:
+                insert_query = """
+                    INSERT INTO user (user_id, quota_used)
+                    VALUES (?, ?)
+                """
+                insert_params = (user_id, quota_used)
+                affected_rows = self.db.execute_update(insert_query, insert_params)
+
             return affected_rows > 0
         except Exception as e:
-            logger.error(f"Error updating/inserting token count: {e}")
+            logger.error(f"Error updating/inserting quota usage: {e}")
             return False
+
+    def update_token_count(self, user_id: str, token_count: int) -> bool:
+        """Legacy method for backward compatibility. Use update_quota_usage instead.
+
+        Args:
+            user_id: The user ID to update or create.
+            token_count: The token count (will be stored as quota_used).
+
+        Returns:
+            True if operation was successful, False otherwise.
+        """
+        logger.warning(
+            "update_token_count is deprecated. Use update_quota_usage instead."
+        )
+        return self.update_quota_usage(user_id, token_count)
 
     def get_user_by_customer_id(self, customer_id: int) -> UserUsage:
         """Get a user by their Lemon Squeezy customer ID."""
