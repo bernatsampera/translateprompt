@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
 
 from config import config
-from database.user_operations import UserUsageOperations
+from database.user_operations import UserOperations
 from utils.logger import logger
 
 router = APIRouter(prefix="/pricing", tags=["pricing"])
@@ -90,7 +90,7 @@ async def lemonsqueezy_webhook(request: Request):
         logger.info(f"Processing Lemon Squeezy webhook: {event_name}")
 
         # Initialize user operations
-        user_ops = UserUsageOperations()
+        user_ops = UserOperations()
 
         # Handle different events
         if event_name == "subscription_created":
@@ -111,7 +111,7 @@ async def lemonsqueezy_webhook(request: Request):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def handle_subscription_created(payload: dict, user_ops: UserUsageOperations):
+async def handle_subscription_created(payload: dict, user_ops: UserOperations):
     """Handle subscription_created event."""
     try:
         # Extract data from payload
@@ -157,7 +157,7 @@ async def handle_subscription_created(payload: dict, user_ops: UserUsageOperatio
         logger.error(f"Error handling subscription_created: {e}")
 
 
-async def handle_subscription_cancelled(payload: dict, user_ops: UserUsageOperations):
+async def handle_subscription_cancelled(payload: dict, user_ops: UserOperations):
     """Handle subscription_cancelled event."""
     try:
         # Extract data from payload
@@ -186,9 +186,7 @@ async def handle_subscription_cancelled(payload: dict, user_ops: UserUsageOperat
         logger.error(f"Error handling subscription_cancelled: {e}")
 
 
-async def handle_subscription_payment_success(
-    payload: dict, user_ops: UserUsageOperations
-):
+async def handle_subscription_payment_success(payload: dict, user_ops: UserOperations):
     """Handle subscription_payment_success event."""
     try:
         # Extract data from payload

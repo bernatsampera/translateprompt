@@ -18,7 +18,7 @@ from fastapi import HTTPException, Request
 
 from database.connection import get_database_connection
 from database.user_ip_operations import UserIPOperations
-from database.user_operations import UserUsageOperations
+from database.user_operations import UserOperations
 from utils.logger import logger
 
 # Context variables to store current request context
@@ -60,7 +60,7 @@ class UserTrackingService:
     def user_ops(self):
         """Lazy initialization of user usage operations."""
         if self._user_ops is None:
-            self._user_ops = UserUsageOperations(db_connection=self.db_connection)
+            self._user_ops = UserOperations(db_connection=self.db_connection)
         return self._user_ops
 
     # IP and Request Context Methods

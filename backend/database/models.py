@@ -123,7 +123,7 @@ class UserIP:
 
 
 @dataclass
-class UserUsage:
+class User:
     """Data class representing a user usage record."""
 
     user_id: str
@@ -146,7 +146,7 @@ class UserUsage:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "UserUsage":
+    def from_dict(cls, data: dict) -> "User":
         """Create an entry from a dictionary."""
         return cls(
             user_id=data["user_id"],

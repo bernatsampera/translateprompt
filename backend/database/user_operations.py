@@ -3,10 +3,10 @@
 from utils.logger import logger
 
 from .connection import DatabaseConnection, get_database_connection
-from .models import UserUsage
+from .models import User
 
 
-class UserUsageOperations:
+class UserOperations:
     """Handles all user IP tracking database operations."""
 
     def __init__(self, db_connection: DatabaseConnection = None):
@@ -17,7 +17,7 @@ class UserUsageOperations:
         """
         self.db = db_connection or get_database_connection()
 
-    def get_user(self, user_id: str) -> UserUsage:
+    def get_user(self, user_id: str) -> User:
         """Get a user by user ID. Creates the user with default values if it doesn't exist."""
         try:
             query = """
@@ -27,7 +27,7 @@ class UserUsageOperations:
             rows = self.db.execute_query(query, params)
             if rows:
                 row = rows[0]
-                return UserUsage.from_dict(dict(row))
+                return User.from_dict(dict(row))
 
             # User doesn't exist, create one with default values
             insert_query = """
@@ -38,7 +38,7 @@ class UserUsageOperations:
             self.db.execute_update(insert_query, insert_params)
 
             # Return the newly created user
-            return UserUsage(
+            return User(
                 user_id=user_id,
                 lemonsqueezy_customer_id=None,
                 subscription_status=None,
@@ -96,7 +96,7 @@ class UserUsageOperations:
             logger.error(f"Error updating/inserting quota usage: {e}")
             return False
 
-    def get_user_by_customer_id(self, customer_id: int) -> UserUsage:
+    def get_user_by_customer_id(self, customer_id: int) -> User:
         """Get a user by their Lemon Squeezy customer ID."""
         try:
             query = """
@@ -106,7 +106,7 @@ class UserUsageOperations:
             rows = self.db.execute_query(query, params)
             if rows:
                 row = rows[0]
-                return UserUsage.from_dict(dict(row))
+                return User.from_dict(dict(row))
             return None
         except Exception as e:
             logger.error(f"Error getting user by customer ID: {e}")
