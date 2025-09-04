@@ -34,13 +34,6 @@ const UserAccountDetails: React.FC<UserAccountDetailsProps> = ({user}) => {
         </div>
 
         <div className="flex justify-between items-center py-2 border-b border-gray-100">
-          <span className="font-medium text-gray-700">Token Count</span>
-          <span className="text-gray-900 font-semibold">
-            {user.token_count.toLocaleString()}
-          </span>
-        </div>
-
-        <div className="flex justify-between items-center py-2 border-b border-gray-100">
           <span className="font-medium text-gray-700">Subscription Status</span>
           <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${getSubscriptionStatusBadgeStyle(

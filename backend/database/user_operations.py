@@ -18,7 +18,7 @@ class UserUsageOperations:
         self.db = db_connection or get_database_connection()
 
     def get_user(self, user_id: str) -> UserUsage:
-        """Get a user by user ID."""
+        """Get a user by user ID. Creates the user with default values if it doesn't exist."""
         try:
             query = """
                 SELECT * FROM user WHERE user_id = ?
@@ -28,9 +28,26 @@ class UserUsageOperations:
             if rows:
                 row = rows[0]
                 return UserUsage.from_dict(dict(row))
-            return None
+
+            # User doesn't exist, create one with default values
+            insert_query = """
+                INSERT INTO user (user_id, lemonsqueezy_customer_id, subscription_status, quota_limit, quota_used, billing_portal_url)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """
+            insert_params = (user_id, None, None, 0, 0, None)
+            self.db.execute_update(insert_query, insert_params)
+
+            # Return the newly created user
+            return UserUsage(
+                user_id=user_id,
+                lemonsqueezy_customer_id=None,
+                subscription_status=None,
+                quota_limit=0,
+                quota_used=0,
+                billing_portal_url=None,
+            )
         except Exception as e:
-            logger.error(f"Error getting user: {e}")
+            logger.error(f"Error getting/creating user: {e}")
             return None
 
     def add_user(self, user_id: str) -> bool:
@@ -78,21 +95,6 @@ class UserUsageOperations:
         except Exception as e:
             logger.error(f"Error updating/inserting quota usage: {e}")
             return False
-
-    def update_token_count(self, user_id: str, token_count: int) -> bool:
-        """Legacy method for backward compatibility. Use update_quota_usage instead.
-
-        Args:
-            user_id: The user ID to update or create.
-            token_count: The token count (will be stored as quota_used).
-
-        Returns:
-            True if operation was successful, False otherwise.
-        """
-        logger.warning(
-            "update_token_count is deprecated. Use update_quota_usage instead."
-        )
-        return self.update_quota_usage(user_id, token_count)
 
     def get_user_by_customer_id(self, customer_id: int) -> UserUsage:
         """Get a user by their Lemon Squeezy customer ID."""

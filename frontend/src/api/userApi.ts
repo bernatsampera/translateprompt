@@ -5,7 +5,6 @@ const USER_BASE_URL = `${BASE_URL}/user`;
 
 export interface UserDetails {
   user_id: string;
-  token_count: number;
   lemonsqueezy_customer_id: string | null;
   subscription_status: "active" | "cancelled" | "free_tier" | null;
   quota_limit: number;

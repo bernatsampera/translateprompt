@@ -138,7 +138,6 @@ class UserUsage:
         """Convert the entry to a dictionary."""
         return {
             "user_id": self.user_id,
-            "token_count": self.token_count,
             "lemonsqueezy_customer_id": self.lemonsqueezy_customer_id,
             "subscription_status": self.subscription_status,
             "quota_limit": self.quota_limit,
@@ -151,7 +150,6 @@ class UserUsage:
         """Create an entry from a dictionary."""
         return cls(
             user_id=data["user_id"],
-            token_count=data.get("token_count", 0),
             lemonsqueezy_customer_id=data.get("lemonsqueezy_customer_id"),
             subscription_status=data.get("subscription_status"),
             quota_limit=data.get("quota_limit", 0),

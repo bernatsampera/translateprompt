@@ -165,12 +165,9 @@ class UserTrackingService:
 
     def _handle_user_tracking(self, user_id: str, tokens_used: int) -> None:
         """Handle tracking for authenticated users."""
-        # Get or create user usage record
+        # Get user usage record (creates if doesn't exist)
         user = self.user_ops.get_user(user_id)
         logger.debug(f"Retrieved user: {user}")
-        if not user:
-            self.user_ops.add_user(user_id)
-            user = self.user_ops.get_user(user_id)
 
         # Check if user has exceeded limits
         if user.quota_used > self.MAX_TOKENS_PER_USER:
