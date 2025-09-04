@@ -73,6 +73,11 @@ class Config:
         """Get SuperTokens website domain."""
         return os.getenv("FRONTEND_URL", "http://localhost:5178")
 
+    @property
+    def LEMONSQUEEZY_SIGNING_SECRET(self) -> str:
+        """Get Lemon Squeezy webhook signing secret."""
+        return os.getenv("LEMONSQUEEZY_SIGNING_SECRET", "")
+
     def is_production(self) -> bool:
         """Check if the application is running in production mode."""
         return self.PROD

@@ -46,7 +46,12 @@ CREATE TABLE IF NOT EXISTS user_ips (
 USER_SCHEMA = """
 CREATE TABLE IF NOT EXISTS user (
     user_id TEXT PRIMARY KEY,
-    token_count INTEGER DEFAULT 0
+    token_count INTEGER DEFAULT 0,
+    lemonsqueezy_customer_id INTEGER DEFAULT NULL,
+    subscription_status TEXT DEFAULT NULL,
+    quota_limit INTEGER DEFAULT 0,
+    quota_used INTEGER DEFAULT 0,
+    billing_portal_url TEXT DEFAULT NULL
 )
 """
 

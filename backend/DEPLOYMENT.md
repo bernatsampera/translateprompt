@@ -43,7 +43,7 @@ docker run -d \
 ### 3. Health Check
 
 ```bash
-curl http://your-server:8008/api/v1/hello
+curl http://your-server:8008/v1/hello
 ```
 
 The API will be available at `http://your-server:8008`
