@@ -21,7 +21,7 @@ class UserUsageOperations:
         """Get a user by user ID."""
         try:
             query = """
-                SELECT * FROM user_usage WHERE user_id = ?
+                SELECT * FROM user WHERE user_id = ?
             """
             params = (user_id,)
             rows = self.db.execute_query(query, params)
@@ -37,7 +37,7 @@ class UserUsageOperations:
         """Add a new user."""
         try:
             query = """
-                INSERT OR IGNORE INTO user_usage (user_id)
+                INSERT OR IGNORE INTO user (user_id)
                 VALUES (?)
             """
             params = (user_id,)
@@ -59,7 +59,7 @@ class UserUsageOperations:
         """
         try:
             query = """
-                INSERT OR REPLACE INTO user_usage (user_id, token_count)
+                INSERT OR REPLACE INTO user (user_id, token_count)
                 VALUES (?, ?)
             """
             params = (user_id, token_count)

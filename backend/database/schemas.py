@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS user_ips (
 )
 """
 
-USER_USAGE_SCHEMA = """
-CREATE TABLE IF NOT EXISTS user_usage (
+USER_SCHEMA = """
+CREATE TABLE IF NOT EXISTS user (
     user_id TEXT PRIMARY KEY,
     token_count INTEGER DEFAULT 0
 )

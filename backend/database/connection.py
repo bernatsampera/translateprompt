@@ -13,7 +13,7 @@ from .schemas import (
     GLOSSARY_TABLE_SCHEMA,
     LANG_RULE_TABLE_SCHEMA,
     USER_IP_TABLE_SCHEMA,
-    USER_USAGE_SCHEMA,
+    USER_SCHEMA,
     WAITLIST_TABLE_SCHEMA,
 )
 
@@ -88,7 +88,7 @@ class DatabaseConnection:
             cursor.execute(GLOSSARY_INDEX_SCHEMA)
             cursor.execute(USER_IP_TABLE_SCHEMA)
             cursor.execute(WAITLIST_TABLE_SCHEMA)
-            cursor.execute(USER_USAGE_SCHEMA)
+            cursor.execute(USER_SCHEMA)
             cursor.execute(LANG_RULE_TABLE_SCHEMA)
 
             # Add more table creation statements here as needed

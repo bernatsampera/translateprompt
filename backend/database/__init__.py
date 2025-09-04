@@ -12,7 +12,7 @@ from .schemas import (
     GLOSSARY_INDEX_SCHEMA,
     GLOSSARY_TABLE_SCHEMA,
     USER_IP_TABLE_SCHEMA,
-    USER_USAGE_SCHEMA,
+    USER_SCHEMA,
 )
 from .user_ip_operations import UserIPOperations
 
@@ -26,7 +26,7 @@ __all__ = [
     "GLOSSARY_TABLE_SCHEMA",
     "GLOSSARY_INDEX_SCHEMA",
     "USER_IP_TABLE_SCHEMA",
-    "USER_USAGE_SCHEMA",
+    "USER_SCHEMA",
     "GlossaryOperations",
     "UserIPOperations",
 ]

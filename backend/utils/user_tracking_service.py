@@ -18,7 +18,7 @@ from fastapi import HTTPException, Request
 
 from database.connection import get_database_connection
 from database.user_ip_operations import UserIPOperations
-from database.user_usage_operations import UserUsageOperations
+from database.user_operations import UserUsageOperations
 from utils.logger import logger
 
 # Context variables to store current request context
@@ -40,7 +40,7 @@ class UserTrackingService:
         # Don't initialize database connections here - do it lazily when needed
         self._db_connection = None
         self._user_ip_ops = None
-        self._user_usage_ops = None
+        self._user_ops = None
 
     @property
     def db_connection(self):
@@ -57,11 +57,11 @@ class UserTrackingService:
         return self._user_ip_ops
 
     @property
-    def user_usage_ops(self):
+    def user_ops(self):
         """Lazy initialization of user usage operations."""
-        if self._user_usage_ops is None:
-            self._user_usage_ops = UserUsageOperations(db_connection=self.db_connection)
-        return self._user_usage_ops
+        if self._user_ops is None:
+            self._user_ops = UserUsageOperations(db_connection=self.db_connection)
+        return self._user_ops
 
     # IP and Request Context Methods
     def get_real_ip(self, request: Request) -> str:
@@ -166,13 +166,13 @@ class UserTrackingService:
     def _handle_user_tracking(self, user_id: str, tokens_used: int) -> None:
         """Handle tracking for authenticated users."""
         # Get or create user usage record
-        user_usage = self.user_usage_ops.get_user(user_id)
-        if not user_usage:
-            self.user_usage_ops.add_user(user_id)
-            user_usage = self.user_usage_ops.get_user(user_id)
+        user = self.user_ops.get_user(user_id)
+        if not user:
+            self.user_ops.add_user(user_id)
+            user = self.user_ops.get_user(user_id)
 
         # Check if user has exceeded limits
-        if user_usage.token_count > self.MAX_TOKENS_PER_USER:
+        if user.token_count > self.MAX_TOKENS_PER_USER:
             logger.warning(
                 f"User {user_id} has exceeded the limit of {self.MAX_TOKENS_PER_USER} tokens"
             )
@@ -183,8 +183,8 @@ class UserTrackingService:
             )
 
         # Update token count
-        new_token_count = user_usage.token_count + tokens_used
-        self.user_usage_ops.update_token_count(user_id, new_token_count)
+        new_token_count = user.token_count + tokens_used
+        self.user_ops.update_token_count(user_id, new_token_count)
 
     def _handle_ip_tracking(self, ip_address: str, tokens_used: int) -> None:
         """Handle tracking for anonymous users (by IP)."""
@@ -215,8 +215,8 @@ class UserTrackingService:
         ip_address = self.get_request_ip()
 
         if user_id and user_id != "unknown":
-            user_usage = self.user_usage_ops.get_user(user_id)
-            return user_usage.token_count if user_usage else 0
+            user = self.user_ops.get_user(user_id)
+            return user.token_count if user else 0
         else:
             user_ip = self.user_ip_ops.get_user_ip(ip_address)
             return user_ip.token_count if user_ip else 0
