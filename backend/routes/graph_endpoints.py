@@ -7,12 +7,10 @@ from langgraph.types import Command
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.recipe.session.framework.fastapi import verify_session
 
-from database.models import LangRuleEntry
 from database.rules_operations import RulesOperations
 from glossary.manager import GlossaryManager
 from models import (
     ApplyImprovementRequest,
-    GlossaryEntry,
     ImprovementEntry,
     ImprovementsResponse,
     TranslateRequest,
@@ -173,14 +171,12 @@ def apply_improvement(
 
         glossary_manager = GlossaryManager()
         if glossary_manager.add_source(
-            GlossaryEntry(
-                source=improvement.source,
-                target=improvement.target,
-                source_language=improvement.source_language,
-                target_language=improvement.target_language,
-                note=improvement.note,
-                user_id=user_id,
-            )
+            source=improvement.source,
+            target=improvement.target,
+            source_language=improvement.source_language,
+            target_language=improvement.target_language,
+            note=improvement.note,
+            user_id=user_id,
         ):
             return {"message": "success"}
     elif improvement.type == "rules":
@@ -190,12 +186,10 @@ def apply_improvement(
 
         rules_manager = RulesOperations()
         if rules_manager.add_entry(
-            LangRuleEntry(
-                text=improvement.text,
-                user_id=user_id,
-                source_language=improvement.source_language,
-                target_language=improvement.target_language,
-            )
+            text=improvement.text,
+            user_id=user_id,
+            source_language=improvement.source_language,
+            target_language=improvement.target_language,
         ):
             return {"message": "success"}
 
