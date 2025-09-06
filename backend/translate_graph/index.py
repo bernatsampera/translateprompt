@@ -28,6 +28,11 @@ from utils.logger import logger
 llm = LLM_Service()
 
 
+# UNCOMMENT WHEN RUNNING LANGGRAPH STUDIO LOCALLY
+# from database.connection import initialize_database
+# initialize_database()
+
+
 def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
     """Perform the initial translation using the glossary and rules to translate the text sent by the user."""
     text_to_translate = state["messages"][-1].content
