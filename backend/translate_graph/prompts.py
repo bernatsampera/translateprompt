@@ -8,6 +8,9 @@ Between brackets you will find the comment of the word, this give context of whe
 Be very strict and analyze the context to just use the glossary when necessary.
 Respect the case of the original word, even if the case in the glossary is different. Example: (Tree) should be (Árbol)
 
+IMPORTANT:
+Never preface the translation with anything like "AI:" or any prefix. Return just the translation.
+
 {glossary}
 
 Rules when translating from {source_language} to {target_language}:
@@ -31,6 +34,10 @@ These are the last two messages that have been exchanged so far from the user as
 
 Take a look at the feedback made by the user and update the translation. Following the instructions 
 {translation_instructions}
+
+IMPORTANT:
+Return just the translation. Never preface the translation with anything like "AI:" or any prefix.
+
 """
 
 

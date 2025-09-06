@@ -12,18 +12,19 @@ import AuthLayoutWrapper from "./components/auth/AuthLayoutWrapper";
 import Dashboard from "./components/dashboard/Dashboard";
 import {useAuth} from "./hooks";
 import {DashboardLayout, MainLayout} from "./layouts";
+import HowItWorks from "./pages/HowItWorks";
 import Settings from "./pages/Settings";
 
 // Navigation configuration
 const topNavItems: NavItem[] = [
-  // {
-  //   label: "Home",
-  //   href: "#home"
-  // },
-  // {
-  //   label: "About",
-  //   href: "#about"
-  // },
+  {
+    label: "Home",
+    href: "#home"
+  },
+  {
+    label: "How it Works",
+    href: "how-it-works"
+  }
   // {
   //   label: "Contact",
   //   href: "#contact"
@@ -123,6 +124,20 @@ function App() {
                   <Home />
                 </MainLayout>
               )
+            }
+          />
+
+          <Route
+            path="/how-it-works"
+            element={
+              <MainLayout
+                navItems={topNavItems}
+                footerConfig={footerConfig}
+                loggedIn={loggedIn}
+                onLogout={logout}
+              >
+                <HowItWorks />
+              </MainLayout>
             }
           />
 
