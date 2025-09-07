@@ -7,6 +7,7 @@ from langgraph.types import Command
 from supertokens_python.recipe.session import SessionContainer
 from supertokens_python.recipe.session.framework.fastapi import verify_session
 
+from database.models import GlossaryEntry, LangRuleEntry
 from database.rules_operations import RulesOperations
 from glossary.manager import GlossaryManager
 from models import (
@@ -150,47 +151,55 @@ def apply_improvement(
         request.conversation_id,
     )
 
-    if conversation_id:
-        graph_values = get_graph_state(conversation_id)
-        improvement.source_language = graph_values.get("source_language")
-        improvement.target_language = graph_values.get("target_language")
+    try:
+        if conversation_id:
+            graph_values = get_graph_state(conversation_id)
+            improvement.source_language = graph_values.get("source_language")
+            improvement.target_language = graph_values.get("target_language")
 
-        # Remove the applied glossary entry from cache
-        improvement_cache.remove_calls(
-            conversation_id,
-            {
-                "source": improvement.source,
-                "target": improvement.target,
-            },
-        )
+            # Remove the applied glossary entry from cache
+            improvement_cache.remove_calls(
+                conversation_id,
+                {
+                    "source": improvement.source,
+                    "target": improvement.target,
+                },
+            )
 
-    if improvement.type == "glossary":
-        logger.info(
-            f"Adding new glossary entry. Lang: {improvement.source_language} --> {improvement.target_language}. Text: {improvement.source} --> {improvement.target}. Note: {improvement.note}"
-        )
+        if improvement.type == "glossary":
+            logger.info(
+                f"Adding new glossary entry. Lang: {improvement.source_language} --> {improvement.target_language}. Text: {improvement.source} --> {improvement.target}. Note: {improvement.note}"
+            )
 
-        glossary_manager = GlossaryManager()
-        if glossary_manager.add_source(
-            source=improvement.source,
-            target=improvement.target,
-            source_language=improvement.source_language,
-            target_language=improvement.target_language,
-            note=improvement.note,
-            user_id=user_id,
-        ):
-            return {"message": "success"}
-    elif improvement.type == "rules":
-        logger.info(
-            f"Adding new rule entry. Lang: {improvement.source_language} --> {improvement.target_language}. Text: {improvement.text}"
-        )
+            glossary_manager = GlossaryManager()
+            if glossary_manager.add_source(
+                entry=GlossaryEntry(
+                    source=improvement.source,
+                    target=improvement.target,
+                    source_language=improvement.source_language,
+                    target_language=improvement.target_language,
+                    note=improvement.note,
+                    user_id=user_id,
+                )
+            ):
+                return {"message": "success"}
 
-        rules_manager = RulesOperations()
-        if rules_manager.add_entry(
-            text=improvement.text,
-            user_id=user_id,
-            source_language=improvement.source_language,
-            target_language=improvement.target_language,
-        ):
-            return {"message": "success"}
+        elif improvement.type == "rules":
+            logger.info(
+                f"Adding new rule entry. Lang: {improvement.source_language} --> {improvement.target_language}. Text: {improvement.text}"
+            )
 
-    raise HTTPException(status_code=500, detail="Failed to add entry to glossary")
+            rules_manager = RulesOperations()
+            if rules_manager.add_entry(
+                entry=LangRuleEntry(
+                    text=improvement.text,
+                    user_id=user_id,
+                    source_language=improvement.source_language,
+                    target_language=improvement.target_language,
+                )
+            ):
+                return {"message": "success"}
+
+    except Exception as e:
+        logger.error(f"Error applying improvement: {e}")
+        raise HTTPException(status_code=500, detail="Failed to add entry to glossary")

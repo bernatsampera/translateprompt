@@ -25,32 +25,23 @@ class GlossaryManager:
 
     def add_source(
         self,
-        source: str,
-        target: str,
-        source_language: str = "en",
-        target_language: str = "es",
-        note: str = "",
-        user_id: str = "",
+        entry: GlossaryEntry,
     ) -> bool:
         """Add or update a source in the glossary.
 
         Args:
-            source: The source text to translate.
-            target: The translation target.
-            source_language: Source language code (default: "en" for English).
-            target_language: Target language code (default: "es" for Spanish).
-            note: Optional note about when to use this translation.
+            entry: The glossary entry to add.
 
         Returns:
             True if added successfully, False otherwise.
         """
         entry = GlossaryEntry(
-            source_language=source_language,
-            target_language=target_language,
-            source_text=source,
-            target_text=target,
-            note=note,
-            user_id=user_id,
+            source_language=entry.source_language,
+            target_language=entry.target_language,
+            source_text=entry.source_text,
+            target_text=entry.target_text,
+            note=entry.note,
+            user_id=entry.user_id,
         )
         return self.db.add_entry(entry)
 
