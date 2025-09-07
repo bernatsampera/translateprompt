@@ -21,7 +21,14 @@ export function AgentExplainer() {
   const activeStepTextContent = stepTextContent[currentStep];
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-base-100 relative">
+      {/* Floating Navigation */}
+      <FloatingNavigation
+        currentStep={currentStep}
+        totalSteps={stepData.length}
+        onStepChange={setCurrentStep}
+      />
+
       <div className="mx-auto p-1 sm:p-8">
         {/* Step Indicator */}
         <div className="mb-6 flex justify-center">
@@ -48,46 +55,6 @@ export function AgentExplainer() {
 
         {/* Text content component */}
         <StepTextContentComponent content={activeStepTextContent} />
-
-        {/* Navigation Buttons - Bottom of page */}
-        <div className="mt-12 flex flex-col items-center gap-6">
-          {/* Step Dots */}
-          <div className="flex space-x-3">
-            {stepData.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentStep(index)}
-                className={`w-4 h-4 rounded-full transition-all ${
-                  currentStep === index
-                    ? "bg-primary scale-125"
-                    : "bg-base-300 hover:bg-base-content/20"
-                }`}
-                aria-label={`Go to step ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Previous/Next Buttons */}
-          <div className="flex gap-4">
-            <button
-              onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-              disabled={currentStep === 0}
-              className="btn btn-outline btn"
-            >
-              ← Previous
-            </button>
-
-            <button
-              onClick={() =>
-                setCurrentStep(Math.min(stepData.length - 1, currentStep + 1))
-              }
-              disabled={currentStep === stepData.length - 1}
-              className="btn btn-primary btn"
-            >
-              Next →
-            </button>
-          </div>
-        </div>
 
         {/* Call to Action Section */}
         <div className="mt-16 text-center">
@@ -214,6 +181,59 @@ function ImageWithHighlights({
             </div>
           </div>
         ))}
+    </div>
+  );
+}
+
+// Floating Navigation Component
+function FloatingNavigation({
+  currentStep,
+  totalSteps,
+  onStepChange
+}: {
+  currentStep: number;
+  totalSteps: number;
+  onStepChange: (step: number) => void;
+}) {
+  return (
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="bg-base-100/95 backdrop-blur-sm border border-base-300 rounded-2xl shadow-lg p-4 flex items-center gap-4">
+        {/* Previous Button */}
+        <button
+          onClick={() => onStepChange(Math.max(0, currentStep - 1))}
+          disabled={currentStep === 0}
+          className="btn btn-sm btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ← Previous
+        </button>
+
+        {/* Step Dots */}
+        <div className="flex space-x-2">
+          {Array.from({length: totalSteps}, (_, index) => (
+            <button
+              key={index}
+              onClick={() => onStepChange(index)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                currentStep === index
+                  ? "bg-primary scale-125"
+                  : "bg-base-300 hover:bg-base-content/20"
+              }`}
+              aria-label={`Go to step ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Next Button */}
+        <button
+          onClick={() =>
+            onStepChange(Math.min(totalSteps - 1, currentStep + 1))
+          }
+          disabled={currentStep === totalSteps - 1}
+          className="btn btn-sm btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next →
+        </button>
+      </div>
     </div>
   );
 }
