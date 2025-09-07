@@ -34,9 +34,6 @@ class UserTrackingService:
 
     # Token limits
     MAX_TOKENS_PER_IP = DEFAULT_IP_QUOTA_LIMIT
-    MAX_TOKENS_PER_USER = (
-        DEFAULT_USER_QUOTA_LIMIT  # Higher limit for authenticated users
-    )
 
     def __init__(self):
         """Initialize the user tracking service."""
@@ -170,16 +167,19 @@ class UserTrackingService:
         """Handle tracking for authenticated users."""
         # Get user usage record (creates if doesn't exist)
         user = self.user_ops.get_user(user_id)
+        max_tokens_per_user = (
+            user.quota_limit if user.quota_limit else DEFAULT_USER_QUOTA_LIMIT
+        )
         logger.debug(f"Retrieved user: {user}")
 
         # Check if user has exceeded limits
-        if user.quota_used > self.MAX_TOKENS_PER_USER:
+        if user.quota_used > max_tokens_per_user:
             logger.warning(
-                f"User {user_id} has exceeded the limit of {self.MAX_TOKENS_PER_USER} tokens"
+                f"User {user_id} has exceeded the limit of {max_tokens_per_user} tokens"
             )
             raise HTTPException(
                 status_code=429,
-                detail=f"Usage limit of {self.MAX_TOKENS_PER_USER} tokens reached. "
+                detail=f"Usage limit of {max_tokens_per_user} tokens reached. "
                 f"We are still in beta, join the waitlist to get access when it's released.",
             )
 
