@@ -79,7 +79,7 @@ export const steps: Step[] = [
     step: 0,
     title: "Meet Your Personal Translation Partner",
     description:
-      "Imagine having a translation expert who knows your style, remembers your preferences, and gets better with every conversation. That's exactly what you're about to experience. This isn't just another translation tool – it's your personal AI collaborator that learns from you.",
+      'Imagine having a translation expert who knows your style, remembers your preferences, and gets better with every conversation. That\'s exactly what you\'re about to experience. This isn\'t just another translation tool – it\'s your personal AI collaborator that learns from you.\n\n**LangGraph Architecture:**\nOur translation system is built on LangGraph, a framework for creating stateful, multi-agent applications. The graph consists of three main nodes:\n\n```python\n# Graph structure\ngraph.add_node("supervisor", supervisor)\ngraph.add_node("initial_translation", initial_translation)\ngraph.add_node("refine_translation", refine_translation)\n\ngraph.add_edge(START, "initial_translation")\n```\n\n- **`initial_translation`**: Creates the first translation using your personal glossary and rules\n- **`supervisor`**: Manages the conversation flow and uses interrupts to wait for user feedback\n- **`refine_translation`**: Processes your feedback and improves the translation\n\nThe graph uses LangGraph\'s `Command` and `interrupt` patterns to create a collaborative, interactive translation experience.',
     uiImage: uistep0, // Initial empty state
     graphImage: lgstudiostep0, // All nodes idle
     highlights: {
@@ -88,7 +88,7 @@ export const steps: Step[] = [
           key: "translate-input",
           text: (
             <span className="flex items-center gap-2">
-              Type your text here <User className={responsiveIconClass} />
+              Text to translate <User className={responsiveIconClass} />
             </span>
           ),
           position: uiTranslateInputPosition,
@@ -142,7 +142,7 @@ export const steps: Step[] = [
     step: 1,
     title: "Step 1: User Enters Text and Chooses Languages",
     description:
-      "User types the text they want to translate and selects the source and target languages. The system captures this information and prepares to create the first translation using the user's personal glossary and translation rules.",
+      'User types the text they want to translate and selects the source and target languages. The system captures this information and prepares to create the first translation using the user\'s personal glossary and translation rules.\n\n**LangGraph Implementation:**\nThe graph starts with the `START` node automatically routing to `initial_translation`. The input data structure includes:\n\n```python\ninput_data = {\n    "messages": translate_request.message,\n    "source_language": translate_request.source_language,\n    "target_language": translate_request.target_language,\n    "user_id": session.get_user_id() if session else None,\n}\n```\n\nThe graph is defined with a simple edge from START to initial_translation:\n\n```python\ngraph.add_edge(START, "initial_translation")\n```',
     uiImage: uistep1, // Input text is filled
     graphImage: lgstudiostep1, // START -> initial_translation highlighted,
     highlights: {
@@ -167,28 +167,6 @@ export const steps: Step[] = [
           ),
           position: uiAiMessagesPosition,
           className: ""
-        },
-        {
-          key: "source-lang-selected",
-          text: (
-            <span className="flex items-center gap-2">
-              User selects source language{" "}
-              <MoveRight className={responsiveIconClass} />
-            </span>
-          ),
-          position: uiSourceLangPosition,
-          className: ""
-        },
-        {
-          key: "target-lang-selected",
-          text: (
-            <span className="flex items-center gap-2">
-              User selects target language{" "}
-              <MoveRight className={responsiveIconClass} />
-            </span>
-          ),
-          position: uiTargetLangPosition,
-          className: ""
         }
       ],
       graph: []
@@ -198,7 +176,7 @@ export const steps: Step[] = [
     step: 2,
     title: "Step 2: AI Agent Creates First Translation",
     description:
-      "The AI agent looks up the user's personal glossary and translation rules, then creates the first translation. It matches words from the user's text with saved glossary entries and applies custom rules to generate a personalized translation.",
+      'The AI agent looks up the user\'s personal glossary and translation rules, then creates the first translation. It matches words from the user\'s text with saved glossary entries and applies custom rules to generate a personalized translation.\n\n**LangGraph Implementation:**\nThe `initial_translation` node performs the core translation logic:\n\n```python\ndef initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:\n    text_to_translate = state["messages"][-1].content\n    source_language = state["source_language"]\n    target_language = state["target_language"]\n    user_id = state["user_id"]\n    \n    # Load user\'s glossary and rules\n    glossary_data = glossary_manager.get_all_sources_for_user(\n        user_id, source_language, target_language\n    )\n    rules_data = rules_manager.get_entries_for_user(\n        user_id, source_language, target_language\n    )\n    \n    # Match words from glossary\n    found_glossary_words = match_words_from_glossary(glossary_data, text_to_translate)\n    \n    # Generate translation with LLM\n    response = llm.invoke(prompt)\n    \n    return Command(\n        goto="supervisor",\n        update={"messages": [AIMessage(content=response.content)]}\n    )\n```\n\nThe node uses a `Command` to route to the `supervisor` node after completion.',
     uiImage: uistep2, // Translation appears
     graphImage: lgstudiostep2, // initial_translation node is active
     highlights: {
@@ -231,7 +209,7 @@ export const steps: Step[] = [
     step: 3,
     title: "Step 3: User Provides Feedback",
     description:
-      "The AI agent pauses and waits for user input. The feedback field becomes active, ready for the user to tell the AI agent how to improve the translation. This is where the collaboration happens - the user guides the AI agent to make it better.",
+      'The AI agent pauses and waits for user input. The feedback field becomes active, ready for the user to tell the AI agent how to improve the translation. This is where the collaboration happens - the user guides the AI agent to make it better.\n\n**LangGraph Implementation:**\nThe `supervisor` node uses LangGraph\'s interrupt mechanism to pause execution and wait for user input:\n\n```python\ndef supervisor(state: TranslateState) -> Command[Literal["refine_translation"]]:\n    last_message = state["messages"][-1].content\n    value = interrupt(last_message)  # Pauses graph execution\n    return Command(\n        goto="refine_translation",\n        update={"messages": [HumanMessage(content=value)]}\n    )\n```\n\nThe `interrupt()` function pauses the graph and returns the current translation to the frontend. The graph remains in memory, waiting for the user\'s feedback to resume execution.',
     uiImage: uistep3, // Refine input is highlighted/active
     graphImage: lgstudiostep3, // supervisor node is active
     highlights: {
@@ -264,7 +242,7 @@ export const steps: Step[] = [
     step: 4,
     title: "Step 4: User Guides the AI Agent",
     description:
-      "User types feedback in the refinement field. The user might say things like 'make it more formal', 'use simpler words', or 'this word should be translated as...'. The AI agent receives the guidance and prepares to improve the translation.",
+      "User types feedback in the refinement field. The user might say things like 'make it more formal', 'use simpler words', or 'this word should be translated as...'. The AI agent receives the guidance and prepares to improve the translation.\n\n**LangGraph Implementation:**\nWhen the user submits feedback, the frontend calls the `/refine-translation` endpoint which resumes the graph execution:\n\n```python\n@router.post(\"/refine-translation\")\ndef refine_translation(translate_request: TranslateRequest):\n    thread_id = translate_request.conversation_id\n    user_refinement_message = translate_request.message\n    \n    # Resume graph with user's feedback\n    result = run_graph(Command(resume=user_refinement_message), thread_id)\n    \n    return {\"response\": extractInterruption(result), \"conversation_id\": thread_id}\n```\n\nThe `Command(resume=user_refinement_message)` tells LangGraph to resume execution with the user's feedback, routing to the `refine_translation` node.",
     uiImage: uistep4, // Refine input is filled by user
     graphImage: lgstudiostep4, // supervisor -> refine_translation highlighted
     highlights: {
@@ -297,7 +275,7 @@ export const steps: Step[] = [
     step: 5,
     title: "Step 5: AI Agent Learns and Improves",
     description:
-      "The AI agent takes the user's feedback and creates a better translation. It learns from the user's guidance and applies the suggestions. The improved translation appears, and the system is ready for another round of feedback if the user wants to refine it further. This cycle can continue until the user is completely satisfied with the result.",
+      'The AI agent takes the user\'s feedback and creates a better translation. It learns from the user\'s guidance and applies the suggestions. The improved translation appears, and the system is ready for another round of feedback if the user wants to refine it further. This cycle can continue until the user is completely satisfied with the result.\n\n**LangGraph Implementation:**\nThe `refine_translation` node processes the user\'s feedback and generates an improved translation:\n\n```python\ndef refine_translation(state: TranslateState) -> Command[Literal["supervisor"]]:\n    last_two_messages = state["messages"][-2:]  # AI + User messages\n    source_language = state["source_language"]\n    target_language = state["target_language"]\n    \n    # Create refinement prompt with conversation history\n    prompt = update_translation_instructions.format(\n        messages=get_buffer_string(last_two_messages),\n        source_language=source_language,\n        target_language=target_language,\n        translation_instructions=translation_instructions.format(...)\n    )\n    \n    response = llm.invoke(prompt)\n    \n    return Command(\n        goto="supervisor",\n        update={"messages": [AIMessage(content=response.content)]}\n    )\n```\n\nThe node returns to `supervisor`, creating a loop that allows for continuous refinement. The graph can cycle between `supervisor` → `refine_translation` → `supervisor` until the user is satisfied.',
     uiImage: uistep5, // Translation is updated
     graphImage: lgstudiostep5, // refine_translation -> supervisor loop is active
     highlights: {
