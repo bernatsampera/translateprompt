@@ -12,7 +12,7 @@ import AuthLayoutWrapper from "./components/auth/AuthLayoutWrapper";
 import Dashboard from "./components/dashboard/Dashboard";
 import {useAuth} from "./hooks";
 import {DashboardLayout, MainLayout} from "./layouts";
-import HowItWorks from "./pages/HowItWorks";
+import HowItWorks from "./pages/HowItWorks/index";
 import Settings from "./pages/Settings";
 
 // Navigation configuration
