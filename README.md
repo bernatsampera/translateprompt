@@ -21,14 +21,20 @@ AI-powered translation with interactive feedback and glossary management using L
 ## Quick Start
 
 ```bash
-# Setup environment and dependencies
+# 1. Setup environment variables
+cp backend/.env.example backend/.env
+# Edit backend/.env with your API keys (see Environment Setup section)
+
+# 2. Setup environment and dependencies
 make setup-env
 
-# Start development servers
+# 3. Start development servers
 make dev
 ```
 
 **Access**: Frontend at http://localhost:5178, Backend at http://localhost:8008
+
+> **Note**: Make sure to set your `OPENAI_API_KEY` in the `.env` file before starting the servers.
 
 ## Project Structure
 
@@ -46,10 +52,58 @@ make dev
 └── frontend/                 # React TypeScript UI
 ```
 
-## Environment
+## Environment Setup
 
-Set your OpenAI API key:
+Create a `.env` file in the `backend/` directory based on `.env.example`:
 
 ```bash
-export LLM_API_KEY="your-openai-api-key"
+# Copy the example environment file
+cp backend/.env.example backend/.env
+```
+
+### Required Environment Variables
+
+**Core Application:**
+
+- `OPENAI_API_KEY` - Your OpenAI API key for LLM services
+- `DATABASE_PATH` - Path to SQLite database file (e.g., `./database.db`)
+
+**Authentication:**
+
+- `BACKEND_URL` - Backend server URL (default: `http://localhost:8008`)
+- `FRONTEND_URL` - Frontend server URL (default: `http://localhost:5178`)
+
+### Optional Environment Variables
+
+**LLM Configuration:**
+
+- `GOOGLE_API_KEY` - Google API key for alternative LLM services
+- `GOOGLE_LLM_MODEL` - Google LLM model name
+- `OPEOPENAI_LLM_MODEL` - OpenAI model name (default: gpt-4)
+
+**Production:**
+
+- `PROD` - Set to `true` for production environment
+
+**Authentication Services:**
+
+- `SUPER_TOKENS_CONNECTION_URI` - SuperTokens connection URI
+- `AXIOM_API_TOKEN` - Axiom API token for logging
+
+**Development & Monitoring:**
+
+- `LANGSMITH_ENDPOINT` - LangSmith API endpoint (default: `https://api.smith.langchain.com`)
+- `LANGSMITH_API_KEY` - LangSmith API key for tracing
+- `LANGSMITH_PROJECT` - LangSmith project name (default: `default`)
+
+### Quick Environment Setup
+
+```bash
+# Set required variables
+export OPENAI_API_KEY="your-openai-api-key"
+export DATABASE_PATH="./database.db"
+
+# Optional: Set for development
+export LANGSMITH_API_KEY="your-langsmith-key"
+export LANGSMITH_PROJECT="translateprompt-dev"
 ```
