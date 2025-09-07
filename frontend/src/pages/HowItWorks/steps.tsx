@@ -80,166 +80,162 @@ export type Highlight = {
 export const stepTextContent: StepTextContent[] = [
   {
     uiDescription:
-      'The Translate Prompt interface allows users to input text for translation and provides a collaborative environment where users can guide the AI to improve translations through feedback.\n**UI Components:**\n- **Text Input**: Where users enter text to translate (e.g., "veni vidi vici")\n- **Language Selection**: Choose source and target languages\n- **Translation Display**: Shows AI-generated translations\n- **Feedback Input**: Where users provide guidance for improvements\n- **Refinement Process**: Interactive cycle of feedback and improvement',
+      "Our journey begins with a clean interface for our AI-powered translation tool. The user's goal is to translate a phrase and then collaborate with the AI to perfect it.\n\n**UI Components:**\n- **Text Input**: Where the user types the text to translate.\n- **Language Selection**: To choose the source and target languages.\n- **Chat Display**: Shows the back-and-forth between the user and the AI.\n- **Feedback Input**: A dedicated space for the user to guide the AI's next attempt.",
     langgraphDescription:
-      "LangGraph is a framework for creating stateful, multi-agent applications. Our translation system uses LangGraph to orchestrate the translation process through a structured graph of nodes.\n**LangGraph Architecture:**\nThe graph consists of three main nodes:\n- **`initial_translation`**: Creates the first translation using personal glossary and rules\n- **`supervisor`**: Manages conversation flow and uses interrupts to wait for user feedback\n- **`refine_translation`**: Processes user feedback and improves the translation\nThe graph uses LangGraph's `Command` and `interrupt` patterns to create a collaborative, interactive translation experience.",
+      "Behind the scenes, we use **LangGraph** to create our translation agent. Think of LangGraph as a flowchart for AI. It orchestrates the process through a series of steps called **nodes**.\n\n**Our Agent's Architecture:**\n- **`initial_translation`**: The specialist that performs the first translation, using the user's personal glossary and rules.\n- **`wait_for_feedback`**: This node pauses the process and waits for the user's input.\n- **`refine_translation`**: The specialist that revises the translation based on the user's guidance.",
     codeExamples: [
       {
-        title: "Graph Structure Setup",
-        code: `# Graph structure
-graph.add_node("supervisor", supervisor)
-graph.add_node("initial_translation", initial_translation)
-graph.add_node("refine_translation", refine_translation)
-
-graph.add_edge(START, "initial_translation")`,
+        title: "Building the Agent's Flowchart",
+        code: `# Define the nodes (specialists) for our graph
+  graph.add_node("initial_translation", initial_translation)
+  graph.add_node("wait_for_feedback", wait_for_feedback)
+  graph.add_node("refine_translation", refine_translation)
+  
+  # The process always starts with the initial translation
+  graph.add_edge(START, "initial_translation")`,
         language: "python",
         description:
-          "Basic graph setup with three main nodes and initial routing"
+          "Setting up the basic structure of our agent in LangGraph with three key nodes and a starting point."
       }
     ]
   },
   {
     uiDescription:
-      'The user enters the text "veni vidi vici" in the input field and selects Latin as the source language and English as the target language. The interface captures this information and prepares to send it to the translation system.\n**User Actions:**\n- Types "veni vidi vici" in the text input field\n- Selects Latin from the source language dropdown\n- Selects English from the target language dropdown\n- The system shows "AI translating..." status',
+      'The user types "veni vidi vici" into the input field, selects Latin as the source, and English as the target. The system is now ready to begin the translation process.\n\n**User Actions:**\n- Types "veni vidi vici".\n- Selects Latin and English.\n- The system shows an "AI is translating..." status, indicating the agent has started its work.',
     langgraphDescription:
-      "The graph starts with the `START` node automatically routing to `initial_translation`. The input data structure includes the user's text and language preferences.\n**LangGraph Implementation:**\nThe system captures the user input and prepares it for processing by the graph nodes.",
+      "When the process starts, LangGraph creates a shared 'memory' for the conversation, which we call the **state**. This state holds all the important information, like the user's text, language choices, and the history of the conversation, allowing each node to have the context it needs to do its job.",
     codeExamples: [
       {
-        title: "Input Data Structure",
+        title: "The Conversation's 'Memory' (State)",
         code: `input_data = {
-    "messages": "veni vidi vici",
-    "source_language": "latin",
-    "target_language": "english",
-    "user_id": session.get_user_id() if session else None,
-}`,
+      # The list of messages in the conversation
+      "messages": ["veni vidi vici"],
+      
+      # User-defined parameters
+      "source_language": "latin",
+      "target_language": "english",
+      "user_id": "user_1234"
+  }`,
         language: "python",
         description:
-          "Data structure passed to the graph with user input and preferences"
+          "This is the initial 'state' passed to the graph, containing the user's input and preferences."
+      }
+    ]
+  },
+  {
+    uiDescription:
+      'The AI processes the text and generates its first translation: "I came, I saw, I conquered." This initial version appears in the chat interface, ready for the user\'s review.\n\n**UI Display:**\n- The AI\'s translation "I came, I saw, I conquered" is displayed.\n- The system now waits for the user to either accept the translation or provide feedback.',
+    langgraphDescription:
+      "The graph's execution moves to the `initial_translation` node. This node reads the user's text from the **state**. It then consults the user's personal glossary and translation rules to generate a translation that is tailored to their preferences before sending it back to the user.",
+    codeExamples: [
+      {
+        title: "Node: Initial Translation",
+        code: `def initial_translation(state: TranslateState):
+      # 1. Get user input from the 'state' (memory)
+      text_to_translate = state["messages"][-1].content
+      user_id = state["user_id"]
+      
+      # 2. Load user's personal glossary and rules
+      glossary = load_user_glossary(user_id)
+      rules = load_user_rules(user_id)
+      
+      # 3. Generate translation using the LLM with user's preferences
+      prompt = create_prompt(text_to_translate, glossary, rules)
+      response = llm.invoke(prompt) # -> "I came, I saw, I conquered"
+      
+      # 4. Update the state with the AI's message
+      return {"messages": [AIMessage(content=response.content)]}`,
+        language: "python",
+        description:
+          "This node uses the shared 'state' to access user data and generate a personalized first translation."
+      }
+    ]
+  },
+  {
+    uiDescription:
+      'The user reviews the translation and decides they want a different nuance. The feedback input field becomes active, inviting the user to guide the AI toward a better result.\n\n**User Interaction:**\n- The user sees "I came, I saw, I conquered".\n- They decide to offer a correction.\n- The interface prompts them for their feedback.',
+    langgraphDescription:
+      "The graph has now moved to the `wait_for_feedback` node. This node uses a special LangGraph feature called an **interrupt**. This intentionally pauses the entire process, effectively telling the user, 'I've made my first attempt. Now it's your turn to provide feedback.' The system will wait here indefinitely until the user responds.",
+    codeExamples: [
+      {
+        title: "Node: Wait for Feedback (with Interrupt)",
+        code: `def wait_for_feedback(state: TranslateState):
+      # Get the AI's last message to display to the user
+      last_message = state["messages"][-1].content
+      
+      # This special command pauses the graph and waits for human input.
+      # The 'last_message' is sent to the UI to be displayed.
+      value = interrupt(last_message)
+      
+      # When the user replies, their message ('value') will update the state
+      return {"messages": [HumanMessage(content=value)]}`,
+        language: "python",
+        description:
+          "The `interrupt` command pauses the graph, creating a natural point for human-in-the-loop collaboration."
+      }
+    ]
+  },
+  {
+    uiDescription:
+      'The user types their feedback into the refinement field: "Use won instead of conquered". This clear and specific instruction tells the AI exactly how to improve the translation.\n\n**User Feedback:**\n- The user provides the instruction: "Use won instead of conquered".\n- This feedback is sent back to the waiting AI agent.',
+    langgraphDescription:
+      "When the user submits their feedback, the system **resumes** the paused LangGraph process. The user's message is added to the conversation history in the **state**. This new information is now available for the next node in the graph, which is responsible for refining the translation.",
+    codeExamples: [
+      {
+        title: "Resuming the Graph with Feedback",
+        code: `user_feedback = "Use won instead of conquered"
+  
+  # The 'resume' command wakes up the paused graph.
+  # The user's feedback is passed along to be added to the state.
+  run_graph(Command(resume=user_feedback), conversation_id)`,
+        language: "python",
+        description:
+          "The user's feedback is used to resume the graph, updating the state and triggering the next step."
+      }
+    ]
+  },
+  {
+    uiDescription:
+      'The AI processes the feedback and generates the improved translation: "I came, I saw, I won." This new version appears in the chat, showing that the AI successfully incorporated the user\'s guidance.\n\n**Beyond the Translation: AI Learning**\nBehind the scenes, the system also analyzes this interaction. It recognizes that the user preferred "won" over "conquered" and might proactively suggest adding this preference to the user\'s personal glossary for future translations.',
+    langgraphDescription:
+      "The `refine_translation` node is now triggered. It examines the last two messages in the **state** (the AI's original translation and the user's feedback) to understand the context. It then generates a new, improved translation.\n\nAfter this, a separate process analyzes the correction. It uses an LLM to determine if the feedback represents a reusable preference. If so, it can suggest a permanent **glossary** or **rule update**, allowing the agent to learn and improve over time.",
+    codeExamples: [
+      {
+        title: "Node: Refine Translation",
+        code: `def refine_translation(state: TranslateState):
+      # Get the conversation history from the state
+      last_two_messages = state["messages"][-2:]
+      
+      # Create a prompt instructing the LLM to refine its previous answer
+      prompt = create_refinement_prompt(last_two_messages)
+      
+      response = llm.invoke(prompt) # -> "I came, I saw, I won"
+      
+      return {"messages": [AIMessage(content=response.content)]}`,
+        language: "python",
+        description:
+          "This node uses the immediate feedback to make a one-time correction to the translation."
       },
       {
-        title: "Graph Edge Definition",
-        code: `graph.add_edge(START, "initial_translation")`,
+        title: "Bonus: Learning from Feedback",
+        code: `def check_for_updates(state: TranslateState):
+      # Analyze the last interaction
+      original = "I came, I saw, I conquered"
+      feedback = "Use won instead of conquered"
+      
+      # Ask an LLM to determine if this is a reusable rule
+      prompt = f"Based on the feedback '{feedback}' for the translation '{original}', should a glossary be updated?"
+      
+      # The LLM can output a structured response, like:
+      # GlossaryUpdate(source="conquered", target="won")
+      suggestion = llm_with_tools.invoke(prompt)
+      
+      if suggestion:
+          # Propose the update to the user
+          propose_glossary_update(suggestion)`,
         language: "python",
         description:
-          "Simple routing from START node to initial_translation node"
-      }
-    ]
-  },
-  {
-    uiDescription:
-      'The AI processes the Latin text "veni vidi vici" and generates the first translation: "I came, I saw, I conquered." This translation appears in the chat interface, showing the AI\'s initial interpretation of the famous Latin phrase.\n**UI Display:**\n- The original text "veni vidi vici" remains visible in the input field\n- The AI\'s translation "I came, I saw, I conquered" appears in the chat\n- The system is now ready to receive user feedback for refinement',
-    langgraphDescription:
-      "The `initial_translation` node performs the core translation logic, looking up the user's personal glossary and translation rules to create a personalized translation.\n**LangGraph Implementation:**\nThe node processes the text, applies user preferences, and generates the first translation.",
-    codeExamples: [
-      {
-        title: "Initial Translation Node",
-        code: `def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
-    text_to_translate = "veni vidi vici"  # From state
-    source_language = "latin"
-    target_language = "english"
-    user_id = state["user_id"]
-    
-    # Load user's glossary and rules
-    glossary_data = glossary_manager.get_all_sources_for_user(
-        user_id, source_language, target_language
-    )
-    rules_data = rules_manager.get_entries_for_user(
-        user_id, source_language, target_language
-    )
-    
-    # Match words from glossary
-    found_glossary_words = match_words_from_glossary(glossary_data, text_to_translate)
-    
-    # Generate translation with LLM
-    response = llm.invoke(prompt)  # Returns "I came, I saw, I conquered"
-    
-    return Command(
-        goto="supervisor",
-        update={"messages": [AIMessage(content=response.content)]}
-    )`,
-        language: "python",
-        description:
-          "Core translation logic that processes user input and generates the first translation"
-      }
-    ]
-  },
-  {
-    uiDescription:
-      'The user sees the AI\'s translation "I came, I saw, I conquered" and decides they want to change "conquered" to "won". The feedback input field becomes active and highlighted, ready for the user to provide guidance to the AI.\n**User Interaction:**\n- User reviews the translation "I came, I saw, I conquered"\n- Decides to provide feedback to improve the translation\n- The feedback input field becomes active and ready for input\n- User prepares to type their refinement request',
-    langgraphDescription:
-      "The `supervisor` node uses LangGraph's interrupt mechanism to pause execution and wait for user input. This creates a collaborative pause where the user can provide guidance.\n**LangGraph Implementation:**\nThe supervisor pauses the graph execution and waits for user feedback.",
-    codeExamples: [
-      {
-        title: "Supervisor Node with Interrupt",
-        code: `def supervisor(state: TranslateState) -> Command[Literal["refine_translation"]]:
-    last_message = "I came, I saw, I conquered"  # From state
-    value = interrupt(last_message)  # Pauses graph execution
-    return Command(
-        goto="refine_translation",
-        update={"messages": [HumanMessage(content=value)]}
-    )`,
-        language: "python",
-        description:
-          "The supervisor node pauses execution and waits for user input using LangGraph's interrupt mechanism"
-      }
-    ]
-  },
-  {
-    uiDescription:
-      'The user types their feedback in the refinement field: "Use won instead of conquered". This specific guidance tells the AI exactly how to improve the translation. The user\'s feedback is now ready to be sent to the AI for processing.\n**User Feedback:**\n- User types: "Use won instead of conquered"\n- This provides specific guidance on word choice\n- The feedback is clear and actionable\n- The system prepares to send this guidance to the AI',
-    langgraphDescription:
-      "When the user submits feedback, the frontend calls the `/refine-translation` endpoint which resumes the graph execution with the user's guidance.\n**LangGraph Implementation:**\nThe system resumes the paused graph with the user's feedback.",
-    codeExamples: [
-      {
-        title: "Refine Translation Endpoint",
-        code: `@router.post("/refine-translation")
-def refine_translation(translate_request: TranslateRequest):
-    thread_id = translate_request.conversation_id
-    user_refinement_message = "Use won instead of conquered"  # User feedback
-    
-    # Resume graph with user's feedback
-    result = run_graph(Command(resume=user_refinement_message), thread_id)
-    
-    return {"response": extractInterruption(result), "conversation_id": thread_id}`,
-        language: "python",
-        description:
-          "API endpoint that resumes the graph execution with user feedback"
-      }
-    ]
-  },
-  {
-    uiDescription:
-      'The AI processes the user\'s feedback "Use won instead of conquered" and generates the improved translation: "I came, I saw, I won." The new translation appears in the chat, showing that the AI successfully applied the user\'s guidance. The system is now ready for another round of feedback if needed.\n**Final Result:**\n- Original: "I came, I saw, I conquered"\n- User feedback: "Use won instead of conquered"\n- Improved translation: "I came, I saw, I won"\n- The AI successfully applied the user\'s specific guidance',
-    langgraphDescription:
-      "The `refine_translation` node processes the user's feedback and generates an improved translation, then returns to the supervisor for potential further refinement.\n**LangGraph Implementation:**\nThe node processes the feedback and creates an improved translation.",
-    codeExamples: [
-      {
-        title: "Refine Translation Node",
-        code: `def refine_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
-    last_two_messages = [
-        "I came, I saw, I conquered",  # AI message
-        "Use won instead of conquered"  # User feedback
-    ]
-    source_language = "latin"
-    target_language = "english"
-    
-    # Create refinement prompt with conversation history
-    prompt = update_translation_instructions.format(
-        messages=get_buffer_string(last_two_messages),
-        source_language=source_language,
-        target_language=target_language,
-        translation_instructions=translation_instructions.format(...)
-    )
-    
-    response = llm.invoke(prompt)  # Returns "I came, I saw, I won"
-    
-    return Command(
-        goto="supervisor",
-        update={"messages": [AIMessage(content=response.content)]}
-    )`,
-        language: "python",
-        description:
-          "Processes user feedback and generates an improved translation, creating a refinement loop"
+          "After a refinement, the system analyzes the exchange to proactively suggest permanent improvements."
       }
     ]
   }
@@ -375,7 +371,7 @@ export const stepData: StepData[] = [
     step: 3,
     title: "Step 3: User Provides Feedback",
     uiImage: uistep3, // Refine input is highlighted/active
-    graphImage: lgstudiostep3, // supervisor node is active
+    graphImage: lgstudiostep3, // wait_for_feedback node is active
     highlights: {
       ui: [
         {
@@ -406,7 +402,7 @@ export const stepData: StepData[] = [
     step: 4,
     title: "Step 4: User Guides the AI Agent",
     uiImage: uistep4, // Refine input is filled by user
-    graphImage: lgstudiostep4, // supervisor -> refine_translation highlighted
+    graphImage: lgstudiostep4, // wait_for_feedback -> refine_translation highlighted
     highlights: {
       ui: [
         {
@@ -437,7 +433,7 @@ export const stepData: StepData[] = [
     step: 5,
     title: "Step 5: AI Agent Learns and Improves",
     uiImage: uistep5, // Translation is updated
-    graphImage: lgstudiostep5, // refine_translation -> supervisor loop is active
+    graphImage: lgstudiostep5, // refine_translation -> wait_for_feedback loop is active
     highlights: {
       ui: [
         {

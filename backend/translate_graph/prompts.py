@@ -42,7 +42,7 @@ Return just the translation. Never preface the translation with anything like "A
 
 
 lead_update_glossary_prompt = """
-You are a supervisor that detects improvements for tranlsations between two languages, these improvements can be new glossary entries and rules. Your job is to improve the translation between two languages by calling the "GlossaryUpdate" or "RulesUpdate" tools. 
+You are a wait_for_feedback that detects improvements for tranlsations between two languages, these improvements can be new glossary entries and rules. Your job is to improve the translation between two languages by calling the "GlossaryUpdate" or "RulesUpdate" tools. 
  
 The last messages exchanged between the AI and the human.
 <Translation with Errors>

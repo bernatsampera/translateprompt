@@ -34,7 +34,7 @@ from database.connection import initialize_database
 initialize_database()
 
 
-def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]:
+def initial_translation(state: TranslateState) -> Command[Literal["wait_for_feedback"]]:
     """Perform the initial translation using the glossary and rules to translate the text sent by the user."""
     text_to_translate = state["messages"][-1].content
     source_language = state["source_language"]
@@ -75,7 +75,7 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     response = llm.invoke(prompt)
 
     return Command(
-        goto="supervisor",
+        goto="wait_for_feedback",
         update={
             "messages": [AIMessage(content=response.content)],
             "original_text": text_to_translate,
@@ -84,10 +84,10 @@ def initial_translation(state: TranslateState) -> Command[Literal["supervisor"]]
     )
 
 
-def supervisor(
+def wait_for_feedback(
     state: TranslateState,
 ) -> Command[Literal["refine_translation"]]:
-    """Supervisor node that will wait for the user feedback and update the translation."""
+    """wait_for_feedback node that will wait for the user feedback and update the translation."""
     last_message = state["messages"][-1].content
     value = interrupt(last_message)
     return Command(
@@ -100,7 +100,7 @@ def supervisor(
 
 def refine_translation(
     state: TranslateState,
-) -> Command[Literal["supervisor"]]:
+) -> Command[Literal["wait_for_feedback"]]:
     """Refine the translation using the user feedback."""
     last_two_messages = state["messages"][-2:]
     source_language = state["source_language"]
@@ -124,7 +124,7 @@ def refine_translation(
     response = llm.invoke(prompt)
 
     return Command(
-        goto="supervisor",
+        goto="wait_for_feedback",
         update={
             "messages": [AIMessage(content=response.content)],
         },
@@ -133,7 +133,7 @@ def refine_translation(
 
 graph = StateGraph(TranslateState, input_schema=TranslateInputState)
 
-graph.add_node("supervisor", supervisor)
+graph.add_node("wait_for_feedback", wait_for_feedback)
 graph.add_node("initial_translation", initial_translation)
 graph.add_node("refine_translation", refine_translation)
 
