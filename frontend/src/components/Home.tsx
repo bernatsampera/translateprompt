@@ -1,12 +1,5 @@
 import SystemExplanation from "./SystemExplanation";
 
-const features = [
-  "Create a custom glossary",
-  "Host on your own server",
-  "Set personalized instructions",
-  "Integrate via API"
-];
-
 const Home = () => {
   return (
     <div className="min-h-screen bg-base-100">
