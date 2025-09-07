@@ -82,7 +82,7 @@ export const stepTextContent: StepTextContent[] = [
     uiDescription:
       "Our journey begins with a clean interface for our AI-powered translation tool. The user's goal is to translate a phrase and then collaborate with the AI to perfect it.\n\n**UI Components:**\n- **Text Input**: Where the user types the text to translate.\n- **Language Selection**: To choose the source and target languages.\n- **Chat Display**: Shows the back-and-forth between the user and the AI.\n- **Feedback Input**: A dedicated space for the user to guide the AI's next attempt.",
     langgraphDescription:
-      "Behind the scenes, we use **LangGraph** to create our translation agent. Think of LangGraph as a flowchart for AI. It orchestrates the process through a series of steps called **nodes**.\n\n**Our Agent's Architecture:**\n- **`initial_translation`**: The specialist that performs the first translation, using the user's personal glossary and rules.\n- **`wait_for_feedback`**: This node pauses the process and waits for the user's input.\n- **`refine_translation`**: The specialist that revises the translation based on the user's guidance.",
+      "Behind the scenes, we use **LangGraph** to create our translation agent. Think of LangGraph as a flowchart for AI. It orchestrates the process through a series of steps called **nodes**.\n\n**Our Agent's Architecture:**\n- `initial_translation`: The specialist that performs the first translation, using the user's personal glossary and rules.\n- `wait_for_feedback`: This node pauses the process and waits for the user's input.\n- `refine_translation`: The specialist that revises the translation based on the user's guidance.",
     codeExamples: [
       {
         title: "Building the Agent's Flowchart",
@@ -196,46 +196,50 @@ export const stepTextContent: StepTextContent[] = [
   },
   {
     uiDescription:
-      'The AI processes the feedback and generates the improved translation: "I came, I saw, I won." This new version appears in the chat, showing that the AI successfully incorporated the user\'s guidance.\n\n**Beyond the Translation: AI Learning**\nBehind the scenes, the system also analyzes this interaction. It recognizes that the user preferred "won" over "conquered" and might proactively suggest adding this preference to the user\'s personal glossary for future translations.',
+      'The AI processes the feedback and generates the improved translation: "I came, I saw, I won." The new version appears in the chat, showing that the AI successfully incorporated the user\'s guidance.\n\n**The Agent Learns from Feedback**\nThis is where the real magic happens. The agent doesn\'t just forget the interaction. It analyzes the correction in the background and understands the user\'s intent. It intelligently deduces a new rule: *always translate "conquered" as "won" for this user*. This new preference is automatically saved to the user\'s personal glossary in the database, ensuring better, more personalized translations from now on.',
     langgraphDescription:
-      "The `refine_translation` node is now triggered. It examines the last two messages in the **state** (the AI's original translation and the user's feedback) to understand the context. It then generates a new, improved translation.\n\nAfter this, a separate process analyzes the correction. It uses an LLM to determine if the feedback represents a reusable preference. If so, it can suggest a permanent **glossary** or **rule update**, allowing the agent to learn and improve over time.",
+      "The `refine_translation` node is triggered first. It examines the last two messages in the **state** (the AI's original translation and the user's feedback) to generate the immediate correction.\n\nThen, a separate process kicks off. It analyzes the conversation to extract a reusable lesson. Using a powerful LLM equipped with **tools**, it converts the user's natural language feedback ('Use won instead of conquered') into a structured command, like `GlossaryUpdate(source='conquered', target='won')`. This command is then used to update the user's permanent glossary in the database.",
     codeExamples: [
       {
         title: "Node: Refine Translation",
         code: `def refine_translation(state: TranslateState):
-      # Get the conversation history from the state
-      last_two_messages = state["messages"][-2:]
-      
-      # Create a prompt instructing the LLM to refine its previous answer
-      prompt = create_refinement_prompt(last_two_messages)
-      
-      response = llm.invoke(prompt) # -> "I came, I saw, I won"
-      
-      return {"messages": [AIMessage(content=response.content)]}`,
+    # Get the conversation history from the state
+    last_two_messages = state["messages"][-2:]
+    
+    # Create a prompt instructing the LLM to refine its previous answer
+    prompt = create_refinement_prompt(last_two_messages)
+    
+    response = llm.invoke(prompt) # -> "I came, I saw, I won"
+    
+    return {"messages": [AIMessage(content=response.content)]}`,
         language: "python",
         description:
           "This node uses the immediate feedback to make a one-time correction to the translation."
       },
       {
-        title: "Bonus: Learning from Feedback",
+        title: "The Learning Process: Extracting Rules",
         code: `def check_for_updates(state: TranslateState):
-      # Analyze the last interaction
-      original = "I came, I saw, I conquered"
-      feedback = "Use won instead of conquered"
+    # Analyze the last interaction from the conversation history
+    original_ai_msg = state["messages"][-3].content
+    user_feedback_msg = state["messages"][-2].content
+    
+    # Ask a tool-enabled LLM to convert the feedback into a structured rule
+    prompt = f"""
+      Original AI Translation: {original_ai_msg}
+      User Feedback: {user_feedback_msg}
       
-      # Ask an LLM to determine if this is a reusable rule
-      prompt = f"Based on the feedback '{feedback}' for the translation '{original}', should a glossary be updated?"
-      
-      # The LLM can output a structured response, like:
-      # GlossaryUpdate(source="conquered", target="won")
-      suggestion = llm_with_tools.invoke(prompt)
-      
-      if suggestion:
-          # Propose the update to the user
-          propose_glossary_update(suggestion)`,
+      Based on this, should a glossary or rule be updated?
+    """
+    
+    # The LLM calls the appropriate tool, e.g., GlossaryUpdate
+    suggestion = llm_with_tools.invoke(prompt) 
+    # -> response.tool_calls = [GlossaryUpdate(source="conquered", target="won")]
+    
+    # Save the extracted rule to the user's database for future translations
+    save_update_to_database(suggestion.tool_calls)`,
         language: "python",
         description:
-          "After a refinement, the system analyzes the exchange to proactively suggest permanent improvements."
+          "After a refinement, a separate process uses a tool-enabled LLM to extract a reusable rule and saves it permanently."
       }
     ]
   }

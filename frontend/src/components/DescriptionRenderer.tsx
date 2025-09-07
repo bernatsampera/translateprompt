@@ -55,35 +55,8 @@ export const DescriptionRenderer: React.FC<DescriptionRendererProps> = ({
         return <br key={`br-${index}`} />;
       }
 
-      // Check for bold text
-      const boldRegex = /\*\*(.*?)\*\*/g;
-      const parts: React.ReactNode[] = [];
-      let lastIndex = 0;
-      let match;
-
-      while ((match = boldRegex.exec(line)) !== null) {
-        // Add text before the bold part
-        if (match.index > lastIndex) {
-          parts.push(line.slice(lastIndex, match.index));
-        }
-
-        // Add the bold part
-        parts.push(
-          <strong
-            key={`bold-${index}-${match.index}`}
-            className="font-semibold text-base-content"
-          >
-            {match[1]}
-          </strong>
-        );
-
-        lastIndex = match.index + match[0].length;
-      }
-
-      // Add remaining text
-      if (lastIndex < line.length) {
-        parts.push(line.slice(lastIndex));
-      }
+      // Process formatting for the line
+      const parts = processInlineFormatting(line, index);
 
       return (
         <p key={`line-${index}`} className="mb-2 last:mb-0">
@@ -91,6 +64,54 @@ export const DescriptionRenderer: React.FC<DescriptionRendererProps> = ({
         </p>
       );
     });
+  };
+
+  const processInlineFormatting = (text: string, lineIndex: number) => {
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+
+    // Combined regex to match both bold text and inline code
+    const combinedRegex = /(\*\*(.*?)\*\*|`([^`]+)`)/g;
+
+    while ((match = combinedRegex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+
+      // Check if it's bold text or inline code
+      if (match[0].startsWith("**")) {
+        // Bold text
+        parts.push(
+          <strong
+            key={`bold-${lineIndex}-${match.index}`}
+            className="font-semibold text-base-content"
+          >
+            {match[2]}
+          </strong>
+        );
+      } else if (match[0].startsWith("`")) {
+        // Inline code
+        parts.push(
+          <code
+            key={`code-${lineIndex}-${match.index}`}
+            className="bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono"
+          >
+            {match[3]}
+          </code>
+        );
+      }
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+
+    return parts;
   };
 
   return (
