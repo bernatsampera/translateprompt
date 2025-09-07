@@ -1,7 +1,7 @@
-import {DescriptionRenderer} from "@/components/DescriptionRenderer";
 import {useState} from "react";
 import {twMerge} from "tailwind-merge";
-import {steps, type Highlight} from "./steps";
+import {stepData, stepTextContent, type Highlight} from "./steps";
+import {StepTextContentComponent} from "./StepTextContent";
 
 const HowItWorks = () => {
   return (
@@ -17,40 +17,47 @@ export default HowItWorks;
 
 export function AgentExplainer() {
   const [currentStep, setCurrentStep] = useState(0);
-  const activeStep = steps[currentStep];
+  const activeStepData = stepData[currentStep];
+  const activeStepTextContent = stepTextContent[currentStep];
 
   return (
     <div className="min-h-screen bg-base-100">
       <div className="mx-auto p-1 sm:p-8">
+        {/* Step Indicator */}
+        <div className="mb-6 flex justify-center">
+          <div className="inline-block bg-primary/10 text-primary text-sm font-medium px-4 py-2 rounded-full">
+            Step {activeStepData.step + 1} of {stepData.length}
+          </div>
+        </div>
+        <h2 className="text-3xl font-bold text-base-content mb-6">
+          {activeStepData.title}
+        </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <ImageWithHighlights
-            image={activeStep.uiImage}
-            highlights={activeStep.highlights?.ui as Highlight[]}
+            image={activeStepData.uiImage}
+            highlights={activeStepData.highlights?.ui as Highlight[]}
             alt="UI State"
           />
           <ImageWithHighlights
-            image={activeStep.graphImage}
-            highlights={activeStep.highlights?.graph as Highlight[] | null}
+            image={activeStepData.graphImage}
+            highlights={activeStepData.highlights?.graph as Highlight[] | null}
             alt="Graph State"
           />
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="mt-8 flex justify-center gap-8 md:gap-16 items-center space-x-4 mb-6">
-          <button
-            onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-            disabled={currentStep === 0}
-            className="px-6 py-3 font-semibold text-base-content bg-base-200 hover:bg-base-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            ← Previous
-          </button>
+        {/* Text content component */}
+        <StepTextContentComponent content={activeStepTextContent} />
 
-          <div className="flex space-x-2">
-            {steps.map((_, index) => (
+        {/* Navigation Buttons - Bottom of page */}
+        <div className="mt-12 flex flex-col items-center gap-6">
+          {/* Step Dots */}
+          <div className="flex space-x-3">
+            {stepData.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentStep(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
+                className={`w-4 h-4 rounded-full transition-all ${
                   currentStep === index
                     ? "bg-primary scale-125"
                     : "bg-base-300 hover:bg-base-content/20"
@@ -60,28 +67,26 @@ export function AgentExplainer() {
             ))}
           </div>
 
-          <button
-            onClick={() =>
-              setCurrentStep(Math.min(steps.length - 1, currentStep + 1))
-            }
-            disabled={currentStep === steps.length - 1}
-            className="px-6 py-3 font-semibold text-primary-content bg-primary hover:bg-primary/90 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            Next →
-          </button>
-        </div>
+          {/* Previous/Next Buttons */}
+          <div className="flex gap-4">
+            <button
+              onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+              disabled={currentStep === 0}
+              className="btn btn-outline btn"
+            >
+              ← Previous
+            </button>
 
-        {/* Step Content */}
-        <div className="mb-6 ">
-          <span className="inline-block bg-primary/10 text-primary text-sm font-medium px-4 py-2 rounded-full">
-            Step {activeStep.step + 1} of {steps.length}
-          </span>
-        </div>
-        <h2 className="text-3xl font-bold text-base-content mb-6">
-          {activeStep.title}
-        </h2>
-        <div>
-          <DescriptionRenderer description={activeStep.description} />
+            <button
+              onClick={() =>
+                setCurrentStep(Math.min(stepData.length - 1, currentStep + 1))
+              }
+              disabled={currentStep === stepData.length - 1}
+              className="btn btn-primary btn"
+            >
+              Next →
+            </button>
+          </div>
         </div>
       </div>
     </div>
