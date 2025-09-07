@@ -1,6 +1,4 @@
-import TranslateGraph from "../features/TranslateGraph";
 import SystemExplanation from "./SystemExplanation";
-import Waitlist from "./Waitlist";
 
 const features = [
   "Create a custom glossary",
@@ -31,15 +29,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Translation Interface Section */}
-      <section className="py-8 lg:py-10 px-4 lg:px-8 ">
-        <div className="max-w-7xl mx-auto">
-          <TranslateGraph />
-        </div>
-      </section>
-
       {/* Coming Soon Section */}
-      <section className="py-16 lg:py-24 px-4 lg:px-8 bg-base-100">
+      {/* <section className="py-16 lg:py-24 px-4 lg:px-8 bg-base-100">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-base-content mb-8">
             Coming Soon
@@ -71,7 +62,7 @@ const Home = () => {
             <Waitlist />
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };
