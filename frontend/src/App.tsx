@@ -19,7 +19,7 @@ import Settings from "./pages/Settings";
 const topNavItems: NavItem[] = [
   {
     label: "Home",
-    href: "#home"
+    href: "/"
   },
   {
     label: "How it Works",
