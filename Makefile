@@ -70,8 +70,12 @@ test-backend:
 	@echo "Running backend integration tests..."
 	cd backend && python run_tests.py
 
+test-frontend:
+	@echo "Running frontend e2e tests..."
+	cd frontend && npx playwright test
+
 # Run all tests
-test: test-backend 
+test: test-frontend 
 
 
 langgraph-dev:

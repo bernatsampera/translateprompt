@@ -8,44 +8,43 @@ test("has title", async ({page}) => {
   await expect(page).not.toHaveTitle(/MASDMFASGFDF/);
 });
 
-test("get login link link", async ({page}) => {
+// Helper functions
+async function login(page, email, password) {
   await page.goto("/");
-
-  // Locate the element with exact href="/auth"
-  const authLink = page.locator('a[href="/auth"]').first();
-
-  // Click the get started link.
-  await authLink.click();
-
-  // Expects page to have a heading with the name of Installation.
+  await page.locator('a[href="/auth"]').first().click();
   await expect(page.getByText("Sign in").first()).toBeVisible();
 
-  const inputEmail = page.locator('input[name="email"]');
-  const inputPassword = page.locator('input[name="password"]');
-
-  await inputEmail.fill("indem.zeit@gmail.com");
-  await inputPassword.fill("Test123@");
-
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
   await page.getByRole("button", {name: "Sign in"}).click();
+}
 
-  const inputTextToTranslate = page.locator(
-    'textarea[placeholder="Enter text to translate..."]'
-  );
-  await inputTextToTranslate.fill("Hello, world!");
+// Main test
+test("get login link and translate text", async ({page}) => {
+  async function translateText(page, text) {
+    await page.getByTestId("translate-input").fill(text);
+    await page.getByTestId("translate-button").click();
+  }
 
-  await page.getByTestId("translate-button").click();
+  async function waitForTranslationResponse(page) {
+    const response = await page.waitForResponse(
+      (resp) =>
+        resp.url().includes("/graphs/translate") && resp.status() === 200,
+      {timeout: 15000}
+    );
 
-  const aiResponsePromise = page.waitForResponse(
-    (resp) => resp.url().includes("/graphs/translate") && resp.status() === 200, // Filter: Your endpoint + success
-    {timeout: 15000}
-  ); // 15s max wait for response; adjust for AI slowness
+    const responseJson = await response.json();
+    expect(responseJson).toHaveProperty("response");
+    console.log("AI response received:", responseJson);
 
-  const aiResponse = await aiResponsePromise; // Resolves when response is back
+    return responseJson;
+  }
 
-  // Optional: Inspect response (e.g., ensure it's not empty/error)
-  const responseJson = await aiResponse.json();
-  expect(responseJson).toHaveProperty("response"); // Or check !responseJson.error
-  console.log("AI response received:", responseJson); // For debugging
+  await login(page, "indem.zeit@gmail.com", "Test123@");
+
+  await translateText(page, "Hello, world!");
+
+  await waitForTranslationResponse(page);
 
   await expect(page.getByTestId("translated-text")).toBeSimilarText(
     "Hola, mundo!"

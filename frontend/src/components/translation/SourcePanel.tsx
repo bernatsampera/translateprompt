@@ -47,6 +47,7 @@ function SourcePanel({
               onTranslate(textToTranslate);
             }
           }}
+          data-testid="translate-input"
         />
 
         <div className="flex justify-end">

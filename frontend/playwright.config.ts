@@ -9,8 +9,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const frontendURL = process?.env?.VITE_FRONTEND_URL;
-
-console.log("frontendURL", frontendURL);
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -33,7 +31,8 @@ export default defineConfig({
     baseURL: frontendURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "on-first-retry"
+    trace: "on-first-retry",
+    ignoreHTTPSErrors: true
   },
 
   /* Configure projects for major browsers */

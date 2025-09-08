@@ -2,6 +2,7 @@ import {expect as baseExpect, Locator} from "@playwright/test";
 import Fuse from "fuse.js";
 
 // Extend the expect API with a custom matcher
+// Checks the value of the element
 export const expect = baseExpect.extend<{
   toBeSimilarText: (
     locator: Locator,
@@ -16,8 +17,10 @@ export const expect = baseExpect.extend<{
     let score: number | null = null;
 
     try {
-      // Fetch the actual text (use innerText for rendered text; textContent for raw)
-      actualText = await locator.innerText(); // Or .textContent() if preferred
+      // For textarea/input elements, use inputValue() to get the value attribute
+      // Fallback to innerText() for other elements (e.g., div, span)
+      // You can add more specific checks if needed (e.g., via locator.getAttribute('tagName'))
+      actualText = await locator.inputValue().catch(() => locator.innerText());
       actualText = actualText.trim(); // Normalize whitespace
 
       if (!actualText) {
