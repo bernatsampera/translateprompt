@@ -31,6 +31,7 @@ function TargetPanel({
           placeholder="Translation will appear here..."
           value={isTranslating ? "..." : translation || ""}
           readOnly
+          data-testid="translated-text"
         />
 
         <div className="flex items-center justify-between">

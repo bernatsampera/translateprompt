@@ -58,6 +58,7 @@ function SourcePanel({
             }`}
             onClick={() => onTranslate(textToTranslate)}
             disabled={!textToTranslate.trim() || isTranslating}
+            data-testid="translate-button"
           >
             {isTranslating ? (
               <span className="loading loading-spinner loading-sm"></span>

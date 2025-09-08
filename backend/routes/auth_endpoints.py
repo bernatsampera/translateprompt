@@ -17,7 +17,6 @@ from config import config
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-print("GOOGLE_CLIENT_ID", config.GOOGLE_CLIENT_ID)
 init(
     app_info=InputAppInfo(
         app_name="TranslatePrompt",
