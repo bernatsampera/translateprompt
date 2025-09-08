@@ -82,10 +82,10 @@ export const stepTextContent: StepTextContent[] = [
     uiDescription:
       "Our journey begins with a clean interface for our AI-powered translation tool. The user's goal is to translate a phrase and then collaborate with the AI to perfect it.\n\n**UI Components:**\n- **Text Input**: Where the user types the text to translate.\n- **Language Selection**: To choose the source and target languages.\n- **Chat Display**: Shows the back-and-forth between the user and the AI.\n- **Feedback Input**: A dedicated space for the user to guide the AI's next attempt.",
     langgraphDescription:
-      "Behind the scenes, we use **LangGraph** to create our translation agent. Think of LangGraph as a flowchart for AI. It orchestrates the process through a series of steps called **nodes**.\n\n**Our Agent's Architecture:**\n- `initial_translation`: The specialist that performs the first translation, using the user's personal glossary and rules.\n- `wait_for_feedback`: This node pauses the process and waits for the user's input.\n- `refine_translation`: The specialist that revises the translation based on the user's guidance.",
+      "Behind the scenes, we use **LangGraph** to create our translation agent. Think of LangGraph as a workflow manager for AI. It orchestrates the process through a series of steps called **nodes**.\n\n**Our Agent's Architecture:**\n- `initial_translation`: The specialist that performs the first translation, using the user's personal glossary and rules.\n- `wait_for_feedback`: This node pauses the process and waits for the user's input.\n- `refine_translation`: The specialist that revises the translation based on the user's guidance.",
     codeExamples: [
       {
-        title: "Building the Agent's Flowchart",
+        title: "Defining the Agent's Nodes",
         code: `# Define the nodes (specialists) for our graph
   graph.add_node("initial_translation", initial_translation)
   graph.add_node("wait_for_feedback", wait_for_feedback)

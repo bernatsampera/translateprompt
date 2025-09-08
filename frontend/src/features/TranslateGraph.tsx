@@ -10,7 +10,7 @@ import {
   useTextInput,
   useTranslation
 } from "@/hooks";
-import {Settings} from "lucide-react";
+import {BookOpenText} from "lucide-react";
 import {useCallback, useRef, useState} from "react";
 import {toast} from "sonner";
 
@@ -105,8 +105,8 @@ function TranslateGraph() {
               onClick={handleOpenManagementHub}
               className="btn btn-secondary btn-sm gap-2"
             >
-              <Settings className="h-4 w-4" />
-              Manage
+              <BookOpenText className="h-4 w-4" />
+              Glossary
             </button>
           )}
         </div>

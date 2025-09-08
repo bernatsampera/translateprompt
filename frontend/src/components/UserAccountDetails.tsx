@@ -10,12 +10,12 @@ import React from "react";
 
 interface UserAccountDetailsProps {
   user: UserDetails;
-  username: string;
+  email: string;
 }
 
 const UserAccountDetails: React.FC<UserAccountDetailsProps> = ({
   user,
-  username
+  email
 }) => {
   const quotaPercentage = getQuotaUsagePercentage(
     user.quota_used,
@@ -31,8 +31,8 @@ const UserAccountDetails: React.FC<UserAccountDetailsProps> = ({
 
       <div className="space-y-4">
         <div className="flex justify-between items-center py-2 border-b border-gray-100">
-          <span className="font-medium text-gray-700">Username</span>
-          <span className="text-gray-600 font-mono text-sm">{username}</span>
+          <span className="font-medium text-gray-700">Email</span>
+          <span className="text-gray-600 font-mono text-sm">{email}</span>
         </div>
 
         <div className="flex justify-between items-center py-2 border-b border-gray-100">

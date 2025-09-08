@@ -43,20 +43,30 @@ class Config:
     @property
     def GOOGLE_LLM_MODEL(self) -> str:
         """Get LLM model."""
-        return os.getenv("GOOGLE_LLM_MODEL", "google_genai:gemini-2.5-flash-lite")
+        return os.getenv("GOOGLE_LLM_MODEL", "")
 
     @property
     def OPENAI_LLM_MODEL(self) -> str:
         """Get LLM model."""
-        return os.getenv("OPENAI_LLM_MODEL", "openai:gpt-4o-mini")
+        return os.getenv("OPENAI_LLM_MODEL", "")
 
     @property
     def SUPER_TOKENS_CONNECTION_URI(self) -> str:
         """Get SuperTokens connection URI."""
         return os.getenv(
             "SUPER_TOKENS_CONNECTION_URI",
-            "https://supertokens-vssocosgc4ckcw4goks4wg4c.samperalabs.com",
+            "",
         )
+
+    @property
+    def GOOGLE_CLIENT_ID(self) -> str:
+        """Get SuperTokens Google client ID."""
+        return os.getenv("GOOGLE_CLIENT_ID")
+
+    @property
+    def GOOGLE_CLIENT_SECRET(self) -> str:
+        """Get SuperTokens Google client secret."""
+        return os.getenv("GOOGLE_CLIENT_SECRET")
 
     @property
     def AXIOM_API_TOKEN(self) -> str:

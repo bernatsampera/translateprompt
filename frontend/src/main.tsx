@@ -3,6 +3,7 @@ import {createRoot} from "react-dom/client";
 import SuperTokens, {SuperTokensWrapper} from "supertokens-auth-react";
 import EmailPasswordReact from "supertokens-auth-react/recipe/emailpassword";
 import Session from "supertokens-auth-react/recipe/session";
+import ThirdParty, {Google} from "supertokens-auth-react/recipe/thirdparty";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -21,17 +22,10 @@ SuperTokens.init({
   recipeList: [
     Session.init(),
 
-    EmailPasswordReact.init({
+    EmailPasswordReact.init({}),
+    ThirdParty.init({
       signInAndUpFeature: {
-        signUpForm: {
-          formFields: [
-            {
-              id: "username",
-              label: "Username",
-              placeholder: "username"
-            }
-          ]
-        }
+        providers: [Google.init()]
       }
     })
   ]

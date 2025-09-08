@@ -76,28 +76,10 @@ const ErrorState: React.FC<{error: string}> = ({error}) => (
 );
 
 /**
- * Welcome header component
- */
-const WelcomeHeader: React.FC<{userName?: string}> = ({userName}) => {
-  if (!userName) return null;
-
-  return (
-    <div className="mb-8">
-      <h2 className="text-lg font-semibold text-gray-800">
-        Welcome back, {userName}
-      </h2>
-      <p className="text-gray-600 text-sm mt-1">
-        Manage your account settings and subscription below
-      </p>
-    </div>
-  );
-};
-
-/**
  * Main Settings component
  */
 const Settings: React.FC = () => {
-  const {loggedIn, userName} = useAuth();
+  const {loggedIn, email} = useAuth();
   const {user, loading, error} = useUserDetails(loggedIn);
 
   // Handle different states
@@ -121,10 +103,8 @@ const Settings: React.FC = () => {
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
-      <WelcomeHeader userName={userName || undefined} />
-
       <div className="space-y-6">
-        <UserAccountDetails user={user} username={userName || ""} />
+        <UserAccountDetails user={user} email={email || ""} />
         <UpgradeButtons user={user} />
       </div>
     </div>

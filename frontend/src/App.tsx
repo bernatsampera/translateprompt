@@ -7,6 +7,7 @@ import type {FooterConfig, NavItem} from "./types/navigation";
 
 import * as reactRouterDom from "react-router-dom";
 import {EmailPasswordPreBuiltUI} from "supertokens-auth-react/recipe/emailpassword/prebuiltui";
+import {ThirdPartyPreBuiltUI} from "supertokens-auth-react/recipe/thirdparty/prebuiltui";
 import {getSuperTokensRoutesForReactRouterDom} from "supertokens-auth-react/ui";
 import AuthLayoutWrapper from "./components/auth/AuthLayoutWrapper";
 import Dashboard from "./components/dashboard/Dashboard";
@@ -25,10 +26,6 @@ const topNavItems: NavItem[] = [
     label: "How it Works",
     href: "how-it-works"
   }
-  // {
-  //   label: "Contact",
-  //   href: "#contact"
-  // }
 ];
 
 // Footer configuration
@@ -41,14 +38,6 @@ const footerConfig: FooterConfig = {
       label: "Terms of Service",
       href: "/terms"
     }
-    // {
-    //   label: "Privacy Policy",
-    //   href: "#privacy"
-    // },
-    // {
-    //   label: "Support",
-    //   href: "#support"
-    // }
   ]
 };
 
@@ -57,7 +46,8 @@ function App() {
 
   // Get SuperTokens routes and wrap them with MainLayout
   const authRoutes = getSuperTokensRoutesForReactRouterDom(reactRouterDom, [
-    EmailPasswordPreBuiltUI
+    EmailPasswordPreBuiltUI,
+    ThirdPartyPreBuiltUI
   ]);
 
   // Wrap each auth route with MainLayout

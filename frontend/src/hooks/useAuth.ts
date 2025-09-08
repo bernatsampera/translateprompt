@@ -15,7 +15,7 @@ export function useAuth() {
   const session = useSessionContext() as any;
 
   const [userData, setUserData] = useState({
-    username: null,
+    email: null,
     loading: false,
     error: null as any
   });
@@ -29,12 +29,13 @@ export function useAuth() {
       // Only fetch if we have a confirmed session and user ID,
       // and we aren't already fetching.
       if (session.doesSessionExist && session.userId) {
-        setUserData({username: null, loading: true, error: null});
+        setUserData({email: null, loading: true, error: null});
         try {
           const response = await axiosInstance.get(`${AUTH_BASE_URL}/user`);
+          console.log("response", response);
           if (isMounted) {
             setUserData({
-              username: response.data.metadata.username,
+              email: response.data.email,
               loading: false,
               error: null
             });
@@ -42,7 +43,7 @@ export function useAuth() {
         } catch (error) {
           console.error("Failed to fetch user data:", error);
           if (isMounted) {
-            setUserData({username: null, loading: false, error: error});
+            setUserData({email: null, loading: false, error: error});
           }
         }
       }
@@ -73,7 +74,7 @@ export function useAuth() {
     loggedIn: session.doesSessionExist,
     logout: handleLogout,
     userId: session.userId,
-    userName: userData.username,
+    email: userData.email,
     error: userData.error // Expose error state for UI to optionally use
   };
 }
