@@ -89,7 +89,7 @@ function TranslateGraph() {
     <div className="w-full h-full flex flex-col">
       {/* Header with Management Button */}
       <div className="bg-base-100 border-b border-base-300 px-4 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold text-base-content">
               Translation Workspace
