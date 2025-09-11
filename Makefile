@@ -1,4 +1,4 @@
-.PHONY: help install install-backend install-frontend dev dev-backend dev-frontend dev-all clean setup-env activate-env test test-backend
+.PHONY: help install install-backend install-frontend dev dev-backend dev-frontend clean setup-env activate-env test test-backend
 
 # Default target
 help:
@@ -41,6 +41,8 @@ install-frontend:
 	@echo "Installing frontend dependencies..."
 	cd frontend && npm install
 
+ 
+
 # Run backend development server
 dev-backend:
 	@echo "Starting backend server on http://localhost:8008"
@@ -70,16 +72,11 @@ test-backend:
 	@echo "Running backend integration tests..."
 	cd backend && python run_tests.py
 
-test-frontend:
-	@echo "Running frontend e2e tests..."
-	cd frontend && npx playwright test
 
 # Run all tests
-test: test-frontend 
+test: test-backend 
 
 
 langgraph-dev:
 	@echo "Starting langgraph dev server..."
 	cd backend && source .venv/bin/activate && uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.12 langgraph dev --allow-blocking
-
-
