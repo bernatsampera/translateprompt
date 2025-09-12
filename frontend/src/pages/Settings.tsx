@@ -79,7 +79,7 @@ const ErrorState: React.FC<{error: string}> = ({error}) => (
  * Main Settings component
  */
 const Settings: React.FC = () => {
-  const {loggedIn, email} = useAuth();
+  const {loggedIn, user: authUser} = useAuth();
   const {user, loading, error} = useUserDetails(loggedIn);
 
   // Handle different states
@@ -104,7 +104,7 @@ const Settings: React.FC = () => {
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
       <div className="space-y-6">
-        <UserAccountDetails user={user} email={email || ""} />
+        <UserAccountDetails user={user} email={authUser.email || ""} />
         <UpgradeButtons user={user} />
       </div>
     </div>

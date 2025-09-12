@@ -1,38 +1,31 @@
-// hooks/useAuth.js
-
+import axiosInstance from "@/api/axiosConfig";
 import {useEffect, useState} from "react";
 import {
   signOut,
   useSessionContext
 } from "supertokens-auth-react/recipe/session";
 
-import axiosInstance from "@/api/axiosConfig";
-
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const AUTH_BASE_URL = `${BASE_URL}/auth`;
 
 export function useAuth() {
-  const session = useSessionContext() as any;
+  const session = useSessionContext() as any; // For some reason the types are not working, but the variables are there
 
   const [userData, setUserData] = useState({
     email: null,
-    loading: false,
-    error: null as any
+    loading: false, // This will now be our *user data* loading state
+    error: null
   });
 
   useEffect(() => {
-    // This flag prevents state updates if the component unmounts
-    // during the async API call.
     let isMounted = true;
 
     const fetchUserData = async () => {
-      // Only fetch if we have a confirmed session and user ID,
-      // and we aren't already fetching.
+      // The condition remains the same: fetch only when a session exists.
       if (session.doesSessionExist && session.userId) {
-        setUserData({email: null, loading: true, error: null});
+        setUserData((prev) => ({...prev, loading: true}));
         try {
           const response = await axiosInstance.get(`${AUTH_BASE_URL}/user`);
-          console.log("response", response);
           if (isMounted) {
             setUserData({
               email: response.data.email,
@@ -43,19 +36,27 @@ export function useAuth() {
         } catch (error) {
           console.error("Failed to fetch user data:", error);
           if (isMounted) {
-            setUserData({email: null, loading: false, error: error});
+            setUserData({
+              email: null,
+              loading: false,
+              error: error as any
+            });
           }
         }
+      } else {
+        setUserData({email: null, loading: false, error: null});
       }
     };
 
-    fetchUserData();
+    // We trigger the fetch when the session is loaded and exists.
+    if (!session.loading) {
+      fetchUserData();
+    }
 
     return () => {
       isMounted = false;
     };
-    // This effect should ONLY re-run when the user's session status or ID changes.
-  }, [session.doesSessionExist, session.userId]);
+  }, [session.doesSessionExist, session.userId, session.loading]);
 
   const handleLogout = async () => {
     try {
@@ -66,15 +67,20 @@ export function useAuth() {
     }
   };
 
-  // The final loading state is true if the session is loading OR our user data is loading.
-  const isLoading = session.loading || userData.loading;
+  const authLoading = session.loading;
 
   return {
-    loading: isLoading,
+    // This is for checking if we can render a protected route AT ALL.
+    authLoading: authLoading,
     loggedIn: session.doesSessionExist,
     logout: handleLogout,
     userId: session.userId,
-    email: userData.email,
-    error: userData.error // Expose error state for UI to optionally use
+
+    // We'll pass the entire user object, including its own loading state.
+    user: {
+      email: userData.email,
+      loading: userData.loading,
+      error: userData.error
+    }
   };
 }

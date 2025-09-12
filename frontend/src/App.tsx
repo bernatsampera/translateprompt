@@ -174,14 +174,13 @@ export const ProtectedRoute = ({
 }) => {
   const auth = useAuth();
 
-  // 1. While the session is being verified, show the Dashboard layout shell
-  // with a spinner inside. This provides an instant, familiar UI.
-  if (auth.loading) {
+  // 1. Use `authLoading` instead of `auth.loading`. This check is now very fast!
+  if (auth.authLoading) {
     return (
       <DashboardLayout
         navItems={navItems}
         footerConfig={footerConfig}
-        loggedIn={true} // Assume loggedIn to show correct header state
+        loggedIn={true}
         onLogout={auth.logout}
       >
         <ContentSpinner />
@@ -189,12 +188,13 @@ export const ProtectedRoute = ({
     );
   }
 
-  // 2. If loading is done and user is NOT logged in, redirect to the auth page.
+  // 2. If session check is done and user is NOT logged in, redirect.
   if (!auth.loggedIn) {
     return <Navigate to="/auth" replace />;
   }
 
-  // 3. If loading is done and user IS logged in, show the actual protected content.
+  // 3. If session check is done and user IS logged in, render immediately!
+  // The child components will handle the `user.loading` state.
   return (
     <DashboardLayout
       navItems={navItems}
@@ -222,7 +222,7 @@ export const RootRouteHandler = ({
   // This is the key to preventing the flicker for logged-in users.
   // A new user might see this for a split second, but the session check is very fast.
   // This is the best trade-off to solve the primary problem.
-  if (auth.loading) {
+  if (auth.authLoading) {
     return (
       <DashboardLayout
         navItems={navItems}
